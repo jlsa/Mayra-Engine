@@ -33,9 +33,16 @@ include_directories(Mayra/Headers/
                     Glitter/Vendor/glad/include/
                     Glitter/Vendor/glfw/include/
                     Glitter/Vendor/glm/
+                    Glitter/Vendor/imgui/
+                    Glitter/Vendor/imgui/backends/
                     Glitter/Vendor/stb/)
 
-file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c)
+file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c
+                          Glitter/Vendor/imgui/backends/imgui_impl_glfw.*
+                          Glitter/Vendor/imgui/backends/imgui_impl_opengl3.*
+                          Glitter/Vendor/imgui/*.h
+                          Glitter/Vendor/imgui/*.cpp)
+
 file(GLOB PROJECT_HEADERS Mayra/Headers/*.hpp)
 file(GLOB PROJECT_SOURCES Mayra/Sources/*.cpp)
 file(GLOB PROJECT_SHADERS Mayra/Shaders/*.comp
