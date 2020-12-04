@@ -8,9 +8,6 @@
 // Local Headers
 #include "mayra.hpp"
 
-
-
-
 //// System Headers
 #include <glad/glad.h>
 #include <GLUT/glut.h>
@@ -57,9 +54,6 @@ namespace Mayra
 
     void Application::HandleInput(Mayra::Window *window)
     {
-        if (glfwGetKey(window->Get(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window->Get(), true);
-
         if (glfwGetKey(_window->Get(), GLFW_KEY_1) == GLFW_PRESS)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         if (glfwGetKey(_window->Get(), GLFW_KEY_2) == GLFW_PRESS)
