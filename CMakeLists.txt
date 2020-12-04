@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(Glitter)
+project(Mayra)
 
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
@@ -27,7 +27,7 @@ else()
     endif()
 endif()
 
-include_directories(Glitter/Headers/
+include_directories(Mayra/Headers/
                     Glitter/Vendor/assimp/include/
                     Glitter/Vendor/bullet/src/
                     Glitter/Vendor/glad/include/
@@ -36,12 +36,12 @@ include_directories(Glitter/Headers/
                     Glitter/Vendor/stb/)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c)
-file(GLOB PROJECT_HEADERS Glitter/Headers/*.hpp)
-file(GLOB PROJECT_SOURCES Glitter/Sources/*.cpp)
-file(GLOB PROJECT_SHADERS Glitter/Shaders/*.comp
-                          Glitter/Shaders/*.frag
-                          Glitter/Shaders/*.geom
-                          Glitter/Shaders/*.vert)
+file(GLOB PROJECT_HEADERS Mayra/Headers/*.hpp)
+file(GLOB PROJECT_SOURCES Mayra/Sources/*.cpp)
+file(GLOB PROJECT_SHADERS Mayra/Shaders/*.comp
+                          Mayra/Shaders/*.frag
+                          Mayra/Shaders/*.geom
+                          Mayra/Shaders/*.vert)
 file(GLOB PROJECT_CONFIGS CMakeLists.txt
                           Readme.md
                          .gitattributes
@@ -66,5 +66,5 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Glitter/Shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Mayra/Shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>
     DEPENDS ${PROJECT_SHADERS})
