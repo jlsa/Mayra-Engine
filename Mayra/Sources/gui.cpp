@@ -20,7 +20,7 @@ void Gui::Initialize(GLFWwindow* window, std::string glsl_version)
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    // ImGui::StyleColorsClassic();
+//     ImGui::StyleColorsClassic();
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -30,6 +30,8 @@ void Gui::Initialize(GLFWwindow* window, std::string glsl_version)
 
 void Gui::PrepareRender()
 {
+    NewFrame();
+    TopBar();
     ImGui::Render();
 }
 

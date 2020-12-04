@@ -24,8 +24,8 @@ namespace Mayra
         int Initialize();
         void Run();
         void Terminate();
-        void Render(glm::vec4 clear_color);
         void HandleInput(Mayra::Window* window);
+        int GetShader(const char* vertShaderSource, const char* fragShaderSource);
     };
 }
 #endif /* application_h */
