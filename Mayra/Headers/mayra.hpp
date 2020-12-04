@@ -12,13 +12,28 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
+// System Headers
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+// Standard Headers
+#include <cstdio>
+#include <cstdlib>
+
 // Reference: https://github.com/nothings/stb/blob/master/stb_image.h#L4
 // To use stb_image, add this in *one* C++ source file.
 //     #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-// Define Some Constants
-const int mWidth = 1920;
-const int mHeight = 1080;
+// Mayra Headers
+#include "gui.hpp"
+#include "window.hpp"
+#include "application.hpp"
+
+// Constants here
 
 #endif //~ Mayra Header
