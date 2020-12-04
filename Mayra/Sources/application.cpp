@@ -16,6 +16,7 @@
 #include <chrono>
 
 #include "application.hpp"
+#include "color.hpp"
 
 namespace Mayra
 {
@@ -68,7 +69,7 @@ namespace Mayra
 
     void Application::Run()
     {
-        glm::vec4 clear_color = glm::vec4(0.23f, 0.123f, 0.876f, 1.00f);
+        glm::vec4 clear_color = glm::vec4(Mayra::Color::navy, 1.0f);
         while (glfwWindowShouldClose(_window->Get()) == false) {
             if (glfwGetKey(_window->Get(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
                 glfwSetWindowShouldClose(_window->Get(), true);
