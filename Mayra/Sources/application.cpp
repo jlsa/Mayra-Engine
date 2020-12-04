@@ -54,9 +54,9 @@ namespace Mayra
 
     void Application::HandleInput(Mayra::Window *window)
     {
-        if (glfwGetKey(_window->Get(), GLFW_KEY_1) == GLFW_PRESS)
+        if (glfwGetKey(window->Get(), GLFW_KEY_1) == GLFW_PRESS)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        if (glfwGetKey(_window->Get(), GLFW_KEY_2) == GLFW_PRESS)
+        if (glfwGetKey(window->Get(), GLFW_KEY_2) == GLFW_PRESS)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 

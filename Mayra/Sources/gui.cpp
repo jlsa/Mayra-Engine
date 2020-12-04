@@ -56,7 +56,7 @@ namespace Mayra
         {
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("Quit", "Alt+F4")) {
+                if (ImGui::MenuItem("Quit", "Cmd+Q")) {
                     glfwSetWindowShouldClose(_window, true);
                 }
                 ImGui::EndMenu();
