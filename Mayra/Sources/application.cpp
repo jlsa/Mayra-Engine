@@ -78,6 +78,7 @@ namespace Mayra
 
         Mayra::Shader shader("../../../Mayra/Resources/shader.vs", "../../../Mayra/Resources/shader.fs");
         Mayra::Shader shader2("../../../Mayra/Resources/shader2.vs", "../../../Mayra/Resources/shader2.fs");
+        Mayra::Shader shader3("../../../Mayra/Resources/shader3.vs", "../../../Mayra/Resources/shader3.fs");
 
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
@@ -105,9 +106,16 @@ namespace Mayra
             2, 3, 0    // second triangle
         };
 
-        unsigned int VBOs[2], VAOs[2], EBOs[2];
-        glGenVertexArrays(2, VAOs);
-        glGenBuffers(2, VBOs);
+        float triangle[] = {
+            // positions         // colors
+             0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+            -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+             0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top
+        };
+
+        unsigned int VBOs[3], VAOs[3], EBOs[2];
+        glGenVertexArrays(3, VAOs);
+        glGenBuffers(3, VBOs);
         glGenBuffers(2, EBOs);
 
         // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
@@ -139,6 +147,18 @@ namespace Mayra
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
         glEnableVertexAttribArray(0);
 
+        // third triangle
+        glBindVertexArray(VAOs[2]);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBOs[2]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(1);
+
         // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
         // not really necessary as well, but beware of calls that could affect VAOs while this one is bound (like binding element buffer objects, or enabling/disabling vertex attributes)
          glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -155,16 +175,21 @@ namespace Mayra
             glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            shader.use();
+            shader.Use();
 
             glBindVertexArray(VAOs[0]);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
 
-            shader2.use();
-            shader2.setVec3("color", Mayra::Color::mediumpurple);
+            shader2.Use();
+            shader2.SetFloat("xOffset", 0.75f);
+            shader2.SetVec3("color", Mayra::Color::mediumpurple);
 
             glBindVertexArray(VAOs[1]);
             glDrawElements(GL_TRIANGLES, sizeof(indices2) / sizeof(indices2[0]), GL_UNSIGNED_INT, 0);
+
+            shader3.Use();
+            glBindVertexArray(VAOs[2]);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
 
             glBindVertexArray(0); // no need to unbind it every time
 
