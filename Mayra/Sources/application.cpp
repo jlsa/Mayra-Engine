@@ -8,7 +8,7 @@
 // Local Headers
 #include "mayra.hpp"
 
-//// System Headers
+// System Headers
 #include <glad/glad.h>
 #include <GLUT/glut.h>
 //GLFW
@@ -19,39 +19,9 @@
 
 #include "application.hpp"
 #include "color.hpp"
+#include "shader.hpp"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "out vec4 vertexColor;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
-    "}\0";
-
-const char *vertexShaderSource2 = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-
-const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "in vec4 vertexColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vertexColor;\n"
-    "}\n\0";
-
-const char *fragmentShaderSource2 = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "uniform vec3 color;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(color.x, color.y, color.z, 1.0f);\n"
-    "}\n\0";
 
 namespace Mayra
 {
@@ -106,22 +76,22 @@ namespace Mayra
     {
         glm::vec4 clear_color = glm::vec4(Mayra::Color::gold, 1.0f);
 
-        int shaderProgram = GetShader(vertexShaderSource, fragmentShaderSource);
-        int shaderTwoProgram = GetShader(vertexShaderSource2, fragmentShaderSource2);
+        Mayra::Shader shader("../../../Mayra/Resources/shader.vs", "../../../Mayra/Resources/shader.fs");
+        Mayra::Shader shader2("../../../Mayra/Resources/shader2.vs", "../../../Mayra/Resources/shader2.fs");
 
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
-        float offset = 0.5f;
+        float offset = 0.0f;
         float vertices[] = {
-             0.15f + offset,  0.15f + offset, 0.0f,  // top right
-             0.15f + offset, -0.15f + offset, 0.0f,  // bottom right
-            -0.15f + offset, -0.15f + offset, 0.0f,  // bottom left
-            -0.15f + offset,  0.15f + offset, 0.0f   // top left
+             0.5f + offset,  0.5f + offset, 0.0f,     0.0f, 1.0f, 1.0f,  // top right
+             0.5f + offset, -0.5f + offset, 0.0f,     0.0f, 0.0f, 1.0f,  // bottom right
+            -0.5f + offset, -0.5f + offset, 0.0f,     0.0f, 0.0f, 0.0f,  // bottom left
+            -0.5f + offset,  0.5f + offset, 0.0f,     0.0f, 1.0f, 0.0f   // top left
         };
-
+        offset = 0.5f;
         float vertices2[] = {
              0.3f - offset,  0.3f - offset, 0.0f,  // top right
-            0.3f - offset, -0.3f - offset, 0.0f,  // bottom right
+             0.3f - offset, -0.3f - offset, 0.0f,  // bottom right
             -0.3f - offset, -0.3f - offset, 0.0f,  // bottom left
             -0.3f - offset,  0.3f - offset, 0.0f   // top left
         };
@@ -131,8 +101,8 @@ namespace Mayra
         };
 
         unsigned int indices2[] = {  // note that we start from 0!
-            0, 1, 3,   // first triangle
-            1, 2, 3    // second triangle
+            0, 1, 2,   // first triangle
+            2, 3, 0    // second triangle
         };
 
         unsigned int VBOs[2], VAOs[2], EBOs[2];
@@ -149,8 +119,13 @@ namespace Mayra
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        // position attribute
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
         glEnableVertexAttribArray(0);
+
+        // color attribute
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         // repeat, second triangle
         glBindVertexArray(VAOs[1]);
@@ -172,38 +147,25 @@ namespace Mayra
         // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
         glBindVertexArray(0);
 
-        GLint uniColor = glGetUniformLocation(shaderProgram, "color");
-        GLint uniColor2 = glGetUniformLocation(shaderTwoProgram, "color");
-
         while (glfwWindowShouldClose(_window->Get()) == false) {
-            
             HandleInput(_window);
-
-
             _gui->PrepareRender();
 
             // Background Fill Color
             glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glUseProgram(shaderProgram);
-//            glUniform3f(uniColor, 0.25f, 0.5f, 0.75f);
+            shader.use();
 
             glBindVertexArray(VAOs[0]);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
 
-//            float timeValue = glfwGetTime();
-//            float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-////            int vertexColorLocation = glGetUniformLocation(shaderTwoProgram, "color");
-//            glUseProgram(shaderTwoProgram);
-//            glUniform3f(uniColor2, 0.0f, greenValue, 0.0f);
+            shader2.use();
+            shader2.setVec3("color", Mayra::Color::mediumpurple);
 
-
-            glUseProgram(shaderTwoProgram);
-            glUniform3f(uniColor2, Mayra::Color::blueviolet.r, Mayra::Color::blueviolet.g, Mayra::Color::blueviolet.b);
             glBindVertexArray(VAOs[1]);
-            // glDrawArrays(GL_TRIANGLES, 0, 3);
             glDrawElements(GL_TRIANGLES, sizeof(indices2) / sizeof(indices2[0]), GL_UNSIGNED_INT, 0);
+
             glBindVertexArray(0); // no need to unbind it every time
 
             _gui->Render();
@@ -216,51 +178,6 @@ namespace Mayra
     void Application::Terminate()
     {
         glfwTerminate();
-    }
-
-    int Application::GetShader(const char* vertShaderSource, const char* fragShaderSource)
-    {
-        // build and compile our shader program
-        // ------------------------------------
-        // vertex shader
-        int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertShaderSource, NULL);
-        glCompileShader(vertexShader);
-        // check for shader compile errors
-        int success;
-        char infoLog[512];
-        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-        }
-        // fragment shader
-        int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragShaderSource, NULL);
-        glCompileShader(fragmentShader);
-        // check for shader compile errors
-        glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-        if (!success)
-        {
-            glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-        }
-        // link shaders
-        int shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
-        glLinkProgram(shaderProgram);
-        // check for linking errors
-        glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-        if (!success) {
-            glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-            std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-        }
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
-
-        return shaderProgram;
     }
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

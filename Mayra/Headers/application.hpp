@@ -25,7 +25,6 @@ namespace Mayra
         void Run();
         void Terminate();
         void HandleInput(Mayra::Window* window);
-        int GetShader(const char* vertShaderSource, const char* fragShaderSource);
     };
 }
 #endif /* application_h */
