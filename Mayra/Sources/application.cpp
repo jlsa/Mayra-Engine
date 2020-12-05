@@ -22,27 +22,36 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 const char *vertexShaderSource = "#version 330 core\n"
-                                 "layout (location = 0) in vec3 aPos;\n"
-                                 "void main()\n"
-                                 "{\n"
-                                 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-                                 "}\0";
+    "layout (location = 0) in vec3 aPos;\n"
+    "out vec4 vertexColor;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "   vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
+    "}\0";
+
+const char *vertexShaderSource2 = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
-                                   "out vec4 FragColor;\n"
-                                   "uniform vec3 color;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "   FragColor = vec4(color, 1.0f);\n"
-                                   "}\n\0";
+    "out vec4 FragColor;\n"
+    "in vec4 vertexColor;\n"
+    "void main()\n"
+    "{\n"
+    "   FragColor = vertexColor;\n"
+    "}\n\0";
 
 const char *fragmentShaderSource2 = "#version 330 core\n"
-                                    "out vec4 FragColor;\n"
-                                    "uniform vec3 color;\n"
-                                    "void main()\n"
-                                    "{\n"
-                                    "   FragColor = vec4(color, 1.0f);\n"
-                                    "}\n\0";
+    "out vec4 FragColor;\n"
+    "uniform vec3 color;\n"
+    "void main()\n"
+    "{\n"
+    "   FragColor = vec4(color.x, color.y, color.z, 1.0f);\n"
+    "}\n\0";
 
 namespace Mayra
 {
@@ -95,10 +104,10 @@ namespace Mayra
 
     void Application::Run()
     {
-        glm::vec4 clear_color = glm::vec4(Mayra::Color::navy, 1.0f);
+        glm::vec4 clear_color = glm::vec4(Mayra::Color::gold, 1.0f);
 
         int shaderProgram = GetShader(vertexShaderSource, fragmentShaderSource);
-        int shaderTwoProgram = GetShader(vertexShaderSource, fragmentShaderSource2);
+        int shaderTwoProgram = GetShader(vertexShaderSource2, fragmentShaderSource2);
 
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
@@ -127,7 +136,6 @@ namespace Mayra
         };
 
         unsigned int VBOs[2], VAOs[2], EBOs[2];
-        //, EBO;
         glGenVertexArrays(2, VAOs);
         glGenBuffers(2, VBOs);
         glGenBuffers(2, EBOs);
@@ -178,18 +186,21 @@ namespace Mayra
             glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
-
-            // draw our first triangle
             glUseProgram(shaderProgram);
+//            glUniform3f(uniColor, 0.25f, 0.5f, 0.75f);
 
-            // shader.use();
             glBindVertexArray(VAOs[0]);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
-            // glDrawArrays(GL_TRIANGLES, 0, 3);
 
-            glUniform3f(uniColor2, Mayra::Color::greenyellow.r, Mayra::Color::greenyellow.g, Mayra::Color::greenyellow.b);
+//            float timeValue = glfwGetTime();
+//            float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+////            int vertexColorLocation = glGetUniformLocation(shaderTwoProgram, "color");
+//            glUseProgram(shaderTwoProgram);
+//            glUniform3f(uniColor2, 0.0f, greenValue, 0.0f);
+
+
             glUseProgram(shaderTwoProgram);
+            glUniform3f(uniColor2, Mayra::Color::blueviolet.r, Mayra::Color::blueviolet.g, Mayra::Color::blueviolet.b);
             glBindVertexArray(VAOs[1]);
             // glDrawArrays(GL_TRIANGLES, 0, 3);
             glDrawElements(GL_TRIANGLES, sizeof(indices2) / sizeof(indices2[0]), GL_UNSIGNED_INT, 0);
