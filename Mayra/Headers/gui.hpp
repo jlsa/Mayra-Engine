@@ -9,6 +9,9 @@
 #define gui_hpp
 
 #include <iostream>
+#include <map>
+#include <string>
+#include <iterator>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -23,12 +26,16 @@ namespace Mayra
         void NewFrame();
         void PrepareRender();
         void Render();
-        
+        void AddBoolParam(std::string name, bool param);
+        bool GetBoolParam(std::string name);
+        void ToggleBoolParam(std::string name);
+
         // components/elements
         void TopBar();
         
     private:
         GLFWwindow* _window;
+        std::map<std::string, bool> params;
     };
 }
 

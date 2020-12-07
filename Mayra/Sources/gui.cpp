@@ -10,6 +10,8 @@
 
 #include "gui.hpp"
 
+
+
 namespace Mayra
 {
     void Gui::Initialize(GLFWwindow* window, std::string glsl_version)
@@ -29,6 +31,30 @@ namespace Mayra
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init(glsl_version.c_str());
         _window = window;
+    }
+
+    void Gui::AddBoolParam(std::string name, bool param)
+    {
+        if (params.find(name) == params.end()) {
+            params.insert(std::make_pair(name, param));
+        }
+    }
+
+    void Gui::ToggleBoolParam(std::string name)
+    {
+        if (params.find(name) != params.end()) {
+            params[name] = !params[name];
+        }
+    }
+
+    bool Gui::GetBoolParam(std::string name)
+    {
+        if (params.find(name) != params.end())
+        {
+            return params.find(name)->second;
+        }
+
+        return false;
     }
 
     void Gui::PrepareRender()
@@ -69,6 +95,15 @@ namespace Mayra
                 if (ImGui::MenuItem("Show Fill")) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 }
+                std::map<std::string, bool>::iterator it = params.begin();
+                while (it != params.end())
+                {
+                    if (ImGui::MenuItem(it->first.c_str())) {
+                        ToggleBoolParam(it->first);
+                    }
+                    it++;
+                }
+
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();

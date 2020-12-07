@@ -23,6 +23,70 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
+unsigned int addTextureJpg(char const *filename)
+{
+    // generate texture
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // set the texture wrapping/filtering options (on the current bound texture object)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // load texture
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "ERROR::TEXTURE_FAILED_TO_LOAD" << std::endl;
+    }
+
+    stbi_image_free(data);
+
+    return texture;
+}
+
+unsigned int addTexturePng(char const *filename)
+{
+    // generate texture
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // set the texture wrapping/filtering options (on the current bound texture object)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // load texture
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "ERROR::TEXTURE_FAILED_TO_LOAD" << std::endl;
+    }
+
+    stbi_image_free(data);
+
+    return texture;
+}
+
 namespace Mayra
 {
     Application::Application(Mayra::WindowProps* props)
@@ -113,31 +177,8 @@ namespace Mayra
              0.0f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f,  0.5f, 1.0f  // top
         };
 
-        // generate texture
-        unsigned int texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        // set the texture wrapping/filtering options (on the current bound texture object)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        // load texture
-        int width, height, nrChannels;
-        unsigned char *data = stbi_load("../../../Mayra/Resources/Assets/Textures/container.jpg", &width, &height, &nrChannels, 0);
-        if (data)
-        {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
-        else
-        {
-            std::cout << "ERROR::TEXTURE_FAILED_TO_LOAD" << std::endl;
-        }
-
-        stbi_image_free(data);
+        unsigned int texture1 = addTextureJpg("../../../Mayra/Resources/Assets/Textures/container.jpg");
+        unsigned int texture2 = addTexturePng("../../../Mayra/Resources/Assets/Textures/awesomeface.png");
 
         // Buffers
         unsigned int VBOs[3], VAOs[3], EBOs[2];
@@ -193,8 +234,13 @@ namespace Mayra
 
         glBindVertexArray(0);
 
+
+        _gui->AddBoolParam("Show crate", true);
+        _gui->AddBoolParam("Show smile", true);
+        
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
+
             _gui->PrepareRender();
 
             // Background Fill Color
@@ -213,7 +259,18 @@ namespace Mayra
             glBindVertexArray(VAOs[1]);
             glDrawElements(GL_TRIANGLES, sizeof(indices2) / sizeof(indices2[0]), GL_UNSIGNED_INT, 0);
 
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture1);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, texture2);
+
             shader3.Use();
+            shader3.SetInt("texture1", 0);
+            shader3.SetInt("texture2", 1);
+
+            shader3.SetBool("showTexture1", _gui->GetBoolParam("Show crate"));
+            shader3.SetBool("showTexture2", _gui->GetBoolParam("Show smile"));
+            
             glBindVertexArray(VAOs[2]);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
