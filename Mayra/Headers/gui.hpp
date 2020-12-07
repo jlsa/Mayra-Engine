@@ -30,12 +30,17 @@ namespace Mayra
         bool GetBoolParam(std::string name);
         void ToggleBoolParam(std::string name);
 
+        void AddFloatParam(std::string name, float param);
+        float GetFloatParam(std::string name);
+        void EditFloatParam(std::string name, float newValue);
+
         // components/elements
         void TopBar();
         
     private:
         GLFWwindow* _window;
-        std::map<std::string, bool> params;
+        std::map<std::string, bool> paramsB;
+        std::map<std::string, float> paramsF;
     };
 }
 

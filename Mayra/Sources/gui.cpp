@@ -35,26 +35,51 @@ namespace Mayra
 
     void Gui::AddBoolParam(std::string name, bool param)
     {
-        if (params.find(name) == params.end()) {
-            params.insert(std::make_pair(name, param));
+        if (paramsB.find(name) == paramsB.end()) {
+            paramsB.insert(std::make_pair(name, param));
         }
     }
 
     void Gui::ToggleBoolParam(std::string name)
     {
-        if (params.find(name) != params.end()) {
-            params[name] = !params[name];
+        if (paramsB.find(name) != paramsB.end()) {
+            paramsB[name] = !paramsB[name];
         }
     }
 
     bool Gui::GetBoolParam(std::string name)
     {
-        if (params.find(name) != params.end())
+        if (paramsB.find(name) != paramsB.end())
         {
-            return params.find(name)->second;
+            return paramsB.find(name)->second;
         }
 
         return false;
+    }
+
+
+    void Gui::AddFloatParam(std::string name, float param)
+    {
+        if (paramsF.find(name) == paramsF.end()) {
+            paramsF.insert(std::make_pair(name, param));
+        }
+    }
+
+    void Gui::EditFloatParam(std::string name, float newValue)
+    {
+        if (paramsF.find(name) != paramsF.end()) {
+            paramsF[name] = newValue;
+        }
+    }
+
+    float Gui::GetFloatParam(std::string name)
+    {
+        if (paramsF.find(name) != paramsF.end())
+        {
+            return paramsF.find(name)->second;
+        }
+
+        return 0.0f;
     }
 
     void Gui::PrepareRender()
@@ -95,14 +120,24 @@ namespace Mayra
                 if (ImGui::MenuItem("Show Fill")) {
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                 }
-                std::map<std::string, bool>::iterator it = params.begin();
-                while (it != params.end())
+                std::map<std::string, bool>::iterator it = paramsB.begin();
+                while (it != paramsB.end())
                 {
                     if (ImGui::MenuItem(it->first.c_str())) {
                         ToggleBoolParam(it->first);
                     }
                     it++;
                 }
+
+                std::map<std::string, float>::iterator itf = paramsF.begin();
+                while (itf != paramsF.end())
+                {
+                    float lala = itf->second;
+                    ImGui::DragFloat(itf->first.c_str(), &lala, 0.005f);
+                    EditFloatParam(itf->first, lala);
+                    itf++;
+                }
+
 
                 ImGui::EndMenu();
             }

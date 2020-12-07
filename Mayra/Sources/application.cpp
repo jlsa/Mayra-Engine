@@ -31,8 +31,8 @@ unsigned int addTextureJpg(char const *filename)
     glBindTexture(GL_TEXTURE_2D, texture);
 
     // set the texture wrapping/filtering options (on the current bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -238,6 +238,7 @@ namespace Mayra
         _gui->AddBoolParam("Show Crate", true);
         _gui->AddBoolParam("Show Smile", true);
         _gui->AddBoolParam("Flip Smile", true);
+        _gui->AddFloatParam("Mix Percentage", 0.5f);
         
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
@@ -272,6 +273,7 @@ namespace Mayra
             shader3.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
             shader3.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
             shader3.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
+            shader3.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
 
             glBindVertexArray(VAOs[2]);
             glDrawArrays(GL_TRIANGLES, 0, 3);

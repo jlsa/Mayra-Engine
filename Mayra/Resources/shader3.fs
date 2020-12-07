@@ -11,6 +11,8 @@ uniform bool showTexture1;
 uniform bool showTexture2;
 uniform bool flipSmile;
 
+uniform float mixPercentage;
+
 void main()
 {
     vec2 smileTexCoord;
@@ -22,7 +24,7 @@ void main()
 
     if (showTexture1 && showTexture2)
     {
-        FragColor = mix(texture(texture1, TexCoord), texture(texture2, smileTexCoord), 0.5);
+        FragColor = mix(texture(texture1, TexCoord), texture(texture2, smileTexCoord), mixPercentage);
     }
     else if (showTexture1 && !showTexture2)
     {
