@@ -211,7 +211,7 @@ namespace Mayra
             shader3.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
 
             glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
 
             glBindVertexArray(0); // no need to unbind it every time
 
