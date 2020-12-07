@@ -31,10 +31,10 @@ unsigned int addTextureJpg(char const *filename)
     glBindTexture(GL_TEXTURE_2D, texture);
 
     // set the texture wrapping/filtering options (on the current bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // load texture
     int width, height, nrChannels;
@@ -65,8 +65,8 @@ unsigned int addTexturePng(char const *filename)
     // set the texture wrapping/filtering options (on the current bound texture object)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // load texture
     int width, height, nrChannels;
@@ -140,9 +140,7 @@ namespace Mayra
     {
         glm::vec4 clear_color = glm::vec4(Mayra::Color::gold, 1.0f);
 
-        Mayra::Shader shader("../../../Mayra/Resources/shader.vs", "../../../Mayra/Resources/shader.fs");
-        Mayra::Shader shader2("../../../Mayra/Resources/shader2.vs", "../../../Mayra/Resources/shader2.fs");
-        Mayra::Shader shader3("../../../Mayra/Resources/shader3.vs", "../../../Mayra/Resources/shader3.fs");
+        Mayra::Shader shader("../../../Mayra/Resources/shader3.vs", "../../../Mayra/Resources/shader3.fs");
         unsigned int texture1 = addTextureJpg("../../../Mayra/Resources/Assets/Textures/container.jpg");
         unsigned int texture2 = addTexturePng("../../../Mayra/Resources/Assets/Textures/awesomeface.png");
 
@@ -150,10 +148,10 @@ namespace Mayra
         // ------------------------------------------------------------------
         float vertices[] = {
             // positions          // colors           // texture coords
-             0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-             0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
+             0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   0.55f, 0.55f, // top right
+             0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.55f, 0.45f, // bottom right
+            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.45f, 0.45f, // bottom left
+            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.45f, 0.55f  // top left
         };
         unsigned int indices[] = {
             0, 1, 3, // first triangle
@@ -201,14 +199,14 @@ namespace Mayra
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, texture2);
 
-            shader3.Use();
-            shader3.SetInt("texture1", 0);
-            shader3.SetInt("texture2", 1);
+            shader.Use();
+            shader.SetInt("texture1", 0);
+            shader.SetInt("texture2", 1);
 
-            shader3.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
-            shader3.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
-            shader3.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
-            shader3.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
+            shader.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
+            shader.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
+            shader.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
+            shader.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
 
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
@@ -220,6 +218,12 @@ namespace Mayra
             glfwSwapBuffers(_window->Get());
             glfwPollEvents();
         }
+
+        // de-allocate all resources once they've outlived their purpose:
+        // --------------------------------------------------------------
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteBuffers(1, &VBO);
+        glDeleteBuffers(1, &EBO);
     }
 
     void Application::Terminate()

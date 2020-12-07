@@ -14,6 +14,8 @@
 
 namespace Mayra
 {
+    Gui::~Gui() {}
+
     void Gui::Initialize(GLFWwindow* window, std::string glsl_version)
     {
         // Setup Dear ImGui context

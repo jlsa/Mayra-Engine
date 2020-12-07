@@ -22,6 +22,7 @@ namespace Mayra
     class Gui
     {
     public:
+        ~Gui();
         void Initialize(GLFWwindow* window, std::string glsl_version);
         void NewFrame();
         void PrepareRender();
