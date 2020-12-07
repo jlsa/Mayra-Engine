@@ -9,12 +9,20 @@ uniform sampler2D texture2;
 
 uniform bool showTexture1;
 uniform bool showTexture2;
+uniform bool flipSmile;
 
 void main()
 {
+    vec2 smileTexCoord;
+    if (flipSmile) {
+        smileTexCoord = vec2(1.0 - TexCoord.x, TexCoord.y);
+    } else {
+        smileTexCoord = TexCoord;
+    }
+
     if (showTexture1 && showTexture2)
     {
-        FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.5);
+        FragColor = mix(texture(texture1, TexCoord), texture(texture2, smileTexCoord), 0.5);
     }
     else if (showTexture1 && !showTexture2)
     {
@@ -22,7 +30,7 @@ void main()
     }
     else if (!showTexture1 && showTexture2)
     {
-        FragColor = texture(texture2, TexCoord);
+        FragColor = texture(texture2, smileTexCoord);
     }
     else
     {

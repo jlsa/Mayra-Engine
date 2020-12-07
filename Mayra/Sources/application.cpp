@@ -235,8 +235,9 @@ namespace Mayra
         glBindVertexArray(0);
 
 
-        _gui->AddBoolParam("Show crate", true);
-        _gui->AddBoolParam("Show smile", true);
+        _gui->AddBoolParam("Show Crate", true);
+        _gui->AddBoolParam("Show Smile", true);
+        _gui->AddBoolParam("Flip Smile", true);
         
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
@@ -268,9 +269,10 @@ namespace Mayra
             shader3.SetInt("texture1", 0);
             shader3.SetInt("texture2", 1);
 
-            shader3.SetBool("showTexture1", _gui->GetBoolParam("Show crate"));
-            shader3.SetBool("showTexture2", _gui->GetBoolParam("Show smile"));
-            
+            shader3.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
+            shader3.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
+            shader3.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
+
             glBindVertexArray(VAOs[2]);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
