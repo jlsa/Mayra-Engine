@@ -20,72 +20,33 @@
 #include "application.hpp"
 #include "color.hpp"
 #include "shader.hpp"
+#include "texture2D.hpp"
+
+Mayra::Texture2D LoadTextureFromFile(const char* file, bool alpha)
+{
+    Mayra::Texture2D texture;
+    if (alpha)
+    {
+        texture.InternalFormat = GL_RGBA;
+        texture.ImageFormat = GL_RGBA;
+    }
+
+    // load image
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        texture.Generate(width, height, data);
+    }
+    else
+    {
+        std::cout << "ERROR::TEXTURE2D_FAILED_TO_LOAD" << std::endl;
+    }
+    stbi_image_free(data);
+    return texture;
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
-unsigned int addTextureJpg(char const *filename)
-{
-    // generate texture
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    // set the texture wrapping/filtering options (on the current bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // load texture
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "ERROR::TEXTURE_FAILED_TO_LOAD" << std::endl;
-    }
-
-    stbi_image_free(data);
-
-    return texture;
-}
-
-unsigned int addTexturePng(char const *filename)
-{
-    // generate texture
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    // set the texture wrapping/filtering options (on the current bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // load texture
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load(filename, &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "ERROR::TEXTURE_FAILED_TO_LOAD" << std::endl;
-    }
-
-    stbi_image_free(data);
-
-    return texture;
-}
 
 namespace Mayra
 {
@@ -141,17 +102,17 @@ namespace Mayra
         glm::vec4 clear_color = glm::vec4(Mayra::Color::gold, 1.0f);
 
         Mayra::Shader shader("../../../Mayra/Resources/shader3.vs", "../../../Mayra/Resources/shader3.fs");
-        unsigned int texture1 = addTextureJpg("../../../Mayra/Resources/Assets/Textures/container.jpg");
-        unsigned int texture2 = addTexturePng("../../../Mayra/Resources/Assets/Textures/awesomeface.png");
+        Mayra::Texture2D crate = LoadTextureFromFile("../../../Mayra/Resources/Assets/Textures/container.jpg", false);
+        Mayra::Texture2D smile = LoadTextureFromFile("../../../Mayra/Resources/Assets/Textures/awesomeface.png", true);
 
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
         float vertices[] = {
             // positions          // colors           // texture coords
-             0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   0.55f, 0.55f, // top right
-             0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.55f, 0.45f, // bottom right
-            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.45f, 0.45f, // bottom left
-            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.45f, 0.55f  // top left
+             0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+             0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
         };
         unsigned int indices[] = {
             0, 1, 3, // first triangle
@@ -195,9 +156,9 @@ namespace Mayra
             glClear(GL_COLOR_BUFFER_BIT);
 
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture1);
+            crate.Bind();
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, texture2);
+            smile.Bind();
 
             shader.Use();
             shader.SetInt("texture1", 0);
