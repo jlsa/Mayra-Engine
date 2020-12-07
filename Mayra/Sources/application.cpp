@@ -143,97 +143,44 @@ namespace Mayra
         Mayra::Shader shader("../../../Mayra/Resources/shader.vs", "../../../Mayra/Resources/shader.fs");
         Mayra::Shader shader2("../../../Mayra/Resources/shader2.vs", "../../../Mayra/Resources/shader2.fs");
         Mayra::Shader shader3("../../../Mayra/Resources/shader3.vs", "../../../Mayra/Resources/shader3.fs");
-
-        // set up vertex data (and buffer(s)) and configure vertex attributes
-        // ------------------------------------------------------------------
-        float offset = 0.0f;
-        float vertices[] = {
-             0.5f + offset,  0.5f + offset, 0.0f,     0.0f, 1.0f, 1.0f,  // top right
-             0.5f + offset, -0.5f + offset, 0.0f,     0.0f, 0.0f, 1.0f,  // bottom right
-            -0.5f + offset, -0.5f + offset, 0.0f,     0.0f, 0.0f, 0.0f,  // bottom left
-            -0.5f + offset,  0.5f + offset, 0.0f,     0.0f, 1.0f, 0.0f   // top left
-        };
-        offset = 0.5f;
-        float vertices2[] = {
-             0.3f - offset,  0.3f - offset, 0.0f,  // top right
-             0.3f - offset, -0.3f - offset, 0.0f,  // bottom right
-            -0.3f - offset, -0.3f - offset, 0.0f,  // bottom left
-            -0.3f - offset,  0.3f - offset, 0.0f   // top left
-        };
-        unsigned int indices[] = {  // note that we start from 0!
-            0, 1, 3,   // first triangle
-            1, 2, 3    // second triangle
-        };
-
-        unsigned int indices2[] = {  // note that we start from 0!
-            0, 1, 2,   // first triangle
-            2, 3, 0    // second triangle
-        };
-
-        float triangle[] = {
-            // positions         // colors
-             0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, // bottom right
-            -0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f, // bottom left
-             0.0f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f,  0.5f, 1.0f  // top
-        };
-
         unsigned int texture1 = addTextureJpg("../../../Mayra/Resources/Assets/Textures/container.jpg");
         unsigned int texture2 = addTexturePng("../../../Mayra/Resources/Assets/Textures/awesomeface.png");
 
-        // Buffers
-        unsigned int VBOs[3], VAOs[3], EBOs[2];
-        glGenVertexArrays(3, VAOs);
-        glGenBuffers(3, VBOs);
-        glGenBuffers(2, EBOs);
+        // set up vertex data (and buffer(s)) and configure vertex attributes
+        // ------------------------------------------------------------------
+        float vertices[] = {
+            // positions          // colors           // texture coords
+             0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+             0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
+        };
+        unsigned int indices[] = {
+            0, 1, 3, // first triangle
+            1, 2, 3  // second triangle
+        };
+        unsigned int VBO, VAO, EBO;
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        glGenBuffers(1, &EBO);
 
-        // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-        glBindVertexArray(VAOs[0]);
+        glBindVertexArray(VAO);
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
         // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-
         // color attribute
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
-
-        // repeat, second triangle
-        glBindVertexArray(VAOs[1]);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[1]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices2), indices2, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-        glEnableVertexAttribArray(0);
-
-        // third triangle
-        glBindVertexArray(VAOs[2]);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBOs[2]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+        // texture coord attribute
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        glBindVertexArray(0);
-
 
         _gui->AddBoolParam("Show Crate", true);
         _gui->AddBoolParam("Show Smile", true);
@@ -249,18 +196,6 @@ namespace Mayra
             glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            shader.Use();
-
-            glBindVertexArray(VAOs[0]);
-            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
-
-            shader2.Use();
-            shader2.SetFloat("xOffset", 0.75f);
-            shader2.SetVec3("color", Mayra::Color::mediumpurple);
-
-            glBindVertexArray(VAOs[1]);
-            glDrawElements(GL_TRIANGLES, sizeof(indices2) / sizeof(indices2[0]), GL_UNSIGNED_INT, 0);
-
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture1);
             glActiveTexture(GL_TEXTURE1);
@@ -275,8 +210,8 @@ namespace Mayra
             shader3.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
             shader3.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
 
-            glBindVertexArray(VAOs[2]);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindVertexArray(VAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
             glBindVertexArray(0); // no need to unbind it every time
 
