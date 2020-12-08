@@ -162,24 +162,8 @@ namespace Mayra
             smile.Bind();
 
             glm::mat4 transform = glm::mat4(1.0f);
-            transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+            transform = glm::translate(transform, glm::vec3(cos((float)glfwGetTime()), sin((float)glfwGetTime()), 0.0f));
             transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-
-            shader.Use();
-            shader.SetMat4("transform", transform);
-            shader.SetInt("texture1", 0);
-            shader.SetInt("texture2", 1);
-
-            shader.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
-            shader.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
-            shader.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
-            shader.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
-
-            glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
-
-            transform = glm::mat4(1.0f);
-            transform = glm::translate(transform, glm::vec3(-0.5f, 0.5f, 0.0f));
             transform = glm::scale(transform, glm::vec3(sin((float)glfwGetTime()), sin((float)glfwGetTime()), sin((float)glfwGetTime())));
 
             shader.Use();
