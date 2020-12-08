@@ -33,6 +33,7 @@ Mayra::Texture2D LoadTextureFromFile(const char* file, bool alpha)
 
     // load image
     int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
     if (data)
     {
@@ -101,9 +102,9 @@ namespace Mayra
     {
         glm::vec4 clear_color = glm::vec4(Mayra::Color::gold, 1.0f);
 
-        Mayra::Shader shader("../../../Mayra/Resources/shader3.vs", "../../../Mayra/Resources/shader3.fs");
-        Mayra::Texture2D crate = LoadTextureFromFile("../../../Mayra/Resources/Assets/Textures/container.jpg", false);
-        Mayra::Texture2D smile = LoadTextureFromFile("../../../Mayra/Resources/Assets/Textures/awesomeface.png", true);
+        Mayra::Shader shader(RESOURCES "shader.vs", RESOURCES "shader.fs");
+        Mayra::Texture2D crate = LoadTextureFromFile(TEXTURES "container.jpg", false);
+        Mayra::Texture2D smile = LoadTextureFromFile(TEXTURES "awesomeface.png", true);
 
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------

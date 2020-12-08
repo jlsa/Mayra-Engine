@@ -34,6 +34,10 @@
 #include "window.hpp"
 #include "application.hpp"
 
-// Constants here
+// Constants
+#define PROJECT     "../../../Mayra/"
+#define RESOURCES   PROJECT "Resources/"
+#define ASSETS      RESOURCES "Assets/"
+#define TEXTURES    ASSETS "Textures/"
 
 #endif //~ Mayra Header
