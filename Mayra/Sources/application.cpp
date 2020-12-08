@@ -161,7 +161,12 @@ namespace Mayra
             glActiveTexture(GL_TEXTURE1);
             smile.Bind();
 
+            glm::mat4 transform = glm::mat4(1.0f);
+            transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+            transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+
             shader.Use();
+            shader.SetMat4("transform", transform);
             shader.SetInt("texture1", 0);
             shader.SetInt("texture2", 1);
 
