@@ -55,6 +55,7 @@ namespace Mayra
         : _props(props)
     {
         std::cout << "Application " << props->Title << " constructed" << std::endl;
+        cameraPosition = glm::vec3(0.0f, 0.0f, -3.0f);
     }
 
     void Application::HandleInput(Mayra::Window *window)
@@ -150,6 +151,29 @@ namespace Mayra
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
 
+            glm::vec3 input = glm::vec3(0.0f, 0.0f, 0.0f);
+            float moveSpeed = 0.1f;
+            if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
+                // forward
+                input.z += moveSpeed * (float)glfwGetTime();
+                std::cout << "forward" << std::endl;
+            }
+            if (glfwGetKey(_window->Get(), GLFW_KEY_S) == GLFW_PRESS) {
+                // backwards
+                input.z -= moveSpeed * (float)glfwGetTime();
+                std::cout << "backwards" << std::endl;
+            }
+            if (glfwGetKey(_window->Get(), GLFW_KEY_A) == GLFW_PRESS) {
+                // left
+                input.x += moveSpeed * (float)glfwGetTime();
+                std::cout << "left" << std::endl;
+            }
+            if (glfwGetKey(_window->Get(), GLFW_KEY_D) == GLFW_PRESS) {
+                // right
+                input.x -= moveSpeed * (float)glfwGetTime();
+                std::cout << "right" << std::endl;
+            }
+
             _gui->PrepareRender();
 
             // Background Fill Color
@@ -161,13 +185,24 @@ namespace Mayra
             glActiveTexture(GL_TEXTURE1);
             smile.Bind();
 
-            glm::mat4 transform = glm::mat4(1.0f);
-            transform = glm::translate(transform, glm::vec3(cos((float)glfwGetTime()), sin((float)glfwGetTime()), 0.0f));
-            transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-            transform = glm::scale(transform, glm::vec3(sin((float)glfwGetTime()), sin((float)glfwGetTime()), sin((float)glfwGetTime())));
+            // Model matrix
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+            glm::mat4 view = glm::mat4(1.0f);
+            cameraPosition = cameraPosition += input;
+            // note that we're translating the scene in the reverse direction of where we want to move.
+            view = glm::translate(view, cameraPosition);
+
+            glm::mat4 projection;
+            projection = glm::perspective(glm::radians(45.0f), (float)(_props->Width / _props->Height), 0.1f, 100.0f);
+
+            model = glm::translate(model, glm::vec3(cos((float)glfwGetTime()), sin((float)glfwGetTime()), 0.0f));
 
             shader.Use();
-            shader.SetMat4("transform", transform);
+            shader.SetMat4("model", model);
+            shader.SetMat4("view", view);
+            shader.SetMat4("projection", projection);
             shader.SetInt("texture1", 0);
             shader.SetInt("texture2", 1);
 

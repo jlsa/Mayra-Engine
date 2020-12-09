@@ -18,7 +18,9 @@ namespace Mayra
         Mayra::Window* _window;
         Mayra::Gui* _gui;
         Mayra::WindowProps* _props;
-        
+
+        glm::vec3 cameraPosition;
+
     public:
         Application(Mayra::WindowProps* props);
         int Initialize();
