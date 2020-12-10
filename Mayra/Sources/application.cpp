@@ -107,6 +107,62 @@ namespace Mayra
         Mayra::Texture2D crate = LoadTextureFromFile(TEXTURES "container.jpg", false);
         Mayra::Texture2D smile = LoadTextureFromFile(TEXTURES "awesomeface.png", true);
 
+        glm::vec3 cubePositions[] = {
+            glm::vec3( 0.0f,  0.0f,  0.0f),
+            glm::vec3( 2.0f,  5.0f, -15.0f),
+            glm::vec3(-1.5f, -2.2f, -2.5f),
+            glm::vec3(-3.8f, -2.0f, -12.3f),
+            glm::vec3( 2.4f, -0.4f, -3.5f),
+            glm::vec3(-1.7f,  3.0f, -7.5f),
+            glm::vec3( 1.3f, -2.0f, -2.5f),
+            glm::vec3( 1.5f,  2.0f, -2.5f),
+            glm::vec3( 1.5f,  0.2f, -1.5f),
+            glm::vec3(-1.3f,  1.0f, -1.5f)
+        };
+
+        float cubeVertices[] = {
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        };
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
         float vertices[] = {
@@ -128,20 +184,20 @@ namespace Mayra
         glBindVertexArray(VAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
         // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
         // color attribute
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
         // texture coord attribute
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
+//        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+//        glEnableVertexAttribArray(2);
 
         _gui->AddBoolParam("Show Crate", true);
         _gui->AddBoolParam("Show Smile", true);
@@ -152,7 +208,7 @@ namespace Mayra
             HandleInput(_window);
 
             glm::vec3 input = glm::vec3(0.0f, 0.0f, 0.0f);
-            float moveSpeed = 0.1f;
+            float moveSpeed = 0.01f;
             if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
                 // forward
                 input.z += moveSpeed * (float)glfwGetTime();
@@ -176,9 +232,10 @@ namespace Mayra
 
             _gui->PrepareRender();
 
+            glEnable(GL_DEPTH_TEST);
             // Background Fill Color
             glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glActiveTexture(GL_TEXTURE0);
             crate.Bind();
@@ -197,22 +254,30 @@ namespace Mayra
             glm::mat4 projection;
             projection = glm::perspective(glm::radians(45.0f), (float)(_props->Width / _props->Height), 0.1f, 100.0f);
 
-            model = glm::translate(model, glm::vec3(cos((float)glfwGetTime()), sin((float)glfwGetTime()), 0.0f));
-
             shader.Use();
-            shader.SetMat4("model", model);
-            shader.SetMat4("view", view);
-            shader.SetMat4("projection", projection);
-            shader.SetInt("texture1", 0);
-            shader.SetInt("texture2", 1);
-
-            shader.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
-            shader.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
-            shader.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
-            shader.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
-
             glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+            for (unsigned int i = 0; i < 10; i++)
+            {
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, cubePositions[i]);
+                float angle = 20.0f * i;
+                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+                shader.SetMat4("model", model);
+                shader.SetMat4("view", view);
+                shader.SetMat4("projection", projection);
+                shader.SetInt("texture1", 0);
+                shader.SetInt("texture2", 1);
+
+                shader.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
+                shader.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
+                shader.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
+                shader.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
+
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+//            glDrawArrays(GL_TRIANGLES, 0, 36);
+//            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
 
             glBindVertexArray(0); // no need to unbind it every time
 
