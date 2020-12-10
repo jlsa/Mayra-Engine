@@ -20,6 +20,8 @@ namespace Mayra
         Mayra::WindowProps* _props;
 
         glm::vec3 cameraPosition;
+        glm::vec3 cameraFront;
+        glm::vec3 cameraUp;
 
     public:
         Application(Mayra::WindowProps* props);

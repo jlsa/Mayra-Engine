@@ -55,7 +55,9 @@ namespace Mayra
         : _props(props)
     {
         std::cout << "Application " << props->Title << " constructed" << std::endl;
-        cameraPosition = glm::vec3(0.0f, 0.0f, -3.0f);
+        cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+        cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+        cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     }
 
     void Application::HandleInput(Mayra::Window *window)
@@ -206,28 +208,27 @@ namespace Mayra
         _gui->AddFloatParam("FoV", 45.0f);
         _gui->AddFloatParam("Window Height", _props->Height); // (float)(_props->Width / _props->Height)
         _gui->AddFloatParam("Window Width", _props->Width);
-        _gui->AddFloatParam("Move Speed", 0.02f);
+        _gui->AddFloatParam("Move Speed", 0.05f);
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
 
-            glm::vec3 input = glm::vec3(0.0f, 0.0f, 0.0f);
             float moveSpeed = _gui->GetFloatParam("Move Speed");
             if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
                 // forward
-                input.z += moveSpeed * (float)glfwGetTime();
+                cameraPosition += moveSpeed * cameraFront;
             }
             if (glfwGetKey(_window->Get(), GLFW_KEY_S) == GLFW_PRESS) {
                 // backwards
-                input.z -= moveSpeed * (float)glfwGetTime();
+                cameraPosition -= moveSpeed * cameraFront;
             }
             if (glfwGetKey(_window->Get(), GLFW_KEY_A) == GLFW_PRESS) {
                 // left
-                input.x += moveSpeed * (float)glfwGetTime();
+                cameraPosition -= glm::normalize(glm::cross(cameraFront, cameraUp)) * moveSpeed;
             }
             if (glfwGetKey(_window->Get(), GLFW_KEY_D) == GLFW_PRESS) {
                 // right
-                input.x -= moveSpeed * (float)glfwGetTime();
+                cameraPosition += glm::normalize(glm::cross(cameraFront, cameraUp)) * moveSpeed;
             }
 
             _gui->PrepareRender();
@@ -242,28 +243,20 @@ namespace Mayra
             glActiveTexture(GL_TEXTURE1);
             smile.Bind();
 
-            glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-            glm::vec3 cameraDirection = glm::normalize(cameraPosition - cameraTarget);
+//            glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+//            glm::vec3 cameraDirection = glm::normalize(cameraPosition - cameraTarget);
 
-            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-            glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-            glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+//            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+//            glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+//            glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
 
             // Model matrix
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-            glm::mat4 view;// = glm::mat4(1.0f);
-            view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
-                               glm::vec3(0.0f, 0.0f, 0.0f),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
 
-            const float radius = 10.0f;
-            float camX = sin(glfwGetTime()) * radius;
-            float camZ = cos(glfwGetTime()) * radius;
-            view = glm::lookAt(glm::vec3(camX, 0.0f, camZ),
-                               glm::vec3(0.0f, 0.0f, 0.0f),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
+            glm::mat4 view;
+            view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
 
 //            cameraPosition = cameraPosition += input;
             // note that we're translating the scene in the reverse direction of where we want to move.
@@ -282,7 +275,7 @@ namespace Mayra
             for (unsigned int x = 0; x < 10; x++)
             {
                 model = glm::mat4(1.0f);
-                model = glm::translate(model, cubePositions[x]); // glm::vec3((float)x + 0.1f * (float)x, (float)y + 0.1f * (float)y, 0.0f));//
+                model = glm::translate(model, cubePositions[x]);
                 if (x % 3 == 1) {
                     float angle = 20.0f * glfwGetTime();
                     model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
@@ -299,10 +292,10 @@ namespace Mayra
                 shader.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
 
                 glDrawArrays(GL_TRIANGLES, 0, 36);
+//                glDrawArrays(GL_TRIANGLES, 0, 36);
+//                glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
 
             }
-//            glDrawArrays(GL_TRIANGLES, 0, 36);
-//            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
 
             glBindVertexArray(0); // no need to unbind it every time
 
