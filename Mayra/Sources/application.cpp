@@ -104,7 +104,7 @@ namespace Mayra
         glm::vec4 clear_color = glm::vec4(Mayra::Color::gold, 1.0f);
 
         Mayra::Shader shader(RESOURCES "shader.vs", RESOURCES "shader.fs");
-        Mayra::Texture2D crate = LoadTextureFromFile(TEXTURES "container.jpg", false);
+        Mayra::Texture2D crate = LoadTextureFromFile(TEXTURES "wall.jpg", false);
         Mayra::Texture2D smile = LoadTextureFromFile(TEXTURES "awesomeface.png", true);
 
         glm::vec3 cubePositions[] = {
@@ -207,7 +207,7 @@ namespace Mayra
         _gui->AddFloatParam("Window Height", _props->Height); // (float)(_props->Width / _props->Height)
         _gui->AddFloatParam("Window Width", _props->Width);
         _gui->AddFloatParam("Move Speed", 0.02f);
-        
+
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
 
@@ -242,14 +242,32 @@ namespace Mayra
             glActiveTexture(GL_TEXTURE1);
             smile.Bind();
 
+            glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+            glm::vec3 cameraDirection = glm::normalize(cameraPosition - cameraTarget);
+
+            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+            glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+            glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+
             // Model matrix
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-            glm::mat4 view = glm::mat4(1.0f);
-            cameraPosition = cameraPosition += input;
+            glm::mat4 view;// = glm::mat4(1.0f);
+            view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+                               glm::vec3(0.0f, 0.0f, 0.0f),
+                               glm::vec3(0.0f, 1.0f, 0.0f));
+
+            const float radius = 10.0f;
+            float camX = sin(glfwGetTime()) * radius;
+            float camZ = cos(glfwGetTime()) * radius;
+            view = glm::lookAt(glm::vec3(camX, 0.0f, camZ),
+                               glm::vec3(0.0f, 0.0f, 0.0f),
+                               glm::vec3(0.0f, 1.0f, 0.0f));
+
+//            cameraPosition = cameraPosition += input;
             // note that we're translating the scene in the reverse direction of where we want to move.
-            view = glm::translate(view, cameraPosition);
+//            view = glm::translate(view, cameraPosition);
 
             glm::mat4 projection;
             // T fovy, T aspect, T zNear, T zFar
@@ -263,27 +281,25 @@ namespace Mayra
             glBindVertexArray(VAO);
             for (unsigned int x = 0; x < 10; x++)
             {
-                for (unsigned int y = 0; y < 10; y++)
-                {
-                    model = glm::mat4(1.0f);
-                    model = glm::translate(model, glm::vec3((float)x + 0.1f * (float)x, (float)y + 0.1f * (float)y, 0.0f));//cubePositions[i]);
-                    if (x % 3 == 1 || y % 3 == 1) {
-                        float angle = 20.0f * glfwGetTime();
-                        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-                    }
-                    shader.SetMat4("model", model);
-                    shader.SetMat4("view", view);
-                    shader.SetMat4("projection", projection);
-                    shader.SetInt("texture1", 0);
-                    shader.SetInt("texture2", 1);
-
-                    shader.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
-                    shader.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
-                    shader.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
-                    shader.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
-
-                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, cubePositions[x]); // glm::vec3((float)x + 0.1f * (float)x, (float)y + 0.1f * (float)y, 0.0f));//
+                if (x % 3 == 1) {
+                    float angle = 20.0f * glfwGetTime();
+                    model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
                 }
+                shader.SetMat4("model", model);
+                shader.SetMat4("view", view);
+                shader.SetMat4("projection", projection);
+                shader.SetInt("texture1", 0);
+                shader.SetInt("texture2", 1);
+
+                shader.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
+                shader.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
+                shader.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
+                shader.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
+
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+
             }
 //            glDrawArrays(GL_TRIANGLES, 0, 36);
 //            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
