@@ -267,9 +267,10 @@ namespace Mayra
                 {
                     model = glm::mat4(1.0f);
                     model = glm::translate(model, glm::vec3((float)x + 0.1f * (float)x, (float)y + 0.1f * (float)y, 0.0f));//cubePositions[i]);
-    //                float angle = 20.0f * i;
-    //                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-
+                    if (x % 3 == 1 || y % 3 == 1) {
+                        float angle = 20.0f * glfwGetTime();
+                        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                    }
                     shader.SetMat4("model", model);
                     shader.SetMat4("view", view);
                     shader.SetMat4("projection", projection);
