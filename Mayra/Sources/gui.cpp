@@ -135,7 +135,7 @@ namespace Mayra
                 while (itf != paramsF.end())
                 {
                     float lala = itf->second;
-                    ImGui::DragFloat(itf->first.c_str(), &lala, 0.005f);
+                    ImGui::DragFloat(itf->first.c_str(), &lala, 0.05f);
                     EditFloatParam(itf->first, lala);
                     itf++;
                 }

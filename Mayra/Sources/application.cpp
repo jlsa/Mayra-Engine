@@ -203,31 +203,31 @@ namespace Mayra
         _gui->AddBoolParam("Show Smile", true);
         _gui->AddBoolParam("Flip Smile", true);
         _gui->AddFloatParam("Mix Percentage", 0.5f);
+        _gui->AddFloatParam("FoV", 45.0f);
+        _gui->AddFloatParam("Window Height", _props->Height); // (float)(_props->Width / _props->Height)
+        _gui->AddFloatParam("Window Width", _props->Width);
+        _gui->AddFloatParam("Move Speed", 0.02f);
         
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
 
             glm::vec3 input = glm::vec3(0.0f, 0.0f, 0.0f);
-            float moveSpeed = 0.01f;
+            float moveSpeed = _gui->GetFloatParam("Move Speed");
             if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
                 // forward
                 input.z += moveSpeed * (float)glfwGetTime();
-                std::cout << "forward" << std::endl;
             }
             if (glfwGetKey(_window->Get(), GLFW_KEY_S) == GLFW_PRESS) {
                 // backwards
                 input.z -= moveSpeed * (float)glfwGetTime();
-                std::cout << "backwards" << std::endl;
             }
             if (glfwGetKey(_window->Get(), GLFW_KEY_A) == GLFW_PRESS) {
                 // left
                 input.x += moveSpeed * (float)glfwGetTime();
-                std::cout << "left" << std::endl;
             }
             if (glfwGetKey(_window->Get(), GLFW_KEY_D) == GLFW_PRESS) {
                 // right
                 input.x -= moveSpeed * (float)glfwGetTime();
-                std::cout << "right" << std::endl;
             }
 
             _gui->PrepareRender();
@@ -252,29 +252,37 @@ namespace Mayra
             view = glm::translate(view, cameraPosition);
 
             glm::mat4 projection;
-            projection = glm::perspective(glm::radians(45.0f), (float)(_props->Width / _props->Height), 0.1f, 100.0f);
+            // T fovy, T aspect, T zNear, T zFar
+            float fov = glm::radians(_gui->GetFloatParam("FoV"));
+            float aspect = _gui->GetFloatParam("Window Width") / _gui->GetFloatParam("Window Height");
+            float near = 0.1f;
+            float far = 100.0f;
+            projection = glm::perspective(fov, aspect, near, far);
 
             shader.Use();
             glBindVertexArray(VAO);
-            for (unsigned int i = 0; i < 10; i++)
+            for (unsigned int x = 0; x < 10; x++)
             {
-                model = glm::mat4(1.0f);
-                model = glm::translate(model, cubePositions[i]);
-                float angle = 20.0f * i;
-                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                for (unsigned int y = 0; y < 10; y++)
+                {
+                    model = glm::mat4(1.0f);
+                    model = glm::translate(model, glm::vec3((float)x + 0.1f * (float)x, (float)y + 0.1f * (float)y, 0.0f));//cubePositions[i]);
+    //                float angle = 20.0f * i;
+    //                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 
-                shader.SetMat4("model", model);
-                shader.SetMat4("view", view);
-                shader.SetMat4("projection", projection);
-                shader.SetInt("texture1", 0);
-                shader.SetInt("texture2", 1);
+                    shader.SetMat4("model", model);
+                    shader.SetMat4("view", view);
+                    shader.SetMat4("projection", projection);
+                    shader.SetInt("texture1", 0);
+                    shader.SetInt("texture2", 1);
 
-                shader.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
-                shader.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
-                shader.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
-                shader.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
+                    shader.SetBool("showTexture1", _gui->GetBoolParam("Show Crate"));
+                    shader.SetBool("showTexture2", _gui->GetBoolParam("Show Smile"));
+                    shader.SetBool("flipSmile", _gui->GetBoolParam("Flip Smile"));
+                    shader.SetFloat("mixPercentage", _gui->GetFloatParam("Mix Percentage"));
 
-                glDrawArrays(GL_TRIANGLES, 0, 36);
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
             }
 //            glDrawArrays(GL_TRIANGLES, 0, 36);
 //            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
