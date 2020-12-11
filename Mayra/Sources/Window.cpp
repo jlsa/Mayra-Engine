@@ -5,7 +5,7 @@
 //  Created by Joel Hoekstra on 04/12/2020.
 //
 
-#include "window.hpp"
+#include "Window.hpp"
 
 namespace Mayra
 {

@@ -30,9 +30,9 @@
 #include <stb_image.h>
 
 // Mayra Headers
-#include "gui.hpp"
-#include "window.hpp"
-#include "application.hpp"
+#include <Gui.hpp>
+#include <Window.hpp>
+#include <Application.hpp>
 
 // Constants
 #define PROJECT     "../../../Mayra/"

@@ -1,5 +1,5 @@
 // Local Headers
-#include "mayra.hpp"
+#include <Mayra.hpp>
 
 int main()
 {

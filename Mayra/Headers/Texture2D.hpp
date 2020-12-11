@@ -13,7 +13,7 @@
 #include <GLUT/glut.h>
 
 // Local Headers
-#include "mayra.hpp"
+#include <Mayra.hpp>
 
 namespace Mayra
 {

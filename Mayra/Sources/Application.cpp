@@ -6,7 +6,7 @@
 //
 
 // Local Headers
-#include "mayra.hpp"
+#include <Mayra.hpp>
 
 // System Headers
 #include <glad/glad.h>
@@ -17,10 +17,10 @@
 
 #include <iostream>
 
-#include "application.hpp"
-#include "color.hpp"
-#include "shader.hpp"
-#include "texture2D.hpp"
+#include <Application.hpp>
+#include <Color.hpp>
+#include <Shader.hpp>
+#include <Texture2D.hpp>
 #include <OrthographicCamera.hpp>
 
 Mayra::Texture2D LoadTextureFromFile(const char* file, bool alpha)

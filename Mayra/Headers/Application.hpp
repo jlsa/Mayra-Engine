@@ -8,9 +8,9 @@
 #ifndef application_h
 #define application_h
 
-#include "gui.hpp"
-#include "window.hpp"
-#include "OrthographicCamera.hpp"
+#include <Gui.hpp>
+#include <Window.hpp>
+#include <OrthographicCamera.hpp>
 
 namespace Mayra
 {

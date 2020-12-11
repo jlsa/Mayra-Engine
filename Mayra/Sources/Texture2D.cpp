@@ -5,7 +5,7 @@
 //  Created by Joel Hoekstra on 07/12/2020.
 //
 
-#include "texture2D.hpp"
+#include <Texture2D.hpp>
 
 namespace Mayra
 {
