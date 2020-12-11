@@ -10,6 +10,7 @@
 
 #include "gui.hpp"
 #include "window.hpp"
+#include "OrthographicCamera.hpp"
 
 namespace Mayra
 {
@@ -29,6 +30,8 @@ namespace Mayra
         void Run();
         void Terminate();
         void HandleInput(Mayra::Window* window);
+
+        OrthographicCamera _camera;
     };
 }
 #endif /* application_h */

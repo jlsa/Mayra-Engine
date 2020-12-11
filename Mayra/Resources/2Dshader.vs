@@ -1,13 +1,14 @@
 #version 330 core
-layout (location = 0) in vec4 vertex; // <vec2 position, vec2 texCoords>
+layout (location = 0) in vec3 vertex;
+layout (location = 1) in vec2 texCoords;
 
 out vec2 TexCoords;
+out vec3 v_Position;
 
-uniform mat4 model;
-uniform mat4 projection;
+uniform mat4 u_ViewProjection;
 
 void main()
 {
-    TexCoords = vertex.zw;
-    gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);
+    TexCoords = texCoords;
+    gl_Position = u_ViewProjection * vec4(vertex, 1.0);
 }

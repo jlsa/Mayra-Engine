@@ -19,11 +19,13 @@ namespace Mayra
         std::string Title;
         unsigned int Width;
         unsigned int Height;
+        float Aspect;
+        float AspectInverse;
         
         WindowProps(const std::string& title = "Mayra Engine",
                     unsigned int width = 1280,
                     unsigned int height = 720)
-            : Title(title), Width(width), Height(height)
+            : Title(title), Width(width), Height(height), Aspect(1.0f), AspectInverse(-1.0f)
         {}
     };
 
