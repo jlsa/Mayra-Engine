@@ -6,17 +6,17 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(Glitter/Vendor/glfw)
 
-option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-option(ASSIMP_BUILD_SAMPLES OFF)
-option(ASSIMP_BUILD_TESTS OFF)
-add_subdirectory(Glitter/Vendor/assimp)
+# option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+# option(ASSIMP_BUILD_SAMPLES OFF)
+# option(ASSIMP_BUILD_TESTS OFF)
+# add_subdirectory(Glitter/Vendor/assimp)
 
-option(BUILD_BULLET2_DEMOS OFF)
-option(BUILD_CPU_DEMOS OFF)
-option(BUILD_EXTRAS OFF)
-option(BUILD_OPENGL3_DEMOS OFF)
-option(BUILD_UNIT_TESTS OFF)
-add_subdirectory(Glitter/Vendor/bullet)
+# option(BUILD_BULLET2_DEMOS OFF)
+# option(BUILD_CPU_DEMOS OFF)
+# option(BUILD_EXTRAS OFF)
+# option(BUILD_OPENGL3_DEMOS OFF)
+# option(BUILD_UNIT_TESTS OFF)
+# add_subdirectory(Glitter/Vendor/bullet)
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
@@ -28,8 +28,8 @@ else()
 endif()
 
 include_directories(Mayra/Headers/
-                    Glitter/Vendor/assimp/include/
-                    Glitter/Vendor/bullet/src/
+                    # Glitter/Vendor/assimp/include/
+                    # Glitter/Vendor/bullet/src/
                     Glitter/Vendor/glad/include/
                     Glitter/Vendor/glfw/include/
                     Glitter/Vendor/glm/
@@ -55,23 +55,32 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
                          .gitignore
                          .gitmodules)
 
+file(GLOB PROJECT_ASSETS Mayra/Resources/Assets/Textures/*.png
+                         Mayra/Resources/Assets/Textures/*.jpg)
+
 source_group("Headers" FILES ${PROJECT_HEADERS})
 source_group("Shaders" FILES ${PROJECT_SHADERS})
 source_group("Sources" FILES ${PROJECT_SOURCES})
 source_group("Vendors" FILES ${VENDORS_SOURCES})
+source_group("Assets" FILES ${PROJECT_ASSETS})
 
 add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
-                               ${VENDORS_SOURCES})
-target_link_libraries(${PROJECT_NAME} assimp glfw
-                      ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
-                      BulletDynamics BulletCollision LinearMath)
+                               ${VENDORS_SOURCES} ${PROJECT_ASSETS})
+target_link_libraries(${PROJECT_NAME} glfw # assimp
+                      ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
+                    #   BulletDynamics BulletCollision LinearMath)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Mayra/Shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Mayra/Shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>/Shaders
     DEPENDS ${PROJECT_SHADERS})
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/Mayra/Resources/Assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/Assets
+    DEPENDS ${PROJECT_ASSETS})

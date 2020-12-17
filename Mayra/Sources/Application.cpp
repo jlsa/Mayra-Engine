@@ -106,7 +106,7 @@ namespace Mayra
     {
         glm::vec4 clear_color = glm::vec4(Mayra::Color::gold, 1.0f);
 
-        Mayra::Shader shader(RESOURCES "2Dshader.vs", RESOURCES "2Dshader.fs");
+        Mayra::Shader shader(SHADERS "2Dshader.vert", SHADERS "2Dshader.frag");
         Mayra::Texture2D smile = LoadTextureFromFile(TEXTURES "awesomeface.png", true);
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------

@@ -4,10 +4,10 @@
 #pragma once
 
 // System Headers
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-#include <btBulletDynamicsCommon.h>
+//#include <assimp/Importer.hpp>
+//#include <assimp/postprocess.h>
+//#include <assimp/scene.h>
+//#include <btBulletDynamicsCommon.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -17,7 +17,6 @@
 #include <imgui_impl_opengl3.h>
 
 // System Headers
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 // Standard Headers
@@ -35,9 +34,8 @@
 #include <Application.hpp>
 
 // Constants
-#define PROJECT     "../../../Mayra/"
-#define RESOURCES   PROJECT "Resources/"
-#define ASSETS      RESOURCES "Assets/"
+#define ASSETS      "Assets/"
 #define TEXTURES    ASSETS "Textures/"
+#define SHADERS     "Shaders/"
 
 #endif //~ Mayra Header
