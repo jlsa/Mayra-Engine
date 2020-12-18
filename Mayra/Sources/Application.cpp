@@ -104,9 +104,9 @@ namespace Mayra
 
     void Application::Run()
     {
-        glm::vec4 clear_color = glm::vec4(Mayra::Color::gold, 1.0f);
+        glm::vec4 clear_color = glm::vec4(Mayra::Color::chocolate, 1.0f);
 
-        Mayra::Shader shader(SHADERS "2Dshader.vert", SHADERS "2Dshader.frag");
+        Mayra::Shader shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
         Mayra::Texture2D smile = LoadTextureFromFile(TEXTURES "awesomeface.png", true);
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
@@ -117,10 +117,12 @@ namespace Mayra
             -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,   // bottom left
             -0.5f,  0.5f, 0.0f,   0.0f, 1.0f    // top left
         };
+        
         unsigned int indices[] = {
-            0, 1, 3, // first triangle
-            1, 2, 3  // second triangle
+            0, 1, 2,
+            2, 3, 0
         };
+        
         unsigned int VBO, VAO, EBO;
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
@@ -140,26 +142,32 @@ namespace Mayra
         // texture coord attribute
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
-
+        
+        
+//        glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f);
+        
+        glm::mat4 Projection = glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, 0.0f, 100.0f); // in world coords
+//        glm::mat4 Projection = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+        
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
 
-            float moveSpeed = _gui->GetFloatParam("Move Speed");
+            float moveSpeed = 0.1f;
             if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
                 // forward
-                cameraPosition += moveSpeed * cameraFront;
+                cameraPosition += moveSpeed * glm::vec3(0.0f, 1.0f, 0.0f);
             }
             if (glfwGetKey(_window->Get(), GLFW_KEY_S) == GLFW_PRESS) {
                 // backwards
-                cameraPosition -= moveSpeed * cameraFront;
+                cameraPosition -= moveSpeed * glm::vec3(0.0f, 1.0f, 0.0f);
             }
             if (glfwGetKey(_window->Get(), GLFW_KEY_A) == GLFW_PRESS) {
                 // left
-                cameraPosition -= glm::normalize(glm::cross(cameraFront, cameraUp)) * moveSpeed;
+                cameraPosition -= moveSpeed * cameraUp;
             }
             if (glfwGetKey(_window->Get(), GLFW_KEY_D) == GLFW_PRESS) {
                 // right
-                cameraPosition += glm::normalize(glm::cross(cameraFront, cameraUp)) * moveSpeed;
+                cameraPosition += moveSpeed * cameraUp;
             }
 
             _gui->PrepareRender();
@@ -171,11 +179,25 @@ namespace Mayra
 
             glActiveTexture(GL_TEXTURE0);
             smile.Bind();
-
+            
+            // camera matrix
+            glm::mat4 View = glm::lookAt(
+                                         cameraPosition, // camera is at (4, 3, 3), in World Space
+                                         glm::vec3(0, 0, 0), // and looks at the origin
+                                         glm::vec3(0, 1, 0)  // head is up (set to 0, -1, 0 to look upside-down)
+                                         );
+            
+            glm::mat4 Model = glm::mat4(1.0f);
+            
+            glm::mat4 MVP = Projection * View * Model;
+ 
             shader.Use();
-            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
+            shader.SetMat4("MVP", MVP);
+//            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
+//            shader.SetVec4("u_Transform", transform);
             shader.SetInt("image", 0);
-            shader.SetVec3("spriteColor", Mayra::Color::peachpuff);
+            shader.SetVec3("u_Color", Mayra::Color::white);
+            
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
 

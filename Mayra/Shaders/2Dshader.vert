@@ -6,9 +6,10 @@ out vec2 TexCoords;
 out vec3 v_Position;
 
 uniform mat4 u_ViewProjection;
+uniform vec4 u_Transform;
 
 void main()
 {
     TexCoords = texCoords;
-    gl_Position = u_ViewProjection * vec4(vertex, 1.0);
+    gl_Position = u_ViewProjection * u_Transform * vec4(vertex, 1.0);
 }
