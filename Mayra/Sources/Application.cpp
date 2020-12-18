@@ -23,6 +23,9 @@
 #include <Texture2D.hpp>
 #include <OrthographicCamera.hpp>
 
+
+#include <glm/gtx/matrix_decompose.hpp>
+
 Mayra::Texture2D LoadTextureFromFile(const char* file, bool alpha)
 {
     Mayra::Texture2D texture;
@@ -56,8 +59,9 @@ namespace Mayra
         : _props(props), _camera(-1.6f, 1.6f, -0.9f, 0.9f)
     {
         std::cout << "Application " << props->Title << " constructed" << std::endl;
-        cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+        cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+        cameraLeft = glm::vec3(1.0f, 0.0f, 0.0f);
         cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     }
 
@@ -143,32 +147,39 @@ namespace Mayra
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
         
+        float scale = 1.0f;
+        glm::mat4 Projection = glm::ortho(-1.6f / scale, 1.6f / scale, -0.9f / scale, 0.9f / scale, -1.0f, 1.0f);
+        glm::mat4 identityViewMatrix(1.0f);
         
-//        glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 100.0f);
+        glm::mat4 Model = glm::mat4(1.0f);
+        Model = glm::translate(Model, glm::vec3(1.0f, 0.0f, 0.0f));
         
-        glm::mat4 Projection = glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, 0.0f, 100.0f); // in world coords
-//        glm::mat4 Projection = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+        glm::mat4 Model2 = glm::mat4(1.0f);
+        Model2 = glm::translate(Model2, cameraPosition);//glm::vec3(0.1f, 0.5f, 0.0f));
+        Model2 = glm::scale(Model2, glm::vec3(0.5f, 0.5f, 0.0f));
         
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
-
-            float moveSpeed = 0.1f;
+            
+            float moveSpeed = 0.05f;
+            glm::vec3 movePosition(0.0f, 0.0f, 0.0f);
             if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
                 // forward
-                cameraPosition += moveSpeed * glm::vec3(0.0f, 1.0f, 0.0f);
+                movePosition -= moveSpeed * cameraUp;
             }
-            if (glfwGetKey(_window->Get(), GLFW_KEY_S) == GLFW_PRESS) {
+            else if (glfwGetKey(_window->Get(), GLFW_KEY_S) == GLFW_PRESS) {
                 // backwards
-                cameraPosition -= moveSpeed * glm::vec3(0.0f, 1.0f, 0.0f);
+                movePosition += moveSpeed * cameraUp;
             }
-            if (glfwGetKey(_window->Get(), GLFW_KEY_A) == GLFW_PRESS) {
+            else if (glfwGetKey(_window->Get(), GLFW_KEY_A) == GLFW_PRESS) {
                 // left
-                cameraPosition -= moveSpeed * cameraUp;
+                movePosition += moveSpeed * cameraLeft;
             }
-            if (glfwGetKey(_window->Get(), GLFW_KEY_D) == GLFW_PRESS) {
+            else if (glfwGetKey(_window->Get(), GLFW_KEY_D) == GLFW_PRESS) {
                 // right
-                cameraPosition += moveSpeed * cameraUp;
+                movePosition -= moveSpeed * cameraLeft;
             }
+            cameraPosition += movePosition;
 
             _gui->PrepareRender();
 
@@ -180,23 +191,28 @@ namespace Mayra
             glActiveTexture(GL_TEXTURE0);
             smile.Bind();
             
-            // camera matrix
-            glm::mat4 View = glm::lookAt(
-                                         cameraPosition, // camera is at (4, 3, 3), in World Space
-                                         glm::vec3(0, 0, 0), // and looks at the origin
-                                         glm::vec3(0, 1, 0)  // head is up (set to 0, -1, 0 to look upside-down)
-                                         );
-            
-            glm::mat4 Model = glm::mat4(1.0f);
+            glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
             
             glm::mat4 MVP = Projection * View * Model;
- 
+            
             shader.Use();
-            shader.SetMat4("MVP", MVP);
+            shader.SetMat4("u_MVP", MVP);
 //            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
-//            shader.SetVec4("u_Transform", transform);
             shader.SetInt("image", 0);
             shader.SetVec3("u_Color", Mayra::Color::white);
+            
+            glBindVertexArray(VAO);
+            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+            
+            float angle = 5.0f;
+//            Model2 = glm::rotate(Model2, glm::radians(angle), glm::vec3(1.0f, 0.4f, 0.0f));
+            
+            MVP = Projection * Model2;
+            shader.Use();
+            shader.SetMat4("u_MVP", MVP);
+//            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
+            shader.SetInt("image", 0);
+            shader.SetVec3("u_Color", Mayra::Color::purple);
             
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
