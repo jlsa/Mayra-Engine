@@ -16,6 +16,16 @@ namespace Mayra
 {
     class Application
     {
+    public:
+        Application(Mayra::WindowProps* props);
+        ~Application();
+        int Initialize();
+        void Run();
+        void Terminate();
+        void HandleInput(Mayra::Window* window);
+
+        OrthographicCamera _camera;
+    private:
         Mayra::Window* _window;
         Mayra::Gui* _gui;
         Mayra::WindowProps* _props;
@@ -24,15 +34,6 @@ namespace Mayra
         glm::vec3 cameraFront;
         glm::vec3 cameraUp;
         glm::vec3 cameraLeft;
-
-    public:
-        Application(Mayra::WindowProps* props);
-        int Initialize();
-        void Run();
-        void Terminate();
-        void HandleInput(Mayra::Window* window);
-
-        OrthographicCamera _camera;
     };
 }
 #endif /* application_h */

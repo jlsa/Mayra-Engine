@@ -23,7 +23,6 @@
 #include <Texture2D.hpp>
 #include <OrthographicCamera.hpp>
 
-
 #include <glm/gtx/matrix_decompose.hpp>
 
 Mayra::Texture2D LoadTextureFromFile(const char* file, bool alpha)
@@ -56,13 +55,17 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 namespace Mayra
 {
     Application::Application(Mayra::WindowProps* props)
-        : _props(props), _camera(-1.6f, 1.6f, -0.9f, 0.9f)
+        : _camera(-1.6f, 1.6f, -0.9f, 0.9f), _props(props)
     {
         std::cout << "Application " << props->Title << " constructed" << std::endl;
         cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
         cameraLeft = glm::vec3(1.0f, 0.0f, 0.0f);
         cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    }
+    Application::~Application()
+    {
+        Terminate();
     }
 
     void Application::HandleInput(Mayra::Window *window)
@@ -110,7 +113,7 @@ namespace Mayra
     {
         glm::vec4 clear_color = glm::vec4(Mayra::Color::chocolate, 1.0f);
 
-        Mayra::Shader shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
+        Mayra::Shader* shader = new Mayra::Shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
         Mayra::Texture2D smile = LoadTextureFromFile(TEXTURES "awesomeface.png", true);
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
@@ -161,6 +164,18 @@ namespace Mayra
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
             
+            // nice for an input manager one day!
+            static bool reload_key_pressed = false;
+            bool down = glfwGetKey(_window->Get(), GLFW_KEY_R);
+            if (down && !reload_key_pressed)
+            {
+                reload_key_pressed = true;
+            }
+            else if (!down && reload_key_pressed)
+            {
+                reload_key_pressed = false;
+            }
+            
             float moveSpeed = 0.05f;
             glm::vec3 movePosition(0.0f, 0.0f, 0.0f);
             if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
@@ -195,24 +210,21 @@ namespace Mayra
             
             glm::mat4 MVP = Projection * View * Model;
             
-            shader.Use();
-            shader.SetMat4("u_MVP", MVP);
+            shader->Use();
+            shader->SetMat4("u_MVP", MVP);
 //            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
-            shader.SetInt("image", 0);
-            shader.SetVec3("u_Color", Mayra::Color::white);
+            shader->SetInt("image", 0);
+            shader->SetVec3("u_Color", Mayra::Color::white);
             
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
             
-            float angle = 5.0f;
-//            Model2 = glm::rotate(Model2, glm::radians(angle), glm::vec3(1.0f, 0.4f, 0.0f));
-            
             MVP = Projection * Model2;
-            shader.Use();
-            shader.SetMat4("u_MVP", MVP);
+            shader->Use();
+            shader->SetMat4("u_MVP", MVP);
 //            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
-            shader.SetInt("image", 0);
-            shader.SetVec3("u_Color", Mayra::Color::purple);
+            shader->SetInt("image", 0);
+            shader->SetVec3("u_Color", Mayra::Color::purple);
             
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
@@ -234,6 +246,10 @@ namespace Mayra
 
     void Application::Terminate()
     {
+        delete _window;
+        delete _gui;
+        delete _props;
+        
         glfwTerminate();
     }
 }

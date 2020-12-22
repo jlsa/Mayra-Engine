@@ -8,7 +8,6 @@ int main()
     Mayra::Application* app = new Mayra::Application(props);
     if (app->Initialize() == EXIT_SUCCESS) {
         app->Run();
-        app->Terminate();
         return EXIT_SUCCESS;
     } else {
         return EXIT_FAILURE;
