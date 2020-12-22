@@ -113,8 +113,6 @@ namespace Mayra
     {
         glm::vec4 clear_color = glm::vec4(Mayra::Color::chocolate, 1.0f);
         
-        ShaderProgramSource source = ParseShader(SHADERS "default.glsl");
-        
         Mayra::Shader* shader = new Mayra::Shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
         Mayra::Texture2D smile = LoadTextureFromFile(TEXTURES "awesomeface.png", true);
         // set up vertex data (and buffer(s)) and configure vertex attributes
