@@ -24,6 +24,9 @@
 
 #include <glm/gtx/matrix_decompose.hpp>
 
+#include <VertexBuffer.hpp>
+#include <IndexBuffer.hpp>
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 namespace Mayra
@@ -138,13 +141,11 @@ namespace Mayra
             2, 3, 0
         };
 
-        unsigned int vertexBuffer, vertexArray, indexBuffer;
+        unsigned int vertexArray;
         GLCall(glGenVertexArrays(1, &vertexArray));
         GLCall(glBindVertexArray(vertexArray));
 
-        GLCall(glGenBuffers(1, &vertexBuffer));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
+        VertexBuffer* vb = new VertexBuffer(vertices, 4 * 5 * sizeof(float));
 
         // position attribute
         GLCall(glEnableVertexAttribArray(0));
@@ -154,9 +155,7 @@ namespace Mayra
         GLCall(glEnableVertexAttribArray(1));
         GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))));
 
-        GLCall(glGenBuffers(1, &indexBuffer));
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer));
-        GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
+        IndexBuffer* ib = new IndexBuffer(indices, sizeof(indices));
 
         GLCall(glBindVertexArray(0));
         shader->Unbind();
@@ -197,7 +196,7 @@ namespace Mayra
             shader->SetVec3("u_Color", Mayra::Color::white);
 
             GLCall(glBindVertexArray(vertexArray));
-            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer));
+            ib->Bind();
 
             GLCall(glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, nullptr));
 
@@ -210,8 +209,8 @@ namespace Mayra
         // de-allocate all resources once they've outlived their purpose:
         // --------------------------------------------------------------
         GLCall(glDeleteVertexArrays(1, &vertexArray));
-        GLCall(glDeleteBuffers(1, &vertexBuffer));
-        GLCall(glDeleteBuffers(1, &indexBuffer));
+        delete vb;
+        delete ib;
     }
 
     void Application::Terminate()
