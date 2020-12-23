@@ -37,6 +37,7 @@ namespace Mayra
         cameraLeft = glm::vec3(1.0f, 0.0f, 0.0f);
         cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     }
+
     Application::~Application()
     {
         Terminate();
@@ -48,6 +49,38 @@ namespace Mayra
             GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
         if (glfwGetKey(window->Get(), GLFW_KEY_2) == GLFW_PRESS)
             GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+
+        // nice for an input manager one day!
+        static bool reload_key_pressed = false;
+        bool down = glfwGetKey(_window->Get(), GLFW_KEY_R);
+        if (down && !reload_key_pressed)
+        {
+            reload_key_pressed = true;
+        }
+        else if (!down && reload_key_pressed)
+        {
+            reload_key_pressed = false;
+        }
+
+        float moveSpeed = 0.05f;
+        glm::vec3 movePosition(0.0f, 0.0f, 0.0f);
+        if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
+            // forward
+            movePosition -= moveSpeed * cameraUp;
+        }
+        else if (glfwGetKey(_window->Get(), GLFW_KEY_S) == GLFW_PRESS) {
+            // backwards
+            movePosition += moveSpeed * cameraUp;
+        }
+        else if (glfwGetKey(_window->Get(), GLFW_KEY_A) == GLFW_PRESS) {
+            // left
+            movePosition += moveSpeed * cameraLeft;
+        }
+        else if (glfwGetKey(_window->Get(), GLFW_KEY_D) == GLFW_PRESS) {
+            // right
+            movePosition -= moveSpeed * cameraLeft;
+        }
+        cameraPosition += movePosition;
     }
 
     int Application::Initialize()
@@ -63,6 +96,7 @@ namespace Mayra
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
         _window = new Mayra::Window(_props);
+        glfwSwapInterval(1);
 
         // Check for Valid Context
         if (_window->Get() == nullptr) {
@@ -86,7 +120,7 @@ namespace Mayra
     void Application::Run()
     {
         glm::vec4 clear_color = glm::vec4(Mayra::Color::chocolate, 1.0f);
-        
+
         Mayra::Shader* shader = new Mayra::Shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
         Mayra::Texture2D smile = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png", true);
         // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -98,78 +132,50 @@ namespace Mayra
             -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,   // bottom left
             -0.5f,  0.5f, 0.0f,   0.0f, 1.0f    // top left
         };
-        
+
         unsigned int indices[] = {
             0, 1, 2,
             2, 3, 0
         };
-        
-        unsigned int VBO, VAO, EBO;
-        GLCall(glGenVertexArrays(1, &VAO));
-        GLCall(glGenBuffers(1, &VBO));
-        GLCall(glGenBuffers(1, &EBO));
 
-        GLCall(glBindVertexArray(VAO));
+        unsigned int vertexBuffer, vertexArray, indexBuffer;
+        GLCall(glGenVertexArrays(1, &vertexArray));
+        GLCall(glBindVertexArray(vertexArray));
 
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+        GLCall(glGenBuffers(1, &vertexBuffer));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
         GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
+        // position attribute
+        GLCall(glEnableVertexAttribArray(0));
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
+
+        // texture coord attribute
+        GLCall(glEnableVertexAttribArray(1));
+        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))));
+
+        GLCall(glGenBuffers(1, &indexBuffer));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer));
         GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 
-        // position attribute
-        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
-        GLCall(glEnableVertexAttribArray(0));
-        // texture coord attribute
-        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))));
-        GLCall(glEnableVertexAttribArray(1));
-        
+        GLCall(glBindVertexArray(0));
+        shader->Unbind();
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
         float scale = 1.0f;
         glm::mat4 Projection = glm::ortho(-1.6f / scale, 1.6f / scale, -0.9f / scale, 0.9f / scale, -1.0f, 1.0f);
         glm::mat4 identityViewMatrix(1.0f);
-        
+
         glm::mat4 Model = glm::mat4(1.0f);
         Model = glm::translate(Model, glm::vec3(1.0f, 0.0f, 0.0f));
-        
+
         glm::mat4 Model2 = glm::mat4(1.0f);
         Model2 = glm::translate(Model2, cameraPosition);//glm::vec3(0.1f, 0.5f, 0.0f));
         Model2 = glm::scale(Model2, glm::vec3(0.5f, 0.5f, 0.0f));
-        
+
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
-            
-            // nice for an input manager one day!
-            static bool reload_key_pressed = false;
-            bool down = glfwGetKey(_window->Get(), GLFW_KEY_R);
-            if (down && !reload_key_pressed)
-            {
-                reload_key_pressed = true;
-            }
-            else if (!down && reload_key_pressed)
-            {
-                reload_key_pressed = false;
-            }
-            
-            float moveSpeed = 0.05f;
-            glm::vec3 movePosition(0.0f, 0.0f, 0.0f);
-            if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
-                // forward
-                movePosition -= moveSpeed * cameraUp;
-            }
-            else if (glfwGetKey(_window->Get(), GLFW_KEY_S) == GLFW_PRESS) {
-                // backwards
-                movePosition += moveSpeed * cameraUp;
-            }
-            else if (glfwGetKey(_window->Get(), GLFW_KEY_A) == GLFW_PRESS) {
-                // left
-                movePosition += moveSpeed * cameraLeft;
-            }
-            else if (glfwGetKey(_window->Get(), GLFW_KEY_D) == GLFW_PRESS) {
-                // right
-                movePosition -= moveSpeed * cameraLeft;
-            }
-            cameraPosition += movePosition;
-
             _gui->PrepareRender();
 
             GLCall(glEnable(GL_DEPTH_TEST));
@@ -179,32 +185,21 @@ namespace Mayra
 
             GLCall(glActiveTexture(GL_TEXTURE0));
             smile.Bind();
-            
-            glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
-            
-            glm::mat4 MVP = Projection * View * Model;
-            
-            shader->Use();
-            shader->SetMat4("u_MVP", MVP);
-//            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
-            shader->SetInt("image", 0);
-            shader->SetVec3("u_Color", Mayra::Color::white);
-            
-            GLCall(glBindVertexArray(VAO));
-            
-            GLCall(glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, nullptr));
-            
-            MVP = Projection * Model2;
-            shader->Use();
-            shader->SetMat4("u_MVP", MVP);
-//            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
-            shader->SetInt("image", 0);
-            shader->SetVec3("u_Color", Mayra::Color::white);
-            
-            GLCall(glBindVertexArray(VAO));
-            GLCall(glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, nullptr));
 
-            GLCall(glBindVertexArray(0)); // no need to unbind it every time
+            glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
+
+            glm::mat4 MVP = Projection * View * Model;
+
+            shader->Bind();
+            shader->SetMat4("u_MVP", MVP);
+//            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
+            shader->SetInt("image", 0);
+            shader->SetVec3("u_Color", Mayra::Color::white);
+
+            GLCall(glBindVertexArray(vertexArray));
+            GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer));
+
+            GLCall(glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, nullptr));
 
             _gui->Render();
             // Flip Buffers and Draw
@@ -214,9 +209,9 @@ namespace Mayra
 
         // de-allocate all resources once they've outlived their purpose:
         // --------------------------------------------------------------
-        GLCall(glDeleteVertexArrays(1, &VAO));
-        GLCall(glDeleteBuffers(1, &VBO));
-        GLCall(glDeleteBuffers(1, &EBO));
+        GLCall(glDeleteVertexArrays(1, &vertexArray));
+        GLCall(glDeleteBuffers(1, &vertexBuffer));
+        GLCall(glDeleteBuffers(1, &indexBuffer));
     }
 
     void Application::Terminate()

@@ -30,9 +30,14 @@ namespace Mayra
 
         // activate the shader
         // ---------------------------------------------------------------------
-        void Use()
+        void Bind()
         {
-            glUseProgram(ID);
+            GLCall(glUseProgram(ID));
+        }
+        
+        void Unbind()
+        {
+            GLCall(glUseProgram(0));
         }
 
         // utility uniform functions
