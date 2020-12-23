@@ -46,4 +46,29 @@ namespace Mayra
     {
         glBindTexture(GL_TEXTURE_2D, this->ID);
     }
+
+    Mayra::Texture2D Texture2D::LoadFromFile(const char* file, bool alpha)
+    {
+        Mayra::Texture2D texture;
+        if (alpha)
+        {
+            texture.InternalFormat = GL_RGBA;
+            texture.ImageFormat = GL_RGBA;
+        }
+
+        // load image
+        int width, height, nrChannels;
+        stbi_set_flip_vertically_on_load(true);
+        unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            texture.Generate(width, height, data);
+        }
+        else
+        {
+            std::cout << "ERROR::TEXTURE2D_FAILED_TO_LOAD" << std::endl;
+        }
+        stbi_image_free(data);
+        return texture;
+    }
 }

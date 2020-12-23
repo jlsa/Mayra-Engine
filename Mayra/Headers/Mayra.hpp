@@ -28,6 +28,14 @@
 //     #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include "functional"
+#include "vector"
+#include "algorithm"
+
 // Mayra Headers
 #include <Gui.hpp>
 #include <Window.hpp>
@@ -37,5 +45,35 @@
 #define ASSETS      "Assets/"
 #define TEXTURES    ASSETS "Textures/"
 #define SHADERS     "Shaders/"
+
+#ifdef _MSC_VER
+    #define DEBUG_BREAK __debugbreak()
+#else
+    #include <signal.h>
+    #define DEBUG_BREAK raise(SIGINT)
+#endif
+
+#define ASSERT(x) if (!(x)) DEBUG_BREAK
+
+#define GLCall(x) GLClearError();\
+    x;\
+    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+// Should be placed in a GL specific file -- TODO
+static void GLClearError()
+{
+    while (glGetError() != GL_NO_ERROR);
+}
+
+static bool GLLogCall(const char* function, const char* file, int line)
+{
+    bool success = true;
+    while (GLenum error = glGetError())
+    {
+        std::cout << "ERROR::OPENGL::" << error << "::" << file << "::" << line << "::" << function << std::endl;
+        success = false;
+    }
+    return success;
+}
 
 #endif //~ Mayra Header

@@ -4,7 +4,6 @@
 //
 //  Created by Joel Hoekstra on 04/12/2020.
 //
-
 // Local Headers
 #include <Mayra.hpp>
 
@@ -24,31 +23,6 @@
 #include <OrthographicCamera.hpp>
 
 #include <glm/gtx/matrix_decompose.hpp>
-
-Mayra::Texture2D LoadTextureFromFile(const char* file, bool alpha)
-{
-    Mayra::Texture2D texture;
-    if (alpha)
-    {
-        texture.InternalFormat = GL_RGBA;
-        texture.ImageFormat = GL_RGBA;
-    }
-
-    // load image
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        texture.Generate(width, height, data);
-    }
-    else
-    {
-        std::cout << "ERROR::TEXTURE2D_FAILED_TO_LOAD" << std::endl;
-    }
-    stbi_image_free(data);
-    return texture;
-}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -71,9 +45,9 @@ namespace Mayra
     void Application::HandleInput(Mayra::Window *window)
     {
         if (glfwGetKey(window->Get(), GLFW_KEY_1) == GLFW_PRESS)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
         if (glfwGetKey(window->Get(), GLFW_KEY_2) == GLFW_PRESS)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
     }
 
     int Application::Initialize()
@@ -114,7 +88,7 @@ namespace Mayra
         glm::vec4 clear_color = glm::vec4(Mayra::Color::chocolate, 1.0f);
         
         Mayra::Shader* shader = new Mayra::Shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
-        Mayra::Texture2D smile = LoadTextureFromFile(TEXTURES "awesomeface.png", true);
+        Mayra::Texture2D smile = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png", true);
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
         float vertices[] = {
@@ -131,24 +105,24 @@ namespace Mayra
         };
         
         unsigned int VBO, VAO, EBO;
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        glGenBuffers(1, &EBO);
+        GLCall(glGenVertexArrays(1, &VAO));
+        GLCall(glGenBuffers(1, &VBO));
+        GLCall(glGenBuffers(1, &EBO));
 
-        glBindVertexArray(VAO);
+        GLCall(glBindVertexArray(VAO));
 
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
+        GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 
         // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
+        GLCall(glEnableVertexAttribArray(0));
         // texture coord attribute
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
+        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))));
+        GLCall(glEnableVertexAttribArray(1));
         
         float scale = 1.0f;
         glm::mat4 Projection = glm::ortho(-1.6f / scale, 1.6f / scale, -0.9f / scale, 0.9f / scale, -1.0f, 1.0f);
@@ -198,12 +172,12 @@ namespace Mayra
 
             _gui->PrepareRender();
 
-            glEnable(GL_DEPTH_TEST);
+            GLCall(glEnable(GL_DEPTH_TEST));
             // Background Fill Color
-            glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            GLCall(glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
+            GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-            glActiveTexture(GL_TEXTURE0);
+            GLCall(glActiveTexture(GL_TEXTURE0));
             smile.Bind();
             
             glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
@@ -216,20 +190,21 @@ namespace Mayra
             shader->SetInt("image", 0);
             shader->SetVec3("u_Color", Mayra::Color::white);
             
-            glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+            GLCall(glBindVertexArray(VAO));
+            
+            GLCall(glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, nullptr));
             
             MVP = Projection * Model2;
             shader->Use();
             shader->SetMat4("u_MVP", MVP);
 //            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
             shader->SetInt("image", 0);
-            shader->SetVec3("u_Color", Mayra::Color::purple);
+            shader->SetVec3("u_Color", Mayra::Color::white);
             
-            glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, 0);
+            GLCall(glBindVertexArray(VAO));
+            GLCall(glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, nullptr));
 
-            glBindVertexArray(0); // no need to unbind it every time
+            GLCall(glBindVertexArray(0)); // no need to unbind it every time
 
             _gui->Render();
             // Flip Buffers and Draw
@@ -239,9 +214,9 @@ namespace Mayra
 
         // de-allocate all resources once they've outlived their purpose:
         // --------------------------------------------------------------
-        glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &VBO);
-        glDeleteBuffers(1, &EBO);
+        GLCall(glDeleteVertexArrays(1, &VAO));
+        GLCall(glDeleteBuffers(1, &VBO));
+        GLCall(glDeleteBuffers(1, &EBO));
     }
 
     void Application::Terminate()
@@ -259,5 +234,5 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
+    GLCall(glViewport(0, 0, width, height));
 }

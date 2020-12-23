@@ -38,6 +38,8 @@ namespace Mayra
         void Generate(unsigned int width, unsigned int height, unsigned char* data);
         void Bind() const;
         void UnBind() const;
+        
+        static Mayra::Texture2D LoadFromFile(const char* file, bool alpha);
     };
 }
 
