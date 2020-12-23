@@ -47,5 +47,4 @@
 #define TEXTURES    ASSETS "Textures/"
 #define SHADERS     "Shaders/"
 
-
 #endif //~ Mayra Header

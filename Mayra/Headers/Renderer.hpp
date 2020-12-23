@@ -16,6 +16,8 @@
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
+#define BUFFER_OFFSET(x) ((const void*) (std::uintptr_t)(x))
+
 void GLClearError();
 bool GLLogCall(const char* function, const char* file, int line);
 

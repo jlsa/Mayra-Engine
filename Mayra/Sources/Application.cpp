@@ -24,8 +24,9 @@
 
 #include <glm/gtx/matrix_decompose.hpp>
 
-#include <VertexBuffer.hpp>
-#include <IndexBuffer.hpp>
+#include "VertexArray.hpp"
+#include "VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -49,9 +50,9 @@ namespace Mayra
     void Application::HandleInput(Mayra::Window *window)
     {
         if (glfwGetKey(window->Get(), GLFW_KEY_1) == GLFW_PRESS)
-            GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         if (glfwGetKey(window->Get(), GLFW_KEY_2) == GLFW_PRESS)
-            GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // nice for an input manager one day!
         static bool reload_key_pressed = false;
@@ -141,26 +142,24 @@ namespace Mayra
             2, 3, 0
         };
 
-        unsigned int vertexArray;
-        GLCall(glGenVertexArrays(1, &vertexArray));
-        GLCall(glBindVertexArray(vertexArray));
 
-        VertexBuffer* vb = new VertexBuffer(vertices, 4 * 5 * sizeof(float));
+        VertexArray va;
+        VertexBuffer vb(vertices, 4 * 5 * sizeof(float));
 
-        // position attribute
-        GLCall(glEnableVertexAttribArray(0));
-        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0));
-
-        // texture coord attribute
-        GLCall(glEnableVertexAttribArray(1));
-        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))));
+        VertexBufferLayout layout;
+        layout.Push<float>(3);
+        layout.Push<float>(2);
+        va.AddBuffer(vb, layout);
 
         IndexBuffer* ib = new IndexBuffer(indices, sizeof(indices));
 
-        GLCall(glBindVertexArray(0));
+//        GLCall(glBindVertexArray(0));
         shader->Unbind();
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+        ib->Unbind();
+        va.Unbind();
+        vb.Unbind();
+//        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+//        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
         float scale = 1.0f;
         glm::mat4 Projection = glm::ortho(-1.6f / scale, 1.6f / scale, -0.9f / scale, 0.9f / scale, -1.0f, 1.0f);
@@ -195,7 +194,7 @@ namespace Mayra
             shader->SetInt("image", 0);
             shader->SetVec3("u_Color", Mayra::Color::white);
 
-            GLCall(glBindVertexArray(vertexArray));
+            va.Bind();
             ib->Bind();
 
             GLCall(glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, nullptr));
@@ -208,9 +207,10 @@ namespace Mayra
 
         // de-allocate all resources once they've outlived their purpose:
         // --------------------------------------------------------------
-        GLCall(glDeleteVertexArrays(1, &vertexArray));
-        delete vb;
+//        GLCall(glDeleteVertexArrays(1, &vertexArray));
+//        delete vb;
         delete ib;
+//        delete va;
     }
 
     void Application::Terminate()
@@ -224,8 +224,9 @@ namespace Mayra
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow*, int width, int height)
 {
+//    UNUSED(window);
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     GLCall(glViewport(0, 0, width, height));
