@@ -8,8 +8,7 @@
 #ifndef shader_h
 #define shader_h
 
-#include <Mayra.hpp>
-
+#include <GL.hpp>
 #include <glad/glad.h>
 #include <GLUT/glut.h>
 #include <glm/glm.hpp>

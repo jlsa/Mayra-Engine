@@ -1,7 +1,12 @@
 #ifndef VertexBufferLayout_h
 #define VertexBufferLayout_h
 
-#include <Mayra.hpp>
+
+#include <glad/glad.h>
+#include <GLUT/glut.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <GL.hpp>
 
 namespace Mayra
 {

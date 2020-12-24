@@ -27,6 +27,7 @@
 #include "VertexArray.hpp"
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
+#include "Renderer.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -165,17 +166,16 @@ namespace Mayra
         Model = glm::translate(Model, glm::vec3(1.0f, 0.0f, 0.0f));
 
         glm::mat4 Model2 = glm::mat4(1.0f);
-        Model2 = glm::translate(Model2, cameraPosition);//glm::vec3(0.1f, 0.5f, 0.0f));
+        Model2 = glm::translate(Model2, cameraPosition);
         Model2 = glm::scale(Model2, glm::vec3(0.5f, 0.5f, 0.0f));
+
+        Mayra::Renderer renderer;
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
             _gui->PrepareRender();
 
-            GLCall(glEnable(GL_DEPTH_TEST));
-            // Background Fill Color
-            GLCall(glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
-            GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+            renderer.Clear(clear_color);
 
             GLCall(glActiveTexture(GL_TEXTURE0));
             smile.Bind();
@@ -190,10 +190,7 @@ namespace Mayra
             shader.SetInt("u_Image", 0);
             shader.SetVec3("u_Color", Mayra::Color::white);
 
-            va.Bind();
-            ib.Bind();
-
-            GLCall(glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, nullptr));
+            renderer.Draw(va, ib, shader);
 
             _gui->Render();
             // Flip Buffers and Draw

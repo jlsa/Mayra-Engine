@@ -38,7 +38,7 @@
 #include <unordered_map>
 
 // Mayra Headers
-#include <Renderer.hpp>
+#include <GL.hpp>
 #include <Gui.hpp>
 #include <Window.hpp>
 #include <Application.hpp>
@@ -47,5 +47,6 @@
 #define ASSETS      "Assets/"
 #define TEXTURES    ASSETS "Textures/"
 #define SHADERS     "Shaders/"
+
 
 #endif //~ Mayra Header
