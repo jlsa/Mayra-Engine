@@ -35,6 +35,7 @@
 #include <functional>
 #include <vector>
 #include <algorithm>
+#include <unordered_map>
 
 // Mayra Headers
 #include <Renderer.hpp>

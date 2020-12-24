@@ -3,10 +3,10 @@ in vec2 TexCoords;
 
 out vec4 color;
 
-uniform sampler2D image;
-uniform vec3 spriteColor;
+uniform sampler2D u_Image;
+uniform vec3 u_Color;
 
 void main()
 {
-    color = vec4(spriteColor, 1.0) * texture(image, TexCoords);
+    color = vec4(u_Color, 1.0) * texture(u_Image, TexCoords);
 }

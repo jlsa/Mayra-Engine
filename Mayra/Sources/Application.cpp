@@ -123,9 +123,9 @@ namespace Mayra
 
     void Application::Run()
     {
-        glm::vec4 clear_color = glm::vec4(Mayra::Color::chocolate, 1.0f);
+        glm::vec4 clear_color = glm::vec4(Mayra::Color::purple, 1.0f);
 
-        Mayra::Shader* shader = new Mayra::Shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
+        Mayra::Shader shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
         Mayra::Texture2D smile = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png", true);
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
@@ -142,7 +142,6 @@ namespace Mayra
             2, 3, 0
         };
 
-
         VertexArray va;
         VertexBuffer vb(vertices, 4 * 5 * sizeof(float));
 
@@ -151,15 +150,12 @@ namespace Mayra
         layout.Push<float>(2);
         va.AddBuffer(vb, layout);
 
-        IndexBuffer* ib = new IndexBuffer(indices, sizeof(indices));
-
-//        GLCall(glBindVertexArray(0));
-        shader->Unbind();
-        ib->Unbind();
+        IndexBuffer ib(indices, sizeof(indices));
+        
         va.Unbind();
         vb.Unbind();
-//        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-//        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+        ib.Unbind();
+        shader.Unbind();
 
         float scale = 1.0f;
         glm::mat4 Projection = glm::ortho(-1.6f / scale, 1.6f / scale, -0.9f / scale, 0.9f / scale, -1.0f, 1.0f);
@@ -188,14 +184,14 @@ namespace Mayra
 
             glm::mat4 MVP = Projection * View * Model;
 
-            shader->Bind();
-            shader->SetMat4("u_MVP", MVP);
+            shader.Bind();
+            shader.SetMat4("u_MVP", MVP);
 //            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
-            shader->SetInt("image", 0);
-            shader->SetVec3("u_Color", Mayra::Color::white);
+            shader.SetInt("u_Image", 0);
+            shader.SetVec3("u_Color", Mayra::Color::white);
 
             va.Bind();
-            ib->Bind();
+            ib.Bind();
 
             GLCall(glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(indices[0]), GL_UNSIGNED_INT, nullptr));
 
@@ -207,10 +203,6 @@ namespace Mayra
 
         // de-allocate all resources once they've outlived their purpose:
         // --------------------------------------------------------------
-//        GLCall(glDeleteVertexArrays(1, &vertexArray));
-//        delete vb;
-        delete ib;
-//        delete va;
     }
 
     void Application::Terminate()
