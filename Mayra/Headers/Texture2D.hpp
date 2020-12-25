@@ -1,10 +1,3 @@
-//
-//  texture.hpp
-//  Mayra
-//
-//  Created by Joel Hoekstra on 07/12/2020.
-//
-
 #ifndef texture_h
 #define texture_h
 
@@ -21,10 +14,11 @@ namespace Mayra
     {
     public:
         Texture2D();
+        ~Texture2D();
 
-        unsigned int ID;
-        unsigned int Width;
-        unsigned int Height;
+        int m_Width;
+        int m_Height;
+        int m_BPP;
 
         unsigned int InternalFormat; // format of texture object
         unsigned int ImageFormat; // format of loaded image
@@ -35,11 +29,15 @@ namespace Mayra
         unsigned int FilterMin; // filtering mode if texture pixels < screen pixels
         unsigned int FilterMax; // filtering mode if texture pixels > screen pixels
 
-        void Generate(unsigned int width, unsigned int height, unsigned char* data);
-        void Bind() const;
+        void Generate(int width, int height, int bpp, unsigned char* data);
+        void Bind(unsigned int slot = 0) const;
         void UnBind() const;
         
-        static Mayra::Texture2D LoadFromFile(const char* file, bool alpha);
+        static Mayra::Texture2D LoadFromFile(const std::string& filepath);
+    private:
+        unsigned int m_RendererID;
+        std::string m_Filepath;
+        unsigned char* m_LocalBuffer;
     };
 }
 

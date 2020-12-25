@@ -200,7 +200,7 @@ namespace Mayra
         glDeleteShader(compiledShaders.FragmentShaderID);
     }
 
-    unsigned int Shader::GetUniformLocation(const std::string &name)
+    int Shader::GetUniformLocation(const std::string &name)
     {
         if (m_UniformLocationCache.find(name.c_str()) != m_UniformLocationCache.end())
             return m_UniformLocationCache[name.c_str()];

@@ -1,9 +1,3 @@
-//
-//  application.cpp
-//  Mayra
-//
-//  Created by Joel Hoekstra on 04/12/2020.
-//
 // Local Headers
 #include <Mayra.hpp>
 
@@ -127,7 +121,7 @@ namespace Mayra
         glm::vec4 clear_color = glm::vec4(Mayra::Color::purple, 1.0f);
 
         Mayra::Shader shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
-        Mayra::Texture2D smile = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png", true);
+        Mayra::Texture2D texture = Mayra::Texture2D::LoadFromFile(TEXTURES "triangle.png");//"awesomeface.png");
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
         float vertices[] = {
@@ -151,8 +145,8 @@ namespace Mayra
         layout.Push<float>(2);
         va.AddBuffer(vb, layout);
 
-        IndexBuffer ib(indices, sizeof(indices));
-        
+        IndexBuffer ib(indices, sizeof(indices) / sizeof(indices[0]));
+
         va.Unbind();
         vb.Unbind();
         ib.Unbind();
@@ -177,8 +171,7 @@ namespace Mayra
 
             renderer.Clear(clear_color);
 
-            GLCall(glActiveTexture(GL_TEXTURE0));
-            smile.Bind();
+            texture.Bind();
 
             glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
 
@@ -187,7 +180,7 @@ namespace Mayra
             shader.Bind();
             shader.SetMat4("u_MVP", MVP);
 //            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
-            shader.SetInt("u_Image", 0);
+            shader.SetInt("u_Texture", 0);
             shader.SetVec3("u_Color", Mayra::Color::white);
 
             renderer.Draw(va, ib, shader);

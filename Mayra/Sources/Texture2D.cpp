@@ -1,40 +1,47 @@
-//
-//  texture.cpp
-//  Mayra
-//
-//  Created by Joel Hoekstra on 07/12/2020.
-//
-
 #include <Texture2D.hpp>
 
 namespace Mayra
 {
     Texture2D::Texture2D()
-        : Width(0), Height(0), InternalFormat(GL_RGB), ImageFormat(GL_RGB), WrapS(GL_REPEAT), WrapT(GL_REPEAT), FilterMin(GL_LINEAR), FilterMax(GL_LINEAR)
+        : m_Width(0), m_Height(0), InternalFormat(GL_RGB), ImageFormat(GL_RGB), WrapS(GL_CLAMP_TO_EDGE), WrapT(GL_CLAMP_TO_EDGE), FilterMin(GL_LINEAR), FilterMax(GL_LINEAR), m_RendererID(0),
+            m_LocalBuffer(nullptr)
     {
-        glGenTextures(1, &this->ID);
     }
 
-    void Texture2D::Generate(unsigned int width, unsigned int height, unsigned char* data)
+    Texture2D::~Texture2D()
     {
-        this->Width = width;
-        this->Height = height;
+        GLCall(glDeleteTextures(1, &m_RendererID));
+    }
+
+    void Texture2D::Generate(int width, int height, int bpp, unsigned char* data)
+    {
+        GLCall(glGenTextures(1, &this->m_RendererID));
+        m_LocalBuffer = data;
+        m_Width = width;
+        m_Height = height;
+        m_BPP = bpp;
 
         // create texture
-        glBindTexture(GL_TEXTURE_2D, this->ID);
+        Bind();
 
-        glTexImage2D(GL_TEXTURE_2D, 0, this->InternalFormat, width, height, 0, this->ImageFormat, GL_UNSIGNED_BYTE, data);
+        if (m_BPP == 4) {
+            GLCall(glEnable(GL_BLEND));
+            GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            GLCall(glBlendEquation(GL_FUNC_ADD));
+        }
+        
+        GLCall(glTexImage2D(GL_TEXTURE_2D, 0, InternalFormat, width, height, 0, ImageFormat, GL_UNSIGNED_BYTE, m_LocalBuffer));
 
         // set the texture wrapping/filtering options (on the current bound texture object)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, this->WrapS);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, this->WrapT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, this->FilterMin);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, this->FilterMax);
+        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, WrapS));
+        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, WrapT));
+        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilterMin));
+        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilterMax));
 
-        glGenerateMipmap(GL_TEXTURE_2D);
+        GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
         // unbind texture
-        this->UnBind();
+        UnBind();
     }
 
     void Texture2D::UnBind() const
@@ -42,33 +49,36 @@ namespace Mayra
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void Texture2D::Bind() const
+    void Texture2D::Bind(unsigned int slot) const
     {
-        glBindTexture(GL_TEXTURE_2D, this->ID);
+        GLCall(glActiveTexture(GL_TEXTURE0 + slot));
+        GLCall(glBindTexture(GL_TEXTURE_2D, this->m_RendererID));
     }
 
-    Mayra::Texture2D Texture2D::LoadFromFile(const char* file, bool alpha)
+    Mayra::Texture2D Texture2D::LoadFromFile(const std::string& filepath)
     {
         Mayra::Texture2D texture;
-        if (alpha)
+        // load image
+        int width, height, bpp;
+        stbi_set_flip_vertically_on_load(true);
+        texture.m_LocalBuffer = stbi_load(filepath.c_str(), &width, &height, &bpp, 0);
+
+        if (bpp == 4)
         {
-            texture.InternalFormat = GL_RGBA;
+            texture.InternalFormat = GL_RGBA8;
             texture.ImageFormat = GL_RGBA;
         }
 
-        // load image
-        int width, height, nrChannels;
-        stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
-        if (data)
+        if (texture.m_LocalBuffer)
         {
-            texture.Generate(width, height, data);
+            texture.Generate(width, height, bpp, texture.m_LocalBuffer);
+            stbi_image_free(texture.m_LocalBuffer);
         }
         else
         {
             std::cout << "ERROR::TEXTURE2D_FAILED_TO_LOAD" << std::endl;
         }
-        stbi_image_free(data);
+
         return texture;
     }
 }

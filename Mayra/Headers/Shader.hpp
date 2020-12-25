@@ -73,7 +73,7 @@ namespace Mayra
         unsigned int Compile(Mayra::ShaderSource shader);
         unsigned int CreateProgram(Mayra::ShadersCompiled shaders);
         unsigned int CreateProgram(unsigned int vertex, unsigned int fragment);
-        unsigned int GetUniformLocation(const std::string& name);
+        int GetUniformLocation(const std::string& name);
 
         unsigned int m_RendererID;
         const char* m_VertexPath;
