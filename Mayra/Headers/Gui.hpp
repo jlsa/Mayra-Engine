@@ -16,6 +16,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <glm/glm.hpp>
 
 namespace Mayra
 {
@@ -27,6 +28,8 @@ namespace Mayra
         void NewFrame();
         void PrepareRender();
         void Render();
+
+        // should probably use something like templates here
         void AddBoolParam(std::string name, bool param);
         bool GetBoolParam(std::string name);
         void ToggleBoolParam(std::string name);
@@ -34,7 +37,7 @@ namespace Mayra
         void AddFloatParam(std::string name, float param);
         float GetFloatParam(std::string name);
         void EditFloatParam(std::string name, float newValue);
-
+        
         // components/elements
         void TopBar();
         
@@ -42,6 +45,7 @@ namespace Mayra
         GLFWwindow* _window;
         std::map<std::string, bool> paramsB;
         std::map<std::string, float> paramsF;
+        std::map<std::string, glm::vec3> paramsVec3;
     };
 }
 

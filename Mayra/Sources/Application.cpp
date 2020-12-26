@@ -118,10 +118,12 @@ namespace Mayra
 
     void Application::Run()
     {
+        Mayra::Renderer renderer;
         glm::vec4 clear_color = glm::vec4(Mayra::Color::purple, 1.0f);
 
         Mayra::Shader shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
         Mayra::Texture2D texture = Mayra::Texture2D::LoadFromFile(TEXTURES "triangle.png");//"awesomeface.png");
+
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
         float vertices[] = {
@@ -155,15 +157,7 @@ namespace Mayra
         float scale = 1.0f;
         glm::mat4 Projection = glm::ortho(-1.6f / scale, 1.6f / scale, -0.9f / scale, 0.9f / scale, -1.0f, 1.0f);
         glm::mat4 identityViewMatrix(1.0f);
-
-        glm::mat4 Model = glm::mat4(1.0f);
-        Model = glm::translate(Model, glm::vec3(1.0f, 0.0f, 0.0f));
-
-        glm::mat4 Model2 = glm::mat4(1.0f);
-        Model2 = glm::translate(Model2, cameraPosition);
-        Model2 = glm::scale(Model2, glm::vec3(0.5f, 0.5f, 0.0f));
-
-        Mayra::Renderer renderer;
+        glm::vec3 translation(0.0f);
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
@@ -174,8 +168,8 @@ namespace Mayra
             texture.Bind();
 
             glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
-
-            glm::mat4 MVP = Projection * View * Model;
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+            glm::mat4 MVP = Projection * View * model;
 
             shader.Bind();
             shader.SetMat4("u_MVP", MVP);
@@ -184,6 +178,10 @@ namespace Mayra
             shader.SetVec3("u_Color", Mayra::Color::white);
 
             renderer.Draw(va, ib, shader);
+
+            {
+                ImGui::SliderFloat3("Translation", &translation.x, -1.0f, 1.0f);
+            }
 
             _gui->Render();
             // Flip Buffers and Draw

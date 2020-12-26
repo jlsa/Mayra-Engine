@@ -12,7 +12,10 @@
 
 namespace Mayra
 {
-    Gui::~Gui() {}
+    Gui::~Gui() {
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+    }
 
     void Gui::Initialize(GLFWwindow* window, std::string glsl_version)
     {
@@ -35,49 +38,40 @@ namespace Mayra
 
     void Gui::AddBoolParam(std::string name, bool param)
     {
-        if (paramsB.find(name) == paramsB.end()) {
+        if (paramsB.find(name) == paramsB.end())
             paramsB.insert(std::make_pair(name, param));
-        }
     }
 
     void Gui::ToggleBoolParam(std::string name)
     {
-        if (paramsB.find(name) != paramsB.end()) {
+        if (paramsB.find(name) != paramsB.end())
             paramsB[name] = !paramsB[name];
-        }
     }
 
     bool Gui::GetBoolParam(std::string name)
     {
         if (paramsB.find(name) != paramsB.end())
-        {
             return paramsB.find(name)->second;
-        }
-
         return false;
     }
 
 
     void Gui::AddFloatParam(std::string name, float param)
     {
-        if (paramsF.find(name) == paramsF.end()) {
+        if (paramsF.find(name) == paramsF.end())
             paramsF.insert(std::make_pair(name, param));
-        }
     }
 
     void Gui::EditFloatParam(std::string name, float newValue)
     {
-        if (paramsF.find(name) != paramsF.end()) {
+        if (paramsF.find(name) != paramsF.end())
             paramsF[name] = newValue;
-        }
     }
 
     float Gui::GetFloatParam(std::string name)
     {
         if (paramsF.find(name) != paramsF.end())
-        {
             return paramsF.find(name)->second;
-        }
 
         return 0.0f;
     }
@@ -86,11 +80,11 @@ namespace Mayra
     {
         NewFrame();
         TopBar();
-        ImGui::Render();
     }
 
     void Gui::Render()
     {
+        ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
@@ -137,10 +131,16 @@ namespace Mayra
                     EditFloatParam(itf->first, lala);
                     itf++;
                 }
-
-
                 ImGui::EndMenu();
             }
+
+            if (ImGui::BeginMenu("ImGui"))
+            {
+                ImGuiIO& io = ImGui::GetIO(); (void)io;
+                ImGui::Text("%.1f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMainMenuBar();
         }
     }
