@@ -2,9 +2,20 @@
 
 namespace Mayra
 {
-    void Renderer::Clear(const glm::vec4& clear_color) const
+    Renderer::Renderer()
+    {
+        GLCall(glEnable(GL_BLEND));
+        GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    }
+
+    void Renderer::Clear() const
     {
         GLCall(glEnable(GL_DEPTH_TEST));
+    }
+
+    void Renderer::Clear(const glm::vec4& clear_color) const
+    {
+        Clear();
         // Background Fill Color
         GLCall(glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w));
         GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));

@@ -23,6 +23,8 @@
 #include "IndexBuffer.hpp"
 #include "Renderer.hpp"
 
+#include "TestClearColor.hpp"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 namespace Mayra
@@ -31,10 +33,6 @@ namespace Mayra
         : _camera(-1.6f, 1.6f, -0.9f, 0.9f), _props(props)
     {
         std::cout << "Application " << props->Title << " constructed" << std::endl;
-        cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-        cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-        cameraLeft = glm::vec3(1.0f, 0.0f, 0.0f);
-        cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     }
 
     Application::~Application()
@@ -43,44 +41,7 @@ namespace Mayra
     }
 
     void Application::HandleInput(Mayra::Window*)
-    {
-//        if (glfwGetKey(window->Get(), GLFW_KEY_1) == GLFW_PRESS)
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//        if (glfwGetKey(window->Get(), GLFW_KEY_2) == GLFW_PRESS)
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-        // nice for an input manager one day!
-        static bool reload_key_pressed = false;
-        bool down = glfwGetKey(_window->Get(), GLFW_KEY_R);
-        if (down && !reload_key_pressed)
-        {
-            reload_key_pressed = true;
-        }
-        else if (!down && reload_key_pressed)
-        {
-            reload_key_pressed = false;
-        }
-
-        float moveSpeed = 0.05f;
-        glm::vec3 movePosition(0.0f, 0.0f, 0.0f);
-        if (glfwGetKey(_window->Get(), GLFW_KEY_W) == GLFW_PRESS) {
-            // forward
-            movePosition -= moveSpeed * cameraUp;
-        }
-        else if (glfwGetKey(_window->Get(), GLFW_KEY_S) == GLFW_PRESS) {
-            // backwards
-            movePosition += moveSpeed * cameraUp;
-        }
-        else if (glfwGetKey(_window->Get(), GLFW_KEY_A) == GLFW_PRESS) {
-            // left
-            movePosition += moveSpeed * cameraLeft;
-        }
-        else if (glfwGetKey(_window->Get(), GLFW_KEY_D) == GLFW_PRESS) {
-            // right
-            movePosition -= moveSpeed * cameraLeft;
-        }
-        cameraPosition += movePosition;
-    }
+    {}
 
     int Application::Initialize()
     {
@@ -119,108 +80,29 @@ namespace Mayra
     void Application::Run()
     {
         Mayra::Renderer renderer;
-        glm::vec4 clear_color = glm::vec4(Mayra::Color::purple, 1.0f);
 
-        Mayra::Shader shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
-        Mayra::Texture2D texture = Mayra::Texture2D::LoadFromFile(TEXTURES "triangle.png");//"awesomeface.png");
-        Mayra::Texture2D texture2 = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png");
-
-        // set up vertex data (and buffer(s)) and configure vertex attributes
-        // ------------------------------------------------------------------
-        float vertices[] = {
-            // positions          // texture coords
-             1.0f,  1.0f, 0.0f,   1.0f, 1.0f,   // top right
-             1.0f, -1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-            -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,   // bottom left
-            -1.0f,  1.0f, 0.0f,   0.0f, 1.0f    // top left
-        };
-
-        unsigned int indices[] = {
-            0, 1, 2,
-            2, 3, 0
-        };
-
-        VertexArray va;
-        VertexBuffer vb(vertices, 4 * 5 * sizeof(float));
-
-        VertexBufferLayout layout;
-        layout.Push<float>(3);
-        layout.Push<float>(2);
-        va.AddBuffer(vb, layout);
-
-        IndexBuffer ib(indices, sizeof(indices) / sizeof(indices[0]));
-
-        va.Unbind();
-        vb.Unbind();
-        ib.Unbind();
-        shader.Unbind();
-
-        float scale = 1.0f;
-        glm::mat4 Projection = glm::ortho(-1.6f / scale, 1.6f / scale, -0.9f / scale, 0.9f / scale, -1.0f, 1.0f);
-        glm::mat4 identityViewMatrix(1.0f);
-
-        glm::vec3 translationA(0.0f);
-        glm::vec3 scaleA(0.5f);
-        glm::vec3 translationB(0.5f);
-        glm::vec3 scaleB(0.5f);
+        Test::TestClearColor test;
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
             _gui->PrepareRender();
 
-            renderer.Clear(clear_color);
+            renderer.Clear();
+
+            test.OnUpdate(0.0f);
+            test.OnRender();
 
             {
-                texture.Bind();
-                glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
-                glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
-                model = glm::scale(model, scaleA);
-                glm::mat4 MVP = Projection * View * model;
-
-                shader.Bind();
-                shader.SetMat4("u_MVP", MVP);
-    //            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
-                shader.SetInt("u_Texture", 0);
-                shader.SetVec3("u_Color", Mayra::Color::white);
-                renderer.Draw(va, ib, shader);
-            }
-
-            {
-                texture2.Bind();
-                glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
-                glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
-                model = glm::scale(model, scaleB);
-                glm::mat4 MVP = Projection * View * model;
-
-                shader.Bind();
-                shader.SetMat4("u_MVP", MVP);
-                shader.SetInt("u_Texture", 0);
-                shader.SetVec3("u_Color", Mayra::Color::white);
-                renderer.Draw(va, ib, shader);
-            }
-
-            {
-                ImGui::Begin("Inspector");
-
-                ImGui::Text("A");
-                ImGui::InputFloat3("Translation", &translationA.x);
-                ImGui::SliderFloat3("Scale", &scaleA.x, 0.0f, 1.0f);
-                ImGui::Separator();
-                ImGui::Text("B");
-                ImGui::InputFloat3("Translation##second", &translationB.x);
-                ImGui::SliderFloat3("Scale##second", &scaleB.x, 0.0f, 1.0f);
-
+                ImGui::Begin("Test Frame");
+                test.OnImGuiRender();
                 ImGui::End();
             }
 
             _gui->Render();
-            // Flip Buffers and Draw
+
             glfwSwapBuffers(_window->Get());
             glfwPollEvents();
         }
-
-        // de-allocate all resources once they've outlived their purpose:
-        // --------------------------------------------------------------
     }
 
     void Application::Terminate()
@@ -236,7 +118,6 @@ namespace Mayra
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow*, int width, int height)
 {
-//    UNUSED(window);
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     GLCall(glViewport(0, 0, width, height));

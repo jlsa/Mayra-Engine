@@ -29,11 +29,6 @@ namespace Mayra
         Mayra::Window* _window;
         Mayra::Gui* _gui;
         Mayra::WindowProps* _props;
-
-        glm::vec3 cameraPosition;
-        glm::vec3 cameraFront;
-        glm::vec3 cameraUp;
-        glm::vec3 cameraLeft;
     };
 }
 #endif /* application_h */
