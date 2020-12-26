@@ -42,12 +42,12 @@ namespace Mayra
         Terminate();
     }
 
-    void Application::HandleInput(Mayra::Window *window)
+    void Application::HandleInput(Mayra::Window*)
     {
-        if (glfwGetKey(window->Get(), GLFW_KEY_1) == GLFW_PRESS)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        if (glfwGetKey(window->Get(), GLFW_KEY_2) == GLFW_PRESS)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//        if (glfwGetKey(window->Get(), GLFW_KEY_1) == GLFW_PRESS)
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//        if (glfwGetKey(window->Get(), GLFW_KEY_2) == GLFW_PRESS)
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // nice for an input manager one day!
         static bool reload_key_pressed = false;
@@ -123,15 +123,16 @@ namespace Mayra
 
         Mayra::Shader shader(SHADERS "SimpleTransform.vert", SHADERS "SimpleTransform.frag");
         Mayra::Texture2D texture = Mayra::Texture2D::LoadFromFile(TEXTURES "triangle.png");//"awesomeface.png");
+        Mayra::Texture2D texture2 = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png");
 
         // set up vertex data (and buffer(s)) and configure vertex attributes
         // ------------------------------------------------------------------
         float vertices[] = {
             // positions          // texture coords
-             0.5f,  0.5f, 0.0f,   1.0f, 1.0f,   // top right
-             0.5f, -0.5f, 0.0f,   1.0f, 0.0f,   // bottom right
-            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,   // bottom left
-            -0.5f,  0.5f, 0.0f,   0.0f, 1.0f    // top left
+             1.0f,  1.0f, 0.0f,   1.0f, 1.0f,   // top right
+             1.0f, -1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+            -1.0f, -1.0f, 0.0f,   0.0f, 0.0f,   // bottom left
+            -1.0f,  1.0f, 0.0f,   0.0f, 1.0f    // top left
         };
 
         unsigned int indices[] = {
@@ -157,7 +158,11 @@ namespace Mayra
         float scale = 1.0f;
         glm::mat4 Projection = glm::ortho(-1.6f / scale, 1.6f / scale, -0.9f / scale, 0.9f / scale, -1.0f, 1.0f);
         glm::mat4 identityViewMatrix(1.0f);
-        glm::vec3 translation(0.0f);
+
+        glm::vec3 translationA(0.0f);
+        glm::vec3 scaleA(0.5f);
+        glm::vec3 translationB(0.5f);
+        glm::vec3 scaleB(0.5f);
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
@@ -165,22 +170,47 @@ namespace Mayra
 
             renderer.Clear(clear_color);
 
-            texture.Bind();
+            {
+                texture.Bind();
+                glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
+                glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
+                model = glm::scale(model, scaleA);
+                glm::mat4 MVP = Projection * View * model;
 
-            glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
-            glm::mat4 MVP = Projection * View * model;
-
-            shader.Bind();
-            shader.SetMat4("u_MVP", MVP);
-//            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
-            shader.SetInt("u_Texture", 0);
-            shader.SetVec3("u_Color", Mayra::Color::white);
-
-            renderer.Draw(va, ib, shader);
+                shader.Bind();
+                shader.SetMat4("u_MVP", MVP);
+    //            shader.SetMat4("u_ViewProjection", _camera.GetViewProjectionMatrix());
+                shader.SetInt("u_Texture", 0);
+                shader.SetVec3("u_Color", Mayra::Color::white);
+                renderer.Draw(va, ib, shader);
+            }
 
             {
-                ImGui::SliderFloat3("Translation", &translation.x, -1.0f, 1.0f);
+                texture2.Bind();
+                glm::mat4 View = glm::translate(identityViewMatrix, cameraPosition);
+                glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
+                model = glm::scale(model, scaleB);
+                glm::mat4 MVP = Projection * View * model;
+
+                shader.Bind();
+                shader.SetMat4("u_MVP", MVP);
+                shader.SetInt("u_Texture", 0);
+                shader.SetVec3("u_Color", Mayra::Color::white);
+                renderer.Draw(va, ib, shader);
+            }
+
+            {
+                ImGui::Begin("Inspector");
+
+                ImGui::Text("A");
+                ImGui::InputFloat3("Translation", &translationA.x);
+                ImGui::SliderFloat3("Scale", &scaleA.x, 0.0f, 1.0f);
+                ImGui::Separator();
+                ImGui::Text("B");
+                ImGui::InputFloat3("Translation##second", &translationB.x);
+                ImGui::SliderFloat3("Scale##second", &scaleB.x, 0.0f, 1.0f);
+
+                ImGui::End();
             }
 
             _gui->Render();
