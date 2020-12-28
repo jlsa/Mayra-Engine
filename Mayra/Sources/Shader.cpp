@@ -2,6 +2,9 @@
 
 namespace Mayra
 {
+    Shader::Shader()
+    : m_RendererID(0), m_VertexPath(""), m_FragmentPath("")
+    {}
     Shader::Shader(const char* vertexPath, const char* fragmentPath)
         : m_RendererID(0), m_VertexPath(vertexPath), m_FragmentPath(fragmentPath)
     {

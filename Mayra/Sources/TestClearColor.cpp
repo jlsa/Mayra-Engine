@@ -11,7 +11,12 @@ namespace Test
     {
     }
 
-    void TestClearColor::OnUpdate(float deltaTime)
+    void TestClearColor::SetRenderer(Mayra::Renderer)
+    {
+
+    }
+
+    void TestClearColor::OnUpdate(float)
     {
 
     }
