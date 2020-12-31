@@ -1,3 +1,6 @@
+# Ideas
+You can read about all my ideas for this project [here](https://github.com/jlsa/Mayra-Engine/blob/master/Ideas.md)!
+
 # [Glitter](http://polytonic.github.io/Glitter/)
 ![Screenshot](http://i.imgur.com/MDo2rsy.jpg)
 
