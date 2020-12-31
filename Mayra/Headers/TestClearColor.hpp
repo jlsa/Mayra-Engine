@@ -3,7 +3,6 @@
 
 #include <Mayra.hpp>
 #include <Test.hpp>
-#include "Renderer.hpp"
 
 namespace Test
 {

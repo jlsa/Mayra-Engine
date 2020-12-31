@@ -114,7 +114,6 @@ namespace Test
 
     void TestColoredQuad::OnRender()
     {
-//        Mayra::Renderer::Instance()->Clear();
         GLCall(glClearColor(m_ClearColor.r,
                             m_ClearColor.g,
                             m_ClearColor.b,
@@ -127,7 +126,6 @@ namespace Test
 
         GLCall(glBindVertexArray(VAO));
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
-        
     }
 
     void TestColoredQuad::OnImGuiRender()
