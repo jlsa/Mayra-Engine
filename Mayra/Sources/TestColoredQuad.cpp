@@ -107,11 +107,6 @@ namespace Test
         GLCall(glDeleteProgram(shaderProgram));
     }
 
-    void TestColoredQuad::SetRenderer(Mayra::Renderer)
-    {
-
-    }
-
     void TestColoredQuad::OnUpdate(float)
     {
         
@@ -119,6 +114,7 @@ namespace Test
 
     void TestColoredQuad::OnRender()
     {
+//        Mayra::Renderer::Instance()->Clear();
         GLCall(glClearColor(m_ClearColor.r,
                             m_ClearColor.g,
                             m_ClearColor.b,

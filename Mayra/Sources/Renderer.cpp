@@ -2,6 +2,16 @@
 
 namespace Mayra
 {
+    Renderer* Renderer::m_Instance = nullptr;
+
+    Renderer* Renderer::Instance()
+    {
+        if (m_Instance == nullptr)
+            m_Instance = new Renderer();
+
+        return m_Instance;
+    }
+
     Renderer::Renderer()
     {
         GLCall(glEnable(GL_BLEND));

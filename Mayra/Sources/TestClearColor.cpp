@@ -11,11 +11,6 @@ namespace Test
     {
     }
 
-    void TestClearColor::SetRenderer(Mayra::Renderer)
-    {
-
-    }
-
     void TestClearColor::OnUpdate(float)
     {
 
