@@ -2,6 +2,7 @@
 #define Test_h
 
 #include "Renderer.hpp"
+#include "TestsManager.hpp"
 
 namespace Test
 {
@@ -10,10 +11,21 @@ namespace Test
     public:
         Test() {}
         virtual ~Test() {}
+
+        virtual void OnAttach() = 0;
+        virtual void OnDetach() = 0;
+
+        virtual void Suspend() = 0;
+        virtual void Resume() = 0;
         
-        virtual void OnUpdate(float deltaTime) {}
-        virtual void OnRender() {}
-        virtual void OnImGuiRender() {}
+        virtual void OnUpdate(TestsManager*, float) {}
+        virtual void OnRender(TestsManager*) {}
+        virtual void OnImGuiRender(TestsManager*) {}
+
+        void ChangeTest(TestsManager* testsManager, Test* test)
+        {
+            testsManager->ChangeTest(test);
+        }
     };
 }
 

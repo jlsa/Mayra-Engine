@@ -14,14 +14,26 @@ namespace Test
     class TestColoredQuad : public Test
     {
     public:
-        TestColoredQuad();
-        ~TestColoredQuad();
+        void OnAttach() override;
+        void OnDetach() override;
+
+        void Suspend() override;
+        void Resume() override;
         
-        void OnUpdate(float deltaTime) override;
-        void OnRender() override;
-        void OnImGuiRender() override;
+        void OnUpdate(TestsManager* testsManager, float deltaTime) override;
+        void OnRender(TestsManager* testsManager) override;
+        void OnImGuiRender(TestsManager* testsManager) override;
+
+        static TestColoredQuad* Instance()
+        {
+            return &m_Instance;
+        }
+
+    protected:
+        TestColoredQuad() {}
 
     private:
+        static TestColoredQuad m_Instance;
         glm::vec4 m_ClearColor;
         glm::vec4 m_QuadColor;
         unsigned int VBO = 0;

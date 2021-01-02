@@ -23,6 +23,7 @@
 #include "IndexBuffer.hpp"
 #include "Renderer.hpp"
 
+#include "TestsManager.hpp"
 #include "TestClearColor.hpp"
 #include "TestColoredQuad.hpp"
 
@@ -93,18 +94,21 @@ namespace Mayra
 
     void Application::Run()
     {
-        Test::TestColoredQuad test;
+        Test::TestsManager* testsManager = new Test::TestsManager();
+
+        testsManager->ChangeTest(Test::TestColoredQuad::Instance());
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
             _gui->PrepareRender();
 
-            test.OnUpdate(0.0f);
-            test.OnRender();
-
+            testsManager->HandleEvents();
+            testsManager->Update(0.0f);
+            testsManager->Render();
+            
             {
                 ImGui::Begin("Test Frame");
-                test.OnImGuiRender();
+                testsManager->RenderGui();
                 ImGui::End();
             }
 
@@ -113,6 +117,8 @@ namespace Mayra
             glfwSwapBuffers(_window->Get());
             glfwPollEvents();
         }
+        delete testsManager;
+//        test.OnDetach();
 
 //        GLCall(glDeleteVertexArrays(1, &VAO));
 //        GLCall(glDeleteBuffers(1, &VBO));

@@ -1,7 +1,11 @@
 #include "TestColoredQuad.hpp"
 
+#include "TestClearColor.hpp"
+
 namespace Test
 {
+    TestColoredQuad TestColoredQuad::m_Instance;
+    
     const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
     "void main()\n"
@@ -16,9 +20,27 @@ namespace Test
     "   FragColor = u_Color;\n"
     "}\n\0";
 
-    TestColoredQuad::TestColoredQuad()
-        : m_ClearColor (glm::vec4(0.941f, 1.0f, 1.0f, 1.0f)), m_QuadColor (glm::vec4(0.255f, 0.412f, 0.882f, 1.0f))
+
+    void TestColoredQuad::OnUpdate(TestsManager*, float)
     {
+
+    }
+
+    void TestColoredQuad::Suspend()
+    {
+
+    }
+
+    void TestColoredQuad::Resume()
+    {
+
+    }
+
+    void TestColoredQuad::OnAttach()
+    {
+        m_ClearColor = glm::vec4(0.941f, 1.0f, 1.0f, 1.0f);
+        m_QuadColor = glm::vec4(0.255f, 0.412f, 0.882f, 1.0f);
+
         //        // build and compile our shader program
         // ------------------------------------
         // vertex shader
@@ -71,7 +93,7 @@ namespace Test
             0, 1, 3,  // first Triangle
             1, 2, 3   // second Triangle
         };
-        
+
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);
@@ -96,10 +118,9 @@ namespace Test
         // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
         // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
         glBindVertexArray(0);
-
     }
 
-    TestColoredQuad::~TestColoredQuad()
+    void TestColoredQuad::OnDetach()
     {
         GLCall(glDeleteVertexArrays(1, &VAO));
         GLCall(glDeleteBuffers(1, &VBO));
@@ -107,12 +128,7 @@ namespace Test
         GLCall(glDeleteProgram(shaderProgram));
     }
 
-    void TestColoredQuad::OnUpdate(float)
-    {
-        
-    }
-
-    void TestColoredQuad::OnRender()
+    void TestColoredQuad::OnRender(TestsManager*)
     {
         GLCall(glClearColor(m_ClearColor.r,
                             m_ClearColor.g,
@@ -128,10 +144,15 @@ namespace Test
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
     }
 
-    void TestColoredQuad::OnImGuiRender()
+    void TestColoredQuad::OnImGuiRender(TestsManager* testsManager)
     {
         ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_ClearColor));
         ImGui::Separator();
         ImGui::ColorEdit4("Quad Color", glm::value_ptr(m_QuadColor));
+        ImGui::Separator();
+        if (ImGui::Button("Clear Color Test"))
+        {
+            testsManager->ChangeTest(TestClearColor::Instance());
+        }
     }
 }

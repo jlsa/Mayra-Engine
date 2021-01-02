@@ -1,22 +1,39 @@
 #include <TestClearColor.hpp>
+#include "TestColoredQuad.hpp"
 
 namespace Test
 {
-    TestClearColor::TestClearColor()
-        : m_ClearColor { 0.941f, 1.0f, 1.0f, 1.0f }
-    {
-    }
+    TestClearColor TestClearColor::m_Instance;
 
-    TestClearColor::~TestClearColor()
-    {
-    }
-
-    void TestClearColor::OnUpdate(float)
+    void TestClearColor::OnUpdate(TestsManager*, float)
     {
 
     }
 
-    void TestClearColor::OnRender()
+    void TestClearColor::OnAttach()
+    {
+        m_ClearColor[0] = 0.941f;
+        m_ClearColor[1] = 1.0f;
+        m_ClearColor[2] = 1.0f;
+        m_ClearColor[3] = 1.0f;
+    }
+
+    void TestClearColor::OnDetach()
+    {
+
+    }
+
+    void TestClearColor::Suspend()
+    {
+
+    }
+
+    void TestClearColor::Resume()
+    {
+
+    }
+
+    void TestClearColor::OnRender(TestsManager*)
     {
         GLCall(glClearColor(m_ClearColor[0],
                             m_ClearColor[1],
@@ -25,8 +42,13 @@ namespace Test
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
     }
 
-    void TestClearColor::OnImGuiRender()
+    void TestClearColor::OnImGuiRender(TestsManager* testsManager)
     {
         ImGui::ColorEdit4("Clear Color", m_ClearColor);
+        ImGui::Separator();
+        if (ImGui::Button("Colored Quad Test"))
+        {
+            testsManager->ChangeTest(TestColoredQuad::Instance());
+        }
     }
 }
