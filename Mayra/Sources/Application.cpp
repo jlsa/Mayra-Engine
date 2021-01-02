@@ -24,26 +24,12 @@
 #include "Renderer.hpp"
 
 #include "TestsManager.hpp"
-#include "TestClearColor.hpp"
-#include "TestColoredQuad.hpp"
+#include "TestFancyQuad.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 namespace Mayra
 {
-    const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-    const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
-
     Application::Application(Mayra::WindowProps* props)
         : _camera(-1.6f, 1.6f, -0.9f, 0.9f), _props(props)
     {
@@ -96,7 +82,7 @@ namespace Mayra
     {
         Test::TestsManager* testsManager = new Test::TestsManager();
 
-        testsManager->ChangeTest(Test::TestColoredQuad::Instance());
+        testsManager->ChangeTest(Test::TestFancyQuad::Instance());
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             HandleInput(_window);
@@ -118,12 +104,6 @@ namespace Mayra
             glfwPollEvents();
         }
         delete testsManager;
-//        test.OnDetach();
-
-//        GLCall(glDeleteVertexArrays(1, &VAO));
-//        GLCall(glDeleteBuffers(1, &VBO));
-//        GLCall(glDeleteBuffers(1, &EBO));
-//        GLCall(glDeleteProgram(shaderProgram));
     }
 
     void Application::Terminate()

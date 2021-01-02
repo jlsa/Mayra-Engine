@@ -19,6 +19,7 @@ namespace Mayra
         void Clear() const;
         void Clear(const glm::vec4& clear_color) const;
         void Draw(const Mayra::VertexArray& va, const Mayra::IndexBuffer& ib, const Mayra::Shader& shader) const;
+        void Draw(Mayra::VertexArray* va, Mayra::IndexBuffer* ib, Mayra::Shader* shader) const;
 
     private:
         static Renderer* m_Instance;

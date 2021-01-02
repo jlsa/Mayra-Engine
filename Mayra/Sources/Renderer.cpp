@@ -39,4 +39,13 @@ namespace Mayra
 
         GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
     }
+
+    void Renderer::Draw(Mayra::VertexArray* va, Mayra::IndexBuffer* ib, Mayra::Shader* shader) const
+    {
+        shader->Bind();
+        va->Bind();
+        ib->Bind();
+
+        GLCall(glDrawElements(GL_TRIANGLES, ib->GetCount(), GL_UNSIGNED_INT, nullptr));
+    }
 }

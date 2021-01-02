@@ -11,6 +11,8 @@ namespace Mayra
         IndexBuffer(const unsigned int* data, unsigned int count);
         ~IndexBuffer();
 
+        void Create(const unsigned int* data, unsigned int count);
+
         void Bind() const;
         void Unbind() const;
 

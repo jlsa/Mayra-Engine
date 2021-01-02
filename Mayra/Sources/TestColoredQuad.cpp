@@ -1,18 +1,18 @@
 #include "TestColoredQuad.hpp"
-
+#include "TestFancyQuad.hpp"
 #include "TestClearColor.hpp"
 
 namespace Test
 {
     TestColoredQuad TestColoredQuad::m_Instance;
     
-    const char *vertexShaderSource = "#version 330 core\n"
+    const char *vertexShaderSource2 = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
     "void main()\n"
     "{\n"
     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\0";
-    const char *fragmentShaderSource = "#version 330 core\n"
+    const char *fragmentShaderSource2 = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "uniform vec4 u_Color;\n"
     "void main()\n"
@@ -39,13 +39,13 @@ namespace Test
     void TestColoredQuad::OnAttach()
     {
         m_ClearColor = glm::vec4(0.941f, 1.0f, 1.0f, 1.0f);
-        m_QuadColor = glm::vec4(0.255f, 0.412f, 0.882f, 1.0f);
+        m_QuadColor = glm::vec4(0.412f, 0.255f, 0.222f, 1.0f);
 
         //        // build and compile our shader program
         // ------------------------------------
         // vertex shader
         int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+        glShaderSource(vertexShader, 1, &vertexShaderSource2, NULL);
         glCompileShader(vertexShader);
         // check for shader compile errors
         int success;
@@ -58,7 +58,7 @@ namespace Test
         }
         // fragment shader
         int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+        glShaderSource(fragmentShader, 1, &fragmentShaderSource2, NULL);
         glCompileShader(fragmentShader);
         // check for shader compile errors
         glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
@@ -153,6 +153,11 @@ namespace Test
         if (ImGui::Button("Clear Color Test"))
         {
             testsManager->ChangeTest(TestClearColor::Instance());
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Fancy Quad Test"))
+        {
+            testsManager->ChangeTest(TestFancyQuad::Instance());
         }
     }
 }

@@ -1,5 +1,6 @@
 #include <TestClearColor.hpp>
 #include "TestColoredQuad.hpp"
+#include "TestFancyQuad.hpp"
 
 namespace Test
 {
@@ -49,6 +50,11 @@ namespace Test
         if (ImGui::Button("Colored Quad Test"))
         {
             testsManager->ChangeTest(TestColoredQuad::Instance());
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Fancy Quad Test"))
+        {
+            testsManager->ChangeTest(TestFancyQuad::Instance());
         }
     }
 }

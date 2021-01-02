@@ -2,7 +2,7 @@
 
 namespace Mayra
 {
-    VertexBuffer::VertexBuffer(const void* data, unsigned int size)
+    void VertexBuffer::CreateBuffer(const void* data, unsigned int size)
     {
         GLCall(glGenBuffers(1, &m_RendererID));
         Bind();
