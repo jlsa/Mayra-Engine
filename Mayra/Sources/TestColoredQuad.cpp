@@ -1,11 +1,10 @@
 #include "TestColoredQuad.hpp"
 #include "TestFancyQuad.hpp"
 #include "TestClearColor.hpp"
+#include "TestTexturedQuad.hpp"
 
 namespace Test
 {
-    TestColoredQuad TestColoredQuad::m_Instance;
-    
     const char *vertexShaderSource2 = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
     "void main()\n"
@@ -20,23 +19,12 @@ namespace Test
     "   FragColor = u_Color;\n"
     "}\n\0";
 
-
-    void TestColoredQuad::OnUpdate(TestsManager*, float)
+    void TestColoredQuad::OnUpdate(float)
     {
 
     }
 
-    void TestColoredQuad::Suspend()
-    {
-
-    }
-
-    void TestColoredQuad::Resume()
-    {
-
-    }
-
-    void TestColoredQuad::OnAttach()
+    TestColoredQuad::TestColoredQuad()
     {
         m_ClearColor = glm::vec4(0.941f, 1.0f, 1.0f, 1.0f);
         m_QuadColor = glm::vec4(0.412f, 0.255f, 0.222f, 1.0f);
@@ -120,7 +108,7 @@ namespace Test
         glBindVertexArray(0);
     }
 
-    void TestColoredQuad::OnDetach()
+    TestColoredQuad::~TestColoredQuad()
     {
         GLCall(glDeleteVertexArrays(1, &VAO));
         GLCall(glDeleteBuffers(1, &VBO));
@@ -128,7 +116,7 @@ namespace Test
         GLCall(glDeleteProgram(shaderProgram));
     }
 
-    void TestColoredQuad::OnRender(TestsManager*)
+    void TestColoredQuad::OnRender()
     {
         GLCall(glClearColor(m_ClearColor.r,
                             m_ClearColor.g,
@@ -144,20 +132,10 @@ namespace Test
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
     }
 
-    void TestColoredQuad::OnImGuiRender(TestsManager* testsManager)
+    void TestColoredQuad::OnImGuiRender()
     {
         ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_ClearColor));
         ImGui::Separator();
         ImGui::ColorEdit4("Quad Color", glm::value_ptr(m_QuadColor));
-        ImGui::Separator();
-        if (ImGui::Button("Clear Color Test"))
-        {
-            testsManager->ChangeTest(TestClearColor::Instance());
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Fancy Quad Test"))
-        {
-            testsManager->ChangeTest(TestFancyQuad::Instance());
-        }
     }
 }

@@ -1,12 +1,5 @@
-//
-//  TestFancyQuad.hpp
-//  Mayra
-//
-//  Created by Joel Hoekstra on 02/01/2021.
-//
-
-#ifndef TestFancyQuad_h
-#define TestFancyQuad_h
+#ifndef TestTexturedQuad_h
+#define TestTexturedQuad_h
 
 #include <Mayra.hpp>
 #include <Test.hpp>
@@ -16,14 +9,15 @@
 #include "IndexBuffer.hpp"
 #include "Shader.hpp"
 #include "Renderer.hpp"
+#include "Texture2D.hpp"
 
 namespace Test
 {
-    class TestFancyQuad : public Test
+    class TestTexturedQuad : public Test
     {
     public:
-        TestFancyQuad();
-        ~TestFancyQuad();
+        TestTexturedQuad();
+        ~TestTexturedQuad();
         void OnUpdate(float deltaTime) override;
         void OnRender() override;
         void OnImGuiRender() override;
@@ -36,7 +30,8 @@ namespace Test
         Mayra::VertexBuffer* m_VertexBuffer;
         Mayra::IndexBuffer* m_IndexBuffer;
         Mayra::Shader* m_Shader;
+        Mayra::Texture2D* m_Texture;
     };
 }
 
-#endif /* TestFancyQuad_h */
+#endif /* TestTexturedQuad_h */

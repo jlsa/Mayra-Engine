@@ -33,7 +33,7 @@ namespace Mayra
         void Bind(unsigned int slot = 0) const;
         void UnBind() const;
         
-        static Mayra::Texture2D LoadFromFile(const std::string& filepath);
+        static Mayra::Texture2D* LoadFromFile(const std::string& filepath);
     private:
         unsigned int m_RendererID;
         std::string m_Filepath;

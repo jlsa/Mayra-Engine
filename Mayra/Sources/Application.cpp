@@ -23,8 +23,11 @@
 #include "IndexBuffer.hpp"
 #include "Renderer.hpp"
 
-#include "TestsManager.hpp"
+#include "Test.hpp"
+#include "TestTexturedQuad.hpp"
+#include "TestClearColor.hpp"
 #include "TestFancyQuad.hpp"
+#include "TestColoredQuad.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -80,21 +83,31 @@ namespace Mayra
 
     void Application::Run()
     {
-        Test::TestsManager* testsManager = new Test::TestsManager();
+        Test::Test* currentTest = nullptr;
+        Test::TestMenu* testMenu = new Test::TestMenu(currentTest);
+        currentTest = testMenu;
 
-        testsManager->ChangeTest(Test::TestFancyQuad::Instance());
+        testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
+        testMenu->RegisterTest<Test::TestColoredQuad>("Colored Quad");
+        testMenu->RegisterTest<Test::TestFancyQuad>("Fancy Quad");
+        testMenu->RegisterTest<Test::TestTexturedQuad>("Textured Quad");
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
+            Renderer::Instance()->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
             HandleInput(_window);
             _gui->PrepareRender();
 
-            testsManager->HandleEvents();
-            testsManager->Update(0.0f);
-            testsManager->Render();
-            
+            if (currentTest)
             {
-                ImGui::Begin("Test Frame");
-                testsManager->RenderGui();
+                currentTest->OnUpdate(0.0f);
+                currentTest->OnRender();
+                ImGui::Begin("Test");
+                if (currentTest != testMenu && ImGui::Button("<-"))
+                {
+                    delete currentTest;
+                    currentTest = testMenu;
+                }
+                currentTest->OnImGuiRender();
                 ImGui::End();
             }
 
@@ -103,7 +116,10 @@ namespace Mayra
             glfwSwapBuffers(_window->Get());
             glfwPollEvents();
         }
-        delete testsManager;
+        if (currentTest == testMenu)
+            delete testMenu;
+        else
+            delete currentTest;
     }
 
     void Application::Terminate()

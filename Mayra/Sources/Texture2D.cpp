@@ -55,24 +55,25 @@ namespace Mayra
         GLCall(glBindTexture(GL_TEXTURE_2D, this->m_RendererID));
     }
 
-    Mayra::Texture2D Texture2D::LoadFromFile(const std::string& filepath)
+    Mayra::Texture2D* Texture2D::LoadFromFile(const std::string& filepath)
     {
-        Mayra::Texture2D texture;
+        Mayra::Texture2D* texture = new Texture2D();
         // load image
         int width, height, bpp;
         stbi_set_flip_vertically_on_load(true);
-        texture.m_LocalBuffer = stbi_load(filepath.c_str(), &width, &height, &bpp, 0);
-
+        texture->m_LocalBuffer = stbi_load(filepath.c_str(), &width, &height, &bpp, 0);
+        
         if (bpp == 4)
         {
-            texture.InternalFormat = GL_RGBA8;
-            texture.ImageFormat = GL_RGBA;
+            texture->InternalFormat = GL_RGBA8;
+            texture->ImageFormat = GL_RGBA;
         }
 
-        if (texture.m_LocalBuffer)
+        if (texture->m_LocalBuffer)
         {
-            texture.Generate(width, height, bpp, texture.m_LocalBuffer);
-            stbi_image_free(texture.m_LocalBuffer);
+            texture->Generate(width, height, bpp, texture->m_LocalBuffer);
+            std::cout << "Texture generated" << std::endl;
+            stbi_image_free(texture->m_LocalBuffer);
         }
         else
         {

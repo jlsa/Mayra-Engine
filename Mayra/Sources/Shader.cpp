@@ -203,6 +203,42 @@ namespace Mayra
         glDeleteShader(compiledShaders.FragmentShaderID);
     }
 
+    void Shader::ListUniformsAndAttributes()
+    {
+        GLint i;
+        GLint count;
+
+        GLint size; // size of the variable
+        GLenum type; // type of the variable (float, vec3 or mat4, etc)
+
+        const GLsizei bufSize = 16; // maximum name length
+        GLchar name[bufSize]; // variable name in GLSL
+        GLsizei length; // name length
+
+        glGetProgramiv(m_RendererID, GL_ACTIVE_ATTRIBUTES, &count);
+        std::cout << "Active Attributes: " << count << std::endl;
+
+        for (i = 0; i < count; i++)
+        {
+            glGetActiveAttrib(m_RendererID, (GLuint)i, bufSize, &length, &size, &type, name);
+
+            std::cout << "Attribute " << i;
+            std::cout << " Type: " << type;
+            std::cout << " Name: " << name << std::endl;
+        }
+
+        glGetProgramiv(m_RendererID, GL_ACTIVE_UNIFORMS, &count);
+        std::cout << "Active Uniforms: " << count << std::endl;
+
+        for (i = 0; i < count; i++)
+        {
+            glGetActiveUniform(m_RendererID, (GLuint)i, bufSize, &length, &size, &type, name);
+            std::cout << "Uniform " << i;
+            std::cout << " Type: " << type;
+            std::cout << " Name: " << name << std::endl;
+        }
+    }
+
     int Shader::GetUniformLocation(const std::string &name)
     {
         if (m_UniformLocationCache.find(name.c_str()) != m_UniformLocationCache.end())

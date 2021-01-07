@@ -1,8 +1,9 @@
 #ifndef Test_h
 #define Test_h
 
+#include <Mayra.hpp>
 #include "Renderer.hpp"
-#include "TestsManager.hpp"
+#include <vector>
 
 namespace Test
 {
@@ -11,21 +12,29 @@ namespace Test
     public:
         Test() {}
         virtual ~Test() {}
-
-        virtual void OnAttach() = 0;
-        virtual void OnDetach() = 0;
-
-        virtual void Suspend() = 0;
-        virtual void Resume() = 0;
         
-        virtual void OnUpdate(TestsManager*, float) {}
-        virtual void OnRender(TestsManager*) {}
-        virtual void OnImGuiRender(TestsManager*) {}
+        virtual void OnUpdate(float) {}
+        virtual void OnRender() {}
+        virtual void OnImGuiRender() {}
+    };
 
-        void ChangeTest(TestsManager* testsManager, Test* test)
+    class TestMenu : public Test
+    {
+    public:
+        TestMenu(Test*& currentTestPointer);
+
+        void OnImGuiRender() override;
+
+        template<typename T>
+        void RegisterTest(const std::string& name)
         {
-            testsManager->ChangeTest(test);
+            std::cout << "Registering test: " << name << std::endl;
+            m_Tests.push_back(std::make_pair(name, []() { return new T(); }));
         }
+
+    private:
+        Test*& m_CurrentTest;
+        std::vector<std::pair<std::string, std::function<Test*()>>> m_Tests;
     };
 }
 
