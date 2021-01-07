@@ -25,6 +25,7 @@
 
 #include "Test.hpp"
 #include "TestTexturedQuad.hpp"
+#include "TestMultiTexturedQuad.hpp"
 #include "TestClearColor.hpp"
 #include "TestFancyQuad.hpp"
 #include "TestColoredQuad.hpp"
@@ -91,6 +92,7 @@ namespace Mayra
         testMenu->RegisterTest<Test::TestColoredQuad>("Colored Quad");
         testMenu->RegisterTest<Test::TestFancyQuad>("Fancy Quad");
         testMenu->RegisterTest<Test::TestTexturedQuad>("Textured Quad");
+        testMenu->RegisterTest<Test::TestMultiTexturedQuad>("Multi Textured Quad");
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             Renderer::Instance()->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));

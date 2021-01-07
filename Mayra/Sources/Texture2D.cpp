@@ -72,7 +72,6 @@ namespace Mayra
         if (texture->m_LocalBuffer)
         {
             texture->Generate(width, height, bpp, texture->m_LocalBuffer);
-            std::cout << "Texture generated" << std::endl;
             stbi_image_free(texture->m_LocalBuffer);
         }
         else
