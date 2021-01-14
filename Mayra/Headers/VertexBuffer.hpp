@@ -10,6 +10,8 @@ namespace Mayra
         ~VertexBuffer();
         
         void CreateBuffer(const void* data, unsigned int size);
+        void CreateDynamicBuffer(unsigned int size);
+        void UpdateDynamicBuffer(const void* data);
 
         void Bind() const;
         void Unbind() const;

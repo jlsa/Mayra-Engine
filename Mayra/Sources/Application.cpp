@@ -24,11 +24,14 @@
 #include "Renderer.hpp"
 
 #include "Test.hpp"
+#include "TestFonts.hpp"
+#include "TestBatchRenderingColor.hpp"
 #include "TestTexturedQuad.hpp"
 #include "TestMultiTexturedQuad.hpp"
 #include "TestClearColor.hpp"
 #include "TestFancyQuad.hpp"
 #include "TestColoredQuad.hpp"
+#include "TestBatchRenderingDynamicGeometry.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -93,6 +96,9 @@ namespace Mayra
         testMenu->RegisterTest<Test::TestFancyQuad>("Fancy Quad");
         testMenu->RegisterTest<Test::TestTexturedQuad>("Textured Quad");
         testMenu->RegisterTest<Test::TestMultiTexturedQuad>("Multi Textured Quad");
+        testMenu->RegisterTest<Test::TestBatchRenderingColor>("Batch Rendering Color");
+//        testMenu->RegisterTest<Test::TestFonts>("Fonts");
+        testMenu->RegisterTest<Test::TestBatchRenderingDynamicGeometry>("Batch Rendering Dynamic Geometry");
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             Renderer::Instance()->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));

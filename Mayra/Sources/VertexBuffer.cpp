@@ -8,6 +8,19 @@ namespace Mayra
         Bind();
         GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
     }
+
+    void VertexBuffer::CreateDynamicBuffer(unsigned int size)
+    {
+        GLCall(glGenBuffers(1, &m_RendererID));
+        Bind();
+        GLCall(glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW));
+    }
+
+    void VertexBuffer::UpdateDynamicBuffer(const void* data)
+    {
+        // do something
+    }
+
     VertexBuffer::~VertexBuffer()
     {
         GLCall(glDeleteBuffers(1, &m_RendererID));

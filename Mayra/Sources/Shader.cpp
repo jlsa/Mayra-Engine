@@ -16,6 +16,11 @@ namespace Mayra
         GLCall(glDeleteProgram(m_RendererID));
     }
 
+    unsigned int Shader::GetRendererID() const
+    {
+        return m_RendererID;
+    }
+
     // activate the shader
     // ---------------------------------------------------------------------
     void Shader::Bind() const
@@ -239,7 +244,7 @@ namespace Mayra
         }
     }
 
-    int Shader::GetUniformLocation(const std::string &name)
+    int Shader::GetUniformLocation(const std::string &name) const
     {
         if (m_UniformLocationCache.find(name.c_str()) != m_UniformLocationCache.end())
             return m_UniformLocationCache[name.c_str()];

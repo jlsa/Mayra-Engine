@@ -52,10 +52,12 @@ namespace Mayra
         // constructor generates the shader on the fly
         Shader(const char* vertexPath, const char* fragmentPath);
         ~Shader();
+        unsigned int GetRendererID() const;
         void Bind() const;
         void Unbind() const;
         void SetBool(const std::string& name, bool value);
         void SetInt(const std::string& name, int16_t value);
+        void SetInts(const std::string& name, int16_t& value);
         void SetFloat(const std::string& name, float value);
         void SetVec2(const std::string& name, const glm::vec2& value);
         void SetVec2(const std::string& name, float x, float y);
@@ -74,14 +76,14 @@ namespace Mayra
         unsigned int Compile(Mayra::ShaderSource shader);
         unsigned int CreateProgram(Mayra::ShadersCompiled shaders);
         unsigned int CreateProgram(unsigned int vertex, unsigned int fragment);
-        int GetUniformLocation(const std::string& name);
+        int GetUniformLocation(const std::string& name) const;
         void ListUniformsAndAttributes();
 
         unsigned int m_RendererID;
         const char* m_VertexPath;
         const char* m_FragmentPath;
 
-        std::unordered_map<std::string, int> m_UniformLocationCache;
+        mutable std::unordered_map<std::string, int> m_UniformLocationCache;
     };
 }
 

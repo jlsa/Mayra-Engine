@@ -6,6 +6,8 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(Glitter/Vendor/glfw)
 
+add_subdirectory(Glitter/Vendor/freetype)
+
 # option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 # option(ASSIMP_BUILD_SAMPLES OFF)
 # option(ASSIMP_BUILD_TESTS OFF)
@@ -35,13 +37,16 @@ include_directories(Mayra/Headers/
                     Glitter/Vendor/glm/
                     Glitter/Vendor/imgui/
                     Glitter/Vendor/imgui/backends/
-                    Glitter/Vendor/stb/)
+                    Glitter/Vendor/stb/
+                    Glitter/Vendor/freetype/
+                    Glitter/Vendor)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c
                           Glitter/Vendor/imgui/backends/imgui_impl_glfw.*
                           Glitter/Vendor/imgui/backends/imgui_impl_opengl3.*
                           Glitter/Vendor/imgui/*.h
-                          Glitter/Vendor/imgui/*.cpp)
+                          Glitter/Vendor/imgui/*.cpp
+                          Glitter/Vendor/)
 
 file(GLOB PROJECT_HEADERS Mayra/Headers/*.hpp)
 file(GLOB PROJECT_SOURCES Mayra/Sources/*.cpp)
@@ -49,6 +54,10 @@ file(GLOB PROJECT_SHADERS Mayra/Shaders/*.comp
                           Mayra/Shaders/*.frag
                           Mayra/Shaders/*.geom
                           Mayra/Shaders/*.vert)
+
+file(GLOB PROJECT_FONTS Mayra/Resources/Assets/Fonts/*.ttf
+                        Mayra/Resources/Assers/Fonts/*.TTF)
+
 file(GLOB PROJECT_CONFIGS CMakeLists.txt
                           Readme.md
                          .gitattributes
@@ -63,13 +72,15 @@ source_group("Shaders" FILES ${PROJECT_SHADERS})
 source_group("Sources" FILES ${PROJECT_SOURCES})
 source_group("Vendors" FILES ${VENDORS_SOURCES})
 source_group("Assets" FILES ${PROJECT_ASSETS})
+source_group("Fonts" FILES ${PROJECT_FONTS})
 
 add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
-                               ${VENDORS_SOURCES} ${PROJECT_ASSETS})
-target_link_libraries(${PROJECT_NAME} glfw # assimp
+                               ${VENDORS_SOURCES} ${PROJECT_ASSETS}
+                               ${PROJECT_FONTS})
+target_link_libraries(${PROJECT_NAME} glfw freetype # assimp
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
                     #   BulletDynamics BulletCollision LinearMath)
 set_target_properties(${PROJECT_NAME} PROPERTIES
