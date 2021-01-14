@@ -1,8 +1,8 @@
-#ifndef TestMultiTexturedQuad_h
-#define TestMultiTexturedQuad_h
+#ifndef SceneMultiTexturedQuad_h
+#define SceneMultiTexturedQuad_h
 
 #include <Mayra.hpp>
-#include <Test.hpp>
+#include <Scene.hpp>
 
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
@@ -11,13 +11,13 @@
 #include "Renderer.hpp"
 #include "Texture2D.hpp"
 
-namespace Test
+namespace Mayra
 {
-    class TestMultiTexturedQuad : public Test
+    class SceneMultiTexturedQuad : public Scene
     {
     public:
-        TestMultiTexturedQuad();
-        ~TestMultiTexturedQuad();
+        SceneMultiTexturedQuad();
+        ~SceneMultiTexturedQuad();
         void OnUpdate(float deltaTime) override;
         void OnRender() override;
         void OnImGuiRender() override;
@@ -42,4 +42,4 @@ namespace Test
     };
 }
 
-#endif /* TestMultiTexturedQuad_h */
+#endif /* SceneMultiTexturedQuad_h */

@@ -1,8 +1,8 @@
-#include "TestMultiTexturedQuad.hpp"
+#include "SceneMultiTexturedQuad.hpp"
 
-namespace Test
+namespace Mayra
 {
-    TestMultiTexturedQuad::TestMultiTexturedQuad()
+    SceneMultiTexturedQuad::SceneMultiTexturedQuad()
         : m_Projection(glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, -1.0f, 1.0f))
     {
         float verticesA[] = {
@@ -38,12 +38,12 @@ namespace Test
         m_IndexBuffer->Create(indices, sizeof(indices) / sizeof(indices[0]));
     }
 
-    void TestMultiTexturedQuad::OnUpdate(float)
+    void SceneMultiTexturedQuad::OnUpdate(float)
     {
 
     }
 
-    TestMultiTexturedQuad::~TestMultiTexturedQuad()
+    SceneMultiTexturedQuad::~SceneMultiTexturedQuad()
     {
         delete m_TextureA;
         delete m_TextureB;
@@ -53,7 +53,7 @@ namespace Test
         delete m_Shader;
     }
 
-    void TestMultiTexturedQuad::OnRender()
+    void SceneMultiTexturedQuad::OnRender()
     {
         GLCall(glClearColor(m_ClearColor.r,
                             m_ClearColor.g,
@@ -93,7 +93,7 @@ namespace Test
         }
     }
 
-    void TestMultiTexturedQuad::OnImGuiRender()
+    void SceneMultiTexturedQuad::OnImGuiRender()
     {
         ImGui::Begin("Multi Textured Quad");
         ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_ClearColor));

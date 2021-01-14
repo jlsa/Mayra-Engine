@@ -23,8 +23,8 @@
 #include "IndexBuffer.hpp"
 #include "Renderer.hpp"
 
-#include "Test.hpp"
-#include "TestMultiTexturedQuad.hpp"
+#include "Scene.hpp"
+#include "SceneMultiTexturedQuad.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -80,29 +80,29 @@ namespace Mayra
 
     void Application::Run()
     {
-        Test::Test* currentTest = nullptr;
-        Test::TestMenu* testMenu = new Test::TestMenu(currentTest);
-        currentTest = testMenu;
+        Scene* currentScene = nullptr;
+        SceneMenu* sceneMenu = new SceneMenu(currentScene);
+        currentScene = sceneMenu;
 
-        testMenu->RegisterTest<Test::TestMultiTexturedQuad>("Multi Textured Quad");
+        sceneMenu->RegisterScene<SceneMultiTexturedQuad>("Multi Textured Quad");
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             Renderer::Instance()->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
             HandleInput(_window);
             _gui->PrepareRender();
 
-            if (currentTest)
+            if (currentScene)
             {
-                currentTest->OnUpdate(0.0f);
-                currentTest->OnRender();
+                currentScene->OnUpdate(0.0f);
+                currentScene->OnRender();
                 ImGui::Begin("--");
-                if (currentTest != testMenu && ImGui::Button("<- Back"))
+                if (currentScene != sceneMenu && ImGui::Button("<- Back"))
                 {
-                    delete currentTest;
-                    currentTest = testMenu;
+                    delete currentScene;
+                    currentScene = sceneMenu;
                 }
                 ImGui::End();
-                currentTest->OnImGuiRender();
+                currentScene->OnImGuiRender();
             }
 
             _gui->Render();
@@ -110,10 +110,10 @@ namespace Mayra
             glfwSwapBuffers(_window->Get());
             glfwPollEvents();
         }
-        if (currentTest == testMenu)
-            delete testMenu;
+        if (currentScene == sceneMenu)
+            delete sceneMenu;
         else
-            delete currentTest;
+            delete currentScene;
     }
 
     void Application::Terminate()
