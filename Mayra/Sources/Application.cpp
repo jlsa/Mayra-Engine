@@ -25,7 +25,6 @@
 
 #include "Test.hpp"
 #include "TestMultiTexturedQuad.hpp"
-#include "TestBatchRenderingDynamicGeometry.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -86,7 +85,6 @@ namespace Mayra
         currentTest = testMenu;
 
         testMenu->RegisterTest<Test::TestMultiTexturedQuad>("Multi Textured Quad");
-        testMenu->RegisterTest<Test::TestBatchRenderingDynamicGeometry>("Batch Rendering Dynamic Geometry");
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             Renderer::Instance()->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
