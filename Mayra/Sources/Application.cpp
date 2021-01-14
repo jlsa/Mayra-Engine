@@ -25,6 +25,8 @@
 
 #include "Scene.hpp"
 #include "SceneMultiTexturedQuad.hpp"
+#include "SceneGameObjectsTest.hpp"
+#include "SandboxScene.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -85,16 +87,43 @@ namespace Mayra
         currentScene = sceneMenu;
 
         sceneMenu->RegisterScene<SceneMultiTexturedQuad>("Multi Textured Quad");
+        sceneMenu->RegisterScene<SceneGameObjectsTest>("Game Objects Test");
+        sceneMenu->RegisterScene<SandboxScene>("Sandbox Scene");
 
-        while (glfwWindowShouldClose(_window->Get()) == false) {
+        static double limitFPS = 1.0 / 60.0;
+
+        double lastTime = glfwGetTime(), timer = lastTime;
+        double deltaTime = 0, nowTime = 0;
+        int frames = 0, updates = 0;
+
+        while (glfwWindowShouldClose(_window->Get()) == false)
+        {
+            // measure time
+            nowTime = glfwGetTime();
+            deltaTime += (nowTime - lastTime) / limitFPS;
+            lastTime = nowTime;
+
+            // only update at 60frames / s
+            while (deltaTime >= 1.0)
+            {
+                if (currentScene)
+                    currentScene->OnUpdate(deltaTime);
+                updates++;
+                deltaTime--;
+            }
+
             Renderer::Instance()->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
             HandleInput(_window);
             _gui->PrepareRender();
 
+            // render at maximum possible frames
+            if (currentScene)
+                currentScene->OnRender();
+
+            frames++;
+
             if (currentScene)
             {
-                currentScene->OnUpdate(0.0f);
-                currentScene->OnRender();
                 ImGui::Begin("--");
                 if (currentScene != sceneMenu && ImGui::Button("<- Back"))
                 {
@@ -106,6 +135,13 @@ namespace Mayra
             }
 
             _gui->Render();
+
+            if (glfwGetTime() - timer > 1.0)
+            {
+                timer++;
+                std::cout << "FPS: " << frames << " Updates: " << updates << std::endl;
+                updates = 0, frames = 0;
+            }
 
             glfwSwapBuffers(_window->Get());
             glfwPollEvents();
