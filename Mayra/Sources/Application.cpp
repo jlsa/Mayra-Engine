@@ -26,6 +26,7 @@
 #include "Scene.hpp"
 #include "SceneMultiTexturedQuad.hpp"
 #include "SceneGameObjectsTest.hpp"
+#include "SandboxScene.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -87,6 +88,7 @@ namespace Mayra
 
         sceneMenu->RegisterScene<SceneMultiTexturedQuad>("Multi Textured Quad");
         sceneMenu->RegisterScene<SceneGameObjectsTest>("Game Objects Test");
+        sceneMenu->RegisterScene<SandboxScene>("Sandbox Scene");
 
         static double limitFPS = 1.0 / 60.0;
 
@@ -101,14 +103,11 @@ namespace Mayra
             deltaTime += (nowTime - lastTime) / limitFPS;
             lastTime = nowTime;
 
-
-
             // only update at 60frames / s
             while (deltaTime >= 1.0)
             {
                 if (currentScene)
-                    currentScene->OnUpdate(0.0f);
-//                update();
+                    currentScene->OnUpdate(deltaTime);
                 updates++;
                 deltaTime--;
             }
