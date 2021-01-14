@@ -75,7 +75,14 @@ namespace Test
             4, 5, 6, 6, 7, 4
         };
 
-        m_VertexBuffer->CreateDynamicBuffer(sizeof(Vertex));
+        auto quad0 = CreateQuad(m_Quad0Position[0], m_Quad0Position[1], 0.0f);
+        auto quad1 = CreateQuad(m_Quad1Position[0], m_Quad1Position[1], 1.0f);
+
+        Vertex vertices[8];
+        memcpy(vertices, quad0.data(), quad0.size() * sizeof(Vertex));
+        memcpy(vertices + quad0.size(), quad1.data(), quad1.size() * sizeof(Vertex));
+
+        m_VertexBuffer->CreateBuffer(vertices, sizeof(Vertex));
 
         Mayra::VertexBufferLayout layout;
         layout.Push<float>(3);
@@ -89,16 +96,6 @@ namespace Test
 
     void TestBatchRenderingDynamicGeometry::OnUpdate(float)
     {
-        auto quad0 = CreateQuad(m_Quad0Position[0], m_Quad0Position[1], 0.0f);
-        auto quad1 = CreateQuad(m_Quad1Position[0], m_Quad1Position[1], 1.0f);
-
-        Vertex vertices[8];
-        memcpy(vertices, quad0.data(), quad0.size() * sizeof(Vertex));
-        memcpy(vertices + quad0.size(), quad1.data(), quad1.size() * sizeof(Vertex));
-
-        // set dynamic buffer
-        m_VertexArray->Bind();
-        GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices));
     }
 
     TestBatchRenderingDynamicGeometry::~TestBatchRenderingDynamicGeometry()
@@ -130,11 +127,12 @@ namespace Test
 
     void TestBatchRenderingDynamicGeometry::OnImGuiRender()
     {
+        ImGui::Begin("Batch Rendering Dynamic Geometry");
         ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_ClearColor));
         ImGui::Separator();
 
         ImGui::DragFloat2("Quad 0 Position", m_Quad0Position, 0.1f);
         ImGui::DragFloat2("Quad 1 Position", m_Quad1Position, 0.1f);
-
+        ImGui::End();
     }
 }

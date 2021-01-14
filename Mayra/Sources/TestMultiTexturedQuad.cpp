@@ -95,6 +95,7 @@ namespace Test
 
     void TestMultiTexturedQuad::OnImGuiRender()
     {
+        ImGui::Begin("Multi Textured Quad");
         ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_ClearColor));
 
         ImGui::Separator();
@@ -110,5 +111,6 @@ namespace Test
 
         ImGui::InputFloat3("Translation##second", &m_TranslationB.x);
         ImGui::SliderFloat3("Scale##second", &m_ScaleB.x, 0.0f, 1.0f);
+        ImGui::End();
     }
 }
