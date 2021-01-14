@@ -32,9 +32,12 @@ namespace Mayra
         m_GameObjects.push_back(spriteD);
     }
 
-    void SceneGameObjectsTest::OnUpdate(float)
+    void SceneGameObjectsTest::OnUpdate(float deltaTime)
     {
-
+        glm::vec2 scale = m_GameObjects.at(2)->GetScale();
+        scale.x += sin(0.01f * deltaTime);
+        scale.y += sin(0.01f * deltaTime);
+        m_GameObjects.at(2)->SetScale(scale);
     }
 
     SceneGameObjectsTest::~SceneGameObjectsTest()
