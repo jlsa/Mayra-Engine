@@ -63,6 +63,21 @@ namespace Mayra
 
         {
             glm::mat4 identity = glm::mat4(1.0f);
+            m_TextureB->Bind();
+            glm::mat4 view = glm::translate(identity, glm::vec3(0.0f));
+            glm::mat4 model = glm::translate(identity, m_TranslationB);
+            model = glm::scale(model, m_ScaleB);
+            glm::mat4 mvp = m_Projection * view * model;
+
+            m_Shader->Bind();
+            m_Shader->SetInt("u_Texture", 0);
+            m_Shader->SetVec4("u_Color", m_QuadColor);
+            m_Shader->SetMat4("u_MVP", mvp);
+            Mayra::Renderer::Instance()->Draw(m_VertexArray, m_IndexBuffer, m_Shader);
+        }
+        
+        {
+            glm::mat4 identity = glm::mat4(1.0f);
             m_TextureA->Bind();
             glm::mat4 view = glm::translate(identity, glm::vec3(0.0f));
             glm::mat4 model = glm::translate(identity, m_TranslationA);
@@ -77,20 +92,7 @@ namespace Mayra
             Mayra::Renderer::Instance()->Draw(m_VertexArray, m_IndexBuffer, m_Shader);
         }
 
-        {
-            glm::mat4 identity = glm::mat4(1.0f);
-            m_TextureB->Bind();
-            glm::mat4 view = glm::translate(identity, glm::vec3(0.0f));
-            glm::mat4 model = glm::translate(identity, m_TranslationB);
-            model = glm::scale(model, m_ScaleB);
-            glm::mat4 mvp = m_Projection * view * model;
 
-            m_Shader->Bind();
-            m_Shader->SetInt("u_Texture", 0);
-            m_Shader->SetVec4("u_Color", m_QuadColor);
-            m_Shader->SetMat4("u_MVP", mvp);
-            Mayra::Renderer::Instance()->Draw(m_VertexArray, m_IndexBuffer, m_Shader);
-        }
     }
 
     void SceneMultiTexturedQuad::OnImGuiRender()

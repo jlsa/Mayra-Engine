@@ -25,6 +25,7 @@
 
 #include "Scene.hpp"
 #include "SceneMultiTexturedQuad.hpp"
+#include "SceneGameObjectsTest.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -85,6 +86,7 @@ namespace Mayra
         currentScene = sceneMenu;
 
         sceneMenu->RegisterScene<SceneMultiTexturedQuad>("Multi Textured Quad");
+        sceneMenu->RegisterScene<SceneGameObjectsTest>("Game Objects Test");
 
         while (glfwWindowShouldClose(_window->Get()) == false) {
             Renderer::Instance()->Clear(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
