@@ -1,6 +1,7 @@
 #ifndef Input_h
 #define Input_h
 
+#include "Key.hpp"
 #include <map>
 
 namespace Mayra
@@ -13,20 +14,20 @@ namespace Mayra
         Input& operator=(Input&&) = delete; // move assignment
         static Input* Instance();
 
-        bool IsKeyDown(int key);
-        void KeyPress(int key)
-        {
-            m_Keys[key] = true;
-        }
+        bool IsKey(KeyCode key);
+        bool IsKeyDown(KeyCode key);
+        bool IsKeyUp(KeyCode key);
 
-        void KeyRelease(int key)
-        {
-            m_Keys[key] = false;
-        }
+        void HandleKeyDown(unsigned int key);
+        void HandleKeyRelease(unsigned int key);
+        void HandleKeyRepeat(unsigned int key);
     private:
         static Input* m_Instance;
         Input();
-        std::map<int, bool> m_Keys;
+
+        bool m_Keys[GLFW_KEY_LAST];
+        bool m_KeysUp[GLFW_KEY_LAST];
+        bool m_KeysDown[GLFW_KEY_LAST];
     };
 }
 

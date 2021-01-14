@@ -11,6 +11,7 @@
 #include "Renderer.hpp"
 #include "Texture2D.hpp"
 #include "GameObject.hpp"
+#include "Board.hpp"
 
 namespace Mayra
 {
@@ -31,7 +32,7 @@ namespace Mayra
         OrthographicCamera* m_Camera;
 
         std::vector<Mayra::GameObject*> m_GameObjects;
-        Mayra::GameObject* m_Board[20][10];
+        Mayra::Board* m_Board;
     };
 }
 

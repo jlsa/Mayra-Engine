@@ -57,7 +57,10 @@ namespace Mayra
     {
         glm::vec2 origin = glm::vec2(0.0f);
         m_Texture->Bind();
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), camera->GetPosition());
+        glm::vec3 cameraPosition = glm::vec3(0.0f);
+        if (camera != nullptr)
+            cameraPosition = camera->GetPosition();
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), cameraPosition);
 
         glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(m_Position, 0.0f));
 
