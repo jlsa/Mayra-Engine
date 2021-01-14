@@ -28,7 +28,10 @@ namespace Mayra
 
         glm::mat4 m_Projection;
 
+        OrthographicCamera* m_Camera;
+
         std::vector<Mayra::GameObject*> m_GameObjects;
+        Mayra::GameObject* m_Board[20][10];
     };
 }
 

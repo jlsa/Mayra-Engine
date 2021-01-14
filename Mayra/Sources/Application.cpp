@@ -27,7 +27,9 @@
 #include "SceneMultiTexturedQuad.hpp"
 #include "SceneGameObjectsTest.hpp"
 #include "SandboxScene.hpp"
+#include "Input.hpp"
 
+void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 namespace Mayra
@@ -44,7 +46,8 @@ namespace Mayra
     }
 
     void Application::HandleInput(Mayra::Window*)
-    {}
+    {
+    }
 
     int Application::Initialize()
     {
@@ -66,6 +69,8 @@ namespace Mayra
             fprintf(stderr, "Failed to Create OpenGL Context");
             return EXIT_FAILURE;
         }
+
+        glfwSetKeyCallback(_window->Get(), keyboard_callback);
 
         // Create Context and Load OpenGL Functions
         glfwMakeContextCurrent(_window->Get());
@@ -139,7 +144,7 @@ namespace Mayra
             if (glfwGetTime() - timer > 1.0)
             {
                 timer++;
-                std::cout << "FPS: " << frames << " Updates: " << updates << std::endl;
+//                std::cout << "FPS: " << frames << " Updates: " << updates << std::endl;
                 updates = 0, frames = 0;
             }
 
@@ -168,4 +173,30 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     GLCall(glViewport(0, 0, width, height));
+}
+
+void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    if (key == 263 && action == GLFW_PRESS)
+        Mayra::Input::Instance()->KeyPress(GLFW_KEY_LEFT);
+    if (key == 262 && action == GLFW_PRESS)
+        Mayra::Input::Instance()->KeyPress(GLFW_KEY_RIGHT);
+    if (key == 264 && action == GLFW_PRESS)
+        Mayra::Input::Instance()->KeyPress(GLFW_KEY_DOWN);
+    if (key == 265 && action == GLFW_PRESS)
+        Mayra::Input::Instance()->KeyPress(GLFW_KEY_UP);
+
+    if (key == 263 && action == GLFW_RELEASE)
+        Mayra::Input::Instance()->KeyRelease(GLFW_KEY_LEFT);
+    if (key == 262 && action == GLFW_RELEASE)
+        Mayra::Input::Instance()->KeyRelease(GLFW_KEY_RIGHT);
+    if (key == 264 && action == GLFW_RELEASE)
+        Mayra::Input::Instance()->KeyRelease(GLFW_KEY_DOWN);
+    if (key == 265 && action == GLFW_RELEASE)
+        Mayra::Input::Instance()->KeyRelease(GLFW_KEY_UP);
+
+    if (key == 32 && action == GLFW_PRESS)
+        Mayra::Input::Instance()->KeyPress(GLFW_KEY_SPACE);
+    if (key == 32 && action == GLFW_REPEAT)
+        Mayra::Input::Instance()->KeyRelease(GLFW_KEY_SPACE);
 }

@@ -55,7 +55,7 @@ namespace Mayra
 
         for (unsigned int i = 0; i < m_GameObjects.size(); i++)
         {
-            m_GameObjects.at(i)->Render();
+            m_GameObjects.at(i)->Render(nullptr);
         }
     }
 

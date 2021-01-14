@@ -1,43 +1,60 @@
 #include "SandboxScene.hpp"
 #include "Sprite.hpp"
+#include "Input.hpp"
 
 namespace Mayra
 {
     SandboxScene::SandboxScene()
-        : m_ClearColor(glm::vec4(1.0f)), m_Projection(glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, -1.0f, 1.0f))
+        : m_ClearColor(glm::vec4(1.0f))
     {
-        Sprite* spriteA = new Sprite(TEXTURES "awesomeface.png");
-        Sprite* spriteB = new Sprite(TEXTURES "container.jpg");
-        Sprite* spriteC = new Sprite(TEXTURES "triangle.png");
-        Sprite* spriteD = new Sprite(TEXTURES "wall.jpg");
+        m_Camera = new OrthographicCamera(-1.6f, 1.6f, -0.9f, 0.9f);
+        m_Projection = m_Camera->GetProjectionMatrix();
+        m_Camera->SetPosition(glm::vec3(-0.33f, -0.66f, 0.0f));
 
-        spriteA->SetScale(glm::vec2(0.5f));
-        spriteB->SetScale(glm::vec2(0.5f));
-        spriteC->SetScale(glm::vec2(0.5f));
-        spriteD->SetScale(glm::vec2(0.5f));
-
-        spriteA->SetPosition(glm::vec2(0.5f, 0.5f));
-        spriteB->SetPosition(glm::vec2(-0.5f, 0.5f));
-        spriteC->SetPosition(glm::vec2(-0.5f, -0.5f));
-        spriteD->SetPosition(glm::vec2(0.5f, -0.5f));
-
-        spriteA->SetRotation(0.0f);
-        spriteB->SetRotation(45.0f);
-        spriteC->SetRotation(90.0f);
-        spriteD->SetRotation(180.0f);
-
-        m_GameObjects.push_back(spriteA);
-        m_GameObjects.push_back(spriteB);
-        m_GameObjects.push_back(spriteC);
-        m_GameObjects.push_back(spriteD);
+        for (int y = 0; y < 20; ++y)
+        {
+            for (int x = 0; x < 10; ++x)
+            {
+                m_Board[y][x] = new Sprite(TEXTURES "block.png");
+                m_Board[y][x]->SetPosition(glm::vec2(x * 0.075f, y * 0.075f));
+                m_Board[y][x]->SetScale(glm::vec2(0.075f));
+            }
+        }
     }
 
     void SandboxScene::OnUpdate(float deltaTime)
     {
-        glm::vec2 scale = m_GameObjects.at(2)->GetScale();
-        scale.x += sin(0.01f * deltaTime);
-        scale.y += sin(0.01f * deltaTime);
-        m_GameObjects.at(2)->SetScale(scale);
+        float speed = 0.005f * deltaTime;
+        glm::vec3 position = m_Camera->GetPosition();
+        if (Input::Instance()->IsKeyDown(GLFW_KEY_UP))
+        {
+            position.y -= speed;
+            std::cout << "UP" << std::endl;
+        }
+        if (Input::Instance()->IsKeyDown(GLFW_KEY_DOWN))
+        {
+            position.y += speed;
+            std::cout << "DOWN" << std::endl;
+        }
+        if (Input::Instance()->IsKeyDown(GLFW_KEY_LEFT))
+        {
+            position.x += speed;
+            std::cout << "LEFT" << std::endl;
+        }
+        if (Input::Instance()->IsKeyDown(GLFW_KEY_RIGHT))
+        {
+            position.x -= speed;
+            std::cout << "RIGHT" << std::endl;
+        }
+
+        if (Input::Instance()->IsKeyDown(GLFW_KEY_SPACE))
+        {
+            std::cout << "(" << position.x << ", ";
+            std::cout << position.y << ")" << std::endl;
+        }
+//        position.x += 0.0001f * deltaTime;
+//        position.y += 0.0001f * deltaTime;
+        m_Camera->SetPosition(position);
     }
 
     SandboxScene::~SandboxScene()
@@ -55,7 +72,15 @@ namespace Mayra
 
         for (unsigned int i = 0; i < m_GameObjects.size(); i++)
         {
-            m_GameObjects.at(i)->Render();
+            m_GameObjects.at(i)->Render(m_Camera);
+        }
+
+        for (int y = 0; y < 20; y++)
+        {
+            for (int x = 0; x < 10; x++)
+            {
+                m_Board[y][x]->Render(m_Camera);
+            }
         }
     }
 

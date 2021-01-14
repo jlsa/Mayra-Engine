@@ -9,6 +9,7 @@
 #include "Shader.hpp"
 #include "Renderer.hpp"
 #include "Texture2D.hpp"
+#include "OrthographicCamera.hpp"
 
 namespace Mayra
 {
@@ -19,7 +20,7 @@ namespace Mayra
         virtual ~GameObject() {}
 
         virtual void Update(float) {}
-        virtual void Render() {}
+        virtual void Render(Mayra::OrthographicCamera*) {}
 
         inline void AddChild(GameObject* child)
         {

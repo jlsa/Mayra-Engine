@@ -20,7 +20,7 @@ namespace Mayra
         ~Sprite();
 
         void Update(float deltaTime);
-        void Render();
+        void Render(Mayra::OrthographicCamera* camera);
         
     private:
         void Init(float x, float y);

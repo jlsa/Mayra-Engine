@@ -16,8 +16,8 @@ namespace Mayra
 
         float vertices[] = {
             // positions          // texture coords
-            0.5f,  0.5f, 0.0f,   1.0f, 1.0f,   // top right
-            0.5f, -0.5f, 0.0f,   1.0f, 0.0f,   // bottom right
+             0.5f,  0.5f, 0.0f,   1.0f, 1.0f,   // top right
+             0.5f, -0.5f, 0.0f,   1.0f, 0.0f,   // bottom right
             -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,   // bottom left
             -0.5f,  0.5f, 0.0f,   0.0f, 1.0f    // top left
         };
@@ -52,12 +52,12 @@ namespace Mayra
         delete m_VertexArray;
         delete m_Shader;
     }
-
-    void Sprite::Render()
+    
+    void Sprite::Render(Mayra::OrthographicCamera* camera)
     {
         glm::vec2 origin = glm::vec2(0.0f);
         m_Texture->Bind();
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), camera->GetPosition());
 
         glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(m_Position, 0.0f));
 
@@ -67,7 +67,9 @@ namespace Mayra
 
         model = glm::scale(model, glm::vec3(m_Scale, 1.0f));
 
-        glm::mat4 mvp = m_Projection * view * model;
+        glm::mat4 projection = glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, -1.0f, 1.0f);
+
+        glm::mat4 mvp = projection * view * model;
 
         m_Shader->Bind();
         m_Shader->SetInt("u_Texture", 0);
