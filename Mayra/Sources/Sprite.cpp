@@ -5,6 +5,7 @@ namespace Mayra
     Sprite::Sprite(const std::string& filepath)
         : m_Projection(glm::ortho(-1.6f, 1.6f, -0.9f, 0.9f, -1.0f, 1.0f)), m_Filepath(filepath)
     {
+        SetName("Sprite");
         Init(0.0f, 0.0f);
     }
 
@@ -12,6 +13,7 @@ namespace Mayra
     {
         m_Position = glm::vec2(x, y);
         m_Scale = glm::vec2(1.0f);
+        m_Color = glm::vec4(1.0f);
         SetRotation(0.0f);
 
         float vertices[] = {
@@ -55,6 +57,8 @@ namespace Mayra
     
     void Sprite::Render(Mayra::OrthographicCamera* camera)
     {
+        if (!GetEnabled())
+            return;
         glm::vec2 origin = glm::vec2(0.0f);
         m_Texture->Bind();
         glm::vec3 cameraPosition = glm::vec3(0.0f);
@@ -76,7 +80,7 @@ namespace Mayra
 
         m_Shader->Bind();
         m_Shader->SetInt("u_Texture", 0);
-        m_Shader->SetVec4("u_Color", glm::vec4(1.0f));
+        m_Shader->SetVec4("u_Color", m_Color);
 
         m_Shader->SetMat4("u_MVP", mvp);
         Mayra::Renderer::Instance()->Draw(m_VertexArray, m_IndexBuffer, m_Shader);
@@ -84,6 +88,12 @@ namespace Mayra
 
     void Sprite::Update(float)
     {
-        // do nothing
+        if (!GetEnabled())
+            return;
+    }
+
+    void Sprite::SetColor(glm::vec4 color)
+    {
+        m_Color = color;
     }
 }

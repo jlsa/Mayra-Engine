@@ -21,6 +21,8 @@ namespace Mayra
 
         void Update(float deltaTime);
         void Render(Mayra::OrthographicCamera* camera);
+
+        void SetColor(glm::vec4 color);
         
     private:
         void Init(float x, float y);
@@ -32,6 +34,7 @@ namespace Mayra
         Mayra::Texture2D* m_Texture;
         
         glm::mat4 m_Projection;
+        glm::vec4 m_Color;
         std::string m_Filepath;
     };
 }

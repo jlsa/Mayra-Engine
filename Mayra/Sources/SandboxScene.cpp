@@ -8,43 +8,56 @@ namespace Mayra
     SandboxScene::SandboxScene()
         : m_ClearColor(glm::vec4(1.000f, 0.627f, 0.478f, 1.0f))
     {
-        m_Board = new Board(BOARD_HEIGHT, BOARD_WIDTH);
+        m_Board = new Board(BOARD_WIDTH, BOARD_HEIGHT);
+        m_Board->SetName("Board");
         m_Camera = new OrthographicCamera(-1.6f, 1.6f, -0.9f, 0.9f);
         m_Projection = m_Camera->GetProjectionMatrix();
         m_Camera->SetPosition(glm::vec3(-0.33f, -0.66f, 0.0f));
+
+        m_Tetromino = new Tetromino();
+        m_Tetromino->SetName("Tetromino");
+        m_Tetromino->SetScale(glm::vec2(0.075f, 0.075f));
+        m_GameObjects.push_back(m_Tetromino);
+        m_GameObjects.push_back(m_Board);
     }
 
     void SandboxScene::OnUpdate(float deltaTime)
     {
-        float speed = 0.005f * deltaTime;
-        glm::vec3 position = m_Camera->GetPosition();
-        if (Input::Instance()->IsKey(KeyCode::Up))
+        float distance = 0.075f;
+
+        if (Input::Instance()->IsKeyDown(KeyCode::Up))
         {
-            position.y -= speed;
+            m_Tetromino->m_Position.y += distance;
             std::cout << "UP" << std::endl;
         }
-        if (Input::Instance()->IsKey(KeyCode::Down))
+        if (Input::Instance()->IsKeyDown(KeyCode::Down))
         {
-            position.y += speed;
+            m_Tetromino->m_Position.y -= distance;
             std::cout << "DOWN" << std::endl;
         }
-        if (Input::Instance()->IsKey(KeyCode::Left))
+        if (Input::Instance()->IsKeyDown(KeyCode::Left))
         {
-            position.x += speed;
+            m_Tetromino->m_Position.x -= distance;
             std::cout << "LEFT" << std::endl;
         }
-        if (Input::Instance()->IsKey(KeyCode::Right))
+        if (Input::Instance()->IsKeyDown(KeyCode::Right))
         {
-            position.x -= speed;
+            m_Tetromino->m_Position.x += distance;
             std::cout << "RIGHT" << std::endl;
         }
 
-        if (Input::Instance()->IsKeyUp(KeyCode::Space))
+        if (Input::Instance()->IsKeyDown(KeyCode::Space))
         {
-            std::cout << "(" << position.x << ", ";
-            std::cout << position.y << ")" << std::endl;
+            m_Tetromino->m_Rotation += 90.0f;
+            if (m_Tetromino->m_Rotation >= 360.0f)
+                m_Tetromino->m_Rotation = 0.0f;
+            std::cout << "Rotate" << std::endl;
         }
-        m_Camera->SetPosition(position);
+
+        for (unsigned int i = 0; i < m_GameObjects.size(); i++)
+        {
+            m_GameObjects.at(i)->Update(deltaTime);
+        }
     }
 
     SandboxScene::~SandboxScene()
@@ -64,8 +77,6 @@ namespace Mayra
         {
             m_GameObjects.at(i)->Render(m_Camera);
         }
-
-        m_Board->Render(m_Camera);
     }
 
     void SandboxScene::OnImGuiRender()
@@ -82,22 +93,42 @@ namespace Mayra
 
         for (unsigned int i = 0; i < m_GameObjects.size(); i++)
         {
-            std::string result;
+            std::string label;
 
-            result = "GameObject: " + std::to_string(i) + "##" + std::to_string(i);
-            if (ImGui::CollapsingHeader(result.c_str()))
+            label = m_GameObjects.at(i)->GetName() + "##" + std::to_string(i);//"GameObject: " + std::to_string(i) + "##" + std::to_string(i);
+            if (ImGui::CollapsingHeader(label.c_str()))
             {
-                result = "GameObject: " + std::to_string(i);
-                ImGui::Text("%s", result.c_str());
+                label = "GameObject: " + std::to_string(i);
+                ImGui::Text("%s", label.c_str());
+                label = "Enabled##" + std::to_string(i);
+                ImGui::Checkbox(label.c_str(), &m_GameObjects.at(i)->m_Enabled);
                 ImGui::Separator();
-                result = "Position##" + std::to_string(i);
-                ImGui::InputFloat2(result.c_str(), &m_GameObjects.at(i)->m_Position.x);
-                result = "Scale##" + std::to_string(i);
-                ImGui::InputFloat2(result.c_str(), &m_GameObjects.at(i)->m_Scale.x);
-                result = "Rotation##" + std::to_string(i);
+                label = "Position##" + std::to_string(i);
+                ImGui::InputFloat2(label.c_str(), &m_GameObjects.at(i)->m_Position.x);
+                label = "Scale##" + std::to_string(i);
+                ImGui::InputFloat2(label.c_str(), &m_GameObjects.at(i)->m_Scale.x);
+                label = "Rotation##" + std::to_string(i);
                 float rotation = m_GameObjects.at(i)->GetRotation();
-                ImGui::InputFloat(result.c_str(), &rotation);
+                ImGui::InputFloat(label.c_str(), &rotation);
                 m_GameObjects.at(i)->SetRotation(rotation);
+
+                ImGui::Separator();
+                for (unsigned int j = 0; j < m_GameObjects.at(i)->GetChildren().size(); j++)
+                {
+                    Mayra::GameObject* go = m_GameObjects.at(i)->GetChildren().at(j);
+                    ImGui::Text("%s", go->GetName().c_str());
+                    label = "Enabled##" + std::to_string(i) + "##" + std::to_string(j);
+                    ImGui::Checkbox(label.c_str(), &m_GameObjects.at(i)->GetChildren().at(j)->m_Enabled);
+                    ImGui::Separator();
+                    label = "Position##" + std::to_string(i) + "##" + std::to_string(j);
+                    ImGui::InputFloat2(label.c_str(), &m_GameObjects.at(i)->GetChildren().at(j)->m_Position.x);
+                    label = "Scale##" + std::to_string(i) + "##" + std::to_string(j);
+                    ImGui::InputFloat2(label.c_str(), &m_GameObjects.at(i)->GetChildren().at(j)->m_Scale.x);
+                    label = "Rotation##" + std::to_string(i) + "##" + std::to_string(j);
+                    float rotation = m_GameObjects.at(i)->GetChildren().at(j)->GetRotation();
+                    ImGui::InputFloat(label.c_str(), &rotation);
+                    m_GameObjects.at(i)->SetRotation(rotation);
+                }
             }
         }
         ImGui::End();

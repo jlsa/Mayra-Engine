@@ -164,7 +164,7 @@ namespace Mayra
             if (glfwGetTime() - timer > 1.0)
             {
                 timer++;
-                std::cout << "FPS: " << frames << " Updates: " << updates << std::endl;
+//                std::cout << "FPS: " << frames << " Updates: " << updates << std::endl;
                 updates = 0, frames = 0;
             }
 

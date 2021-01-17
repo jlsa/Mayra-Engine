@@ -12,6 +12,7 @@
 #include "Texture2D.hpp"
 #include "GameObject.hpp"
 #include "Board.hpp"
+#include "Tetromino.hpp"
 
 namespace Mayra
 {
@@ -33,6 +34,7 @@ namespace Mayra
 
         std::vector<Mayra::GameObject*> m_GameObjects;
         Mayra::Board* m_Board;
+        Tetromino* m_Tetromino;
     };
 }
 
