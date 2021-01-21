@@ -12,6 +12,53 @@ namespace Mayra
             glm::vec2(0.075f, 0.075f),
         };
 
+        m_Shape = Mayra::Shape::Oo;
+        std::cout << "Shape: " << m_Shape << std::endl;
+
+//        0
+//        1
+//        2
+//        3
+//
+//        4
+//        5
+//        6
+//        7
+//
+//        8
+//        9
+//        10
+//        11
+//
+//        12
+//        13
+//        14
+//        15
+//
+//        16
+//        17
+//        18
+//        19
+//
+//        20
+//        21
+//        22
+//        23
+//
+//        24
+//        25
+//        26
+//        27
+
+        for (int i = 0; i < Mayra::Shape::NUM_OF_SHAPES * 4; i+=4)
+        {
+            std::cout << "i: " << i << " - " << shapes[i][0] << " " << shapes[i][1] << " " << shapes[i][2] << " " << shapes[i][3] << std::endl;
+            std::cout << "i: " << i << " - " << shapes[i + 1][0] << " " << shapes[i + 1][1] << " " << shapes[i + 1][2] << " " << shapes[i + 1][3] << std::endl;
+            std::cout << "i: " << i << " - " << shapes[i + 2][0] << " " << shapes[i + 2][1] << " " << shapes[i + 2][2] << " " << shapes[i + 2][3] << std::endl;
+            std::cout << "i: " << i << " - " << shapes[i + 3][0] << " " << shapes[i + 3][1] << " " << shapes[i + 3][2] << " " << shapes[i + 3][3] << std::endl;
+            std::cout << std::endl;
+        }
+
         m_Color = glm::vec4(0.294f, 0.000f, 0.510f, 1.0f);
 
         m_Tetromino0 = new Sprite(TEXTURES "block_solid.png");
