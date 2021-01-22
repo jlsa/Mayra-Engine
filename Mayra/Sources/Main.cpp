@@ -38,7 +38,7 @@ const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
 
 // Camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 6.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -49,25 +49,50 @@ float lastFrame = 0.0f;
 
 // Lighting
 glm::vec3 lightPosition(1.2f, 1.0f, 2.0f);
-glm::vec3 lightColor(0.678f, 0.847f, 0.902f);
+glm::vec3 lightColor(0.863f, 0.078f, 0.235f);
 
 float shininess = 32.0f;
-float diffuse = 0.25f;
+float diffuse = 1.0f;
 float ambientStrength = 0.1f;
 
-glm::vec3 colors[10] = {
-    glm::vec3(0.804f, 0.361f, 0.361f),
+glm::vec3 colors[] = {
+    glm::vec3(0.275f, 0.510f, 0.706f),
     glm::vec3(0.294f, 0.000f, 0.510f),
     glm::vec3(1.000f, 1.000f, 0.941f),
-    glm::vec3(0.941f, 0.902f, 0.549f),
-    glm::vec3(0.902f, 0.902f, 0.980f),
+    glm::vec3(1.000f, 0.271f, 0.000f),
+    glm::vec3(0.859f, 0.439f, 0.576f),
 
     glm::vec3(1.000f, 0.941f, 0.961f),
     glm::vec3(0.486f, 0.988f, 0.000f),
-    glm::vec3(1.000f, 0.980f, 0.804f),
+    glm::vec3(0.627f, 0.322f, 0.176f),
     glm::vec3(0.678f, 0.847f, 0.902f),
     glm::vec3(0.941f, 0.502f, 0.502f)
 };
+
+void CalculateNormals(float *p1, float *p2, float *p3)
+{
+    // based on pseudo-code from https://www.khronos.org/opengl/wiki/Calculating_a_Surface_Normal
+    float u[] = {
+        p2[0] - p1[0],
+        p2[1] - p1[1],
+        p2[2] - p1[2]
+    };
+    float v[] = {
+        p3[0] - p1[0],
+        p3[1] - p1[1],
+        p3[2] - p1[2]
+    };
+
+    float normal[] = { 0.0f, 0.0f, 0.0f };
+    normal[0] = u[1] * v[2] - u[2] * v[1];
+    normal[1] = u[2] * v[0] - u[0] * v[2];
+    normal[2] = u[0] * v[1] - u[1] * v[0];
+
+    std::cout << "Normal: ";
+    std::cout << normal[0] << ", ";
+    std::cout << normal[1] << ", ";
+    std::cout << normal[2] << std::endl;
+}
 
 int main()
 {
@@ -112,7 +137,7 @@ int main()
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float vertices[] = {
+    float cubeVertices[] = {
         // X    Y      Z      Normal
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -156,13 +181,48 @@ int main()
         -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
-    // first, configure the cube's VAO (and VBO)
-    unsigned int VBO, cubeVAO;
-    glGenVertexArrays(1, &cubeVAO);
-    glGenBuffers(1, &VBO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    float pyramidVertices[] = {
+         0.0f,  0.5f,  0.0f,  0.0f,  0.5f, 1.0f, // A - 0
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.5f, 1.0f, // E - 4
+         0.5f, -0.5f,  0.5f,  0.0f,  0.5f, 1.0f, // D - 3
+
+         0.0f,  0.5f,  0.0f,  1.0f,  0.5f, 0.0f, // A - 0
+         0.5f, -0.5f,  0.5f,  1.0f,  0.5f, 0.0f, // D - 3
+         0.5f, -0.5f, -0.5f,  1.0f,  0.5f, 0.0f, // C - 2
+
+         0.0f,  0.5f,  0.0f,  0.0f,  0.5f, -1.0f, // A - 0
+         0.5f, -0.5f, -0.5f,  0.0f,  0.5f, -1.0f, // C - 2
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.5f, -1.0f, // B - 1
+
+         0.0f,  0.5f,  0.0f, -1.0f,  0.5f, 0.0f, // A - 0
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.5f, 0.0f, // B - 1
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.5f, 0.0f, // E - 4
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f
+    };
+
+    float planeVertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f
+    };
+
+    // first, configure the cube's VAO (and VBO)
+    unsigned int cubeVBO, cubeVAO;
+    glGenVertexArrays(1, &cubeVAO);
+    glGenBuffers(1, &cubeVBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidVertices), pyramidVertices, GL_STATIC_DRAW);
 
     glBindVertexArray(cubeVAO);
 
@@ -174,16 +234,36 @@ int main()
     glEnableVertexAttribArray(1);
 
     // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
-    unsigned int lightCubeVAO;
+    unsigned int lightVBO, lightCubeVAO;
+    glGenBuffers(1, &lightVBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidVertices), pyramidVertices, GL_STATIC_DRAW);
+
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
 
     // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    unsigned int planeVBO, planeVAO;
+    glGenVertexArrays(1, &planeVAO);
+    glGenBuffers(1, &planeVBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+
+    glBindVertexArray(planeVAO);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // render loop
     // -----------
@@ -195,15 +275,15 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        lightPosition.x = 1.0f + sin(currentFrame) * 2.0f;
-        lightPosition.y = sin(currentFrame / 2.0f) * 1.0f;
+//        lightPosition.x = 1.0f + sin(currentFrame) * 10.0f;
+//        lightPosition.y = sin(currentFrame / 10.0f) * 1.0f;
         // input
         // -----
         processInput(window);
 
         // render
         // ------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // view/projection transformations
@@ -213,31 +293,53 @@ int main()
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
 
-        for (int i = 0; i < 10; i++)
         {
-            {
-                // be sure to activate shader when setting uniforms/drawing objects
-                lightingShader.Bind();
-                lightingShader.SetVec3("objectColor", colors[i]);
-                lightingShader.SetVec3("lightColor", lightColor);
-                lightingShader.SetVec3("lightPos", lightPosition);
-                lightingShader.SetVec3("viewPos", camera.Position);
-                lightingShader.SetFloat("u_Shininess", shininess);
-                lightingShader.SetFloat("u_AmbientStrength", ambientStrength);
-                lightingShader.SetFloat("u_Diffuse", diffuse);
+            // be sure to activate shader when setting uniforms/drawing objects
+            lightingShader.Bind();
+            lightingShader.SetVec3("objectColor", colors[1]);
+            lightingShader.SetVec3("lightColor", lightColor);
+            lightingShader.SetVec3("lightPos", lightPosition);
+            lightingShader.SetVec3("viewPos", camera.Position);
+            lightingShader.SetFloat("u_Shininess", shininess);
+            lightingShader.SetFloat("u_AmbientStrength", ambientStrength);
+            lightingShader.SetFloat("u_Diffuse", diffuse);
 
-                lightingShader.SetMat4("projection", projection);
-                lightingShader.SetMat4("view", view);
+            lightingShader.SetMat4("projection", projection);
+            lightingShader.SetMat4("view", view);
 
-                // world transformation
-                model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(i + 3, i - 3, i % 3));
-                lightingShader.SetMat4("model", model);
+            // world transformation
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+            lightingShader.SetMat4("model", model);
 
-                // render the cube
-                glBindVertexArray(cubeVAO);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
+            // render the plane
+            glBindVertexArray(planeVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
+
+        {
+            // be sure to activate shader when setting uniforms/drawing objects
+            lightingShader.Bind();
+            lightingShader.SetVec3("objectColor", colors[0]);
+            lightingShader.SetVec3("lightColor", lightColor);
+            lightingShader.SetVec3("lightPos", lightPosition);
+            lightingShader.SetVec3("viewPos", camera.Position);
+            lightingShader.SetFloat("u_Shininess", shininess);
+            lightingShader.SetFloat("u_AmbientStrength", ambientStrength);
+            lightingShader.SetFloat("u_Diffuse", diffuse);
+
+            lightingShader.SetMat4("projection", projection);
+            lightingShader.SetMat4("view", view);
+
+            // world transformation
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(3.0f, 3.0f, 0.0f));
+            model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(2.0f, 2.0f, 2.0f));
+            lightingShader.SetMat4("model", model);
+
+            // render the cube
+            glBindVertexArray(cubeVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 18); // 36
         }
 
         {
@@ -252,7 +354,7 @@ int main()
             lightCubeShader.SetMat4("model", model);
 
             glBindVertexArray(lightCubeVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 18); // 36
         }
 
 
@@ -267,7 +369,10 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &lightCubeVAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &planeVAO);
+    glDeleteBuffers(1, &cubeVBO);
+    glDeleteBuffers(1, &lightVBO);
+    glDeleteBuffers(1, &planeVBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -281,6 +386,15 @@ void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+    {
+        std::cout << "x: " << camera.Position.x << ", ";
+        std::cout << "y: " << camera.Position.y << ", ";
+        std::cout << "z: " << camera.Position.z << std::endl;
+
+        lightPosition = camera.Position;
+    }
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
@@ -299,8 +413,8 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
         shininess *= 2;
-        if (shininess >= 512)
-            shininess = 512;
+        if (shininess >= 1024)
+            shininess = 1024;
     }
 
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
@@ -309,7 +423,6 @@ void processInput(GLFWwindow *window)
         if (shininess <= 2)
             shininess = 2;
     }
-
 
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
     {

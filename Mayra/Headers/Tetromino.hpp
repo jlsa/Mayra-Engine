@@ -75,7 +75,7 @@ namespace Mayra
 
     private:
         Mayra::Shape m_Shape;
-        bool m_Blocks[4][4];
+//        bool m_Blocks[4][4];
         glm::vec4 m_Color;
 
         
