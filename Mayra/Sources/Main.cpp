@@ -51,6 +51,24 @@ float lastFrame = 0.0f;
 glm::vec3 lightPosition(1.2f, 1.0f, 2.0f);
 glm::vec3 lightColor(0.678f, 0.847f, 0.902f);
 
+float shininess = 32.0f;
+float diffuse = 0.25f;
+float ambientStrength = 0.1f;
+
+glm::vec3 colors[10] = {
+    glm::vec3(0.804f, 0.361f, 0.361f),
+    glm::vec3(0.294f, 0.000f, 0.510f),
+    glm::vec3(1.000f, 1.000f, 0.941f),
+    glm::vec3(0.941f, 0.902f, 0.549f),
+    glm::vec3(0.902f, 0.902f, 0.980f),
+
+    glm::vec3(1.000f, 0.941f, 0.961f),
+    glm::vec3(0.486f, 0.988f, 0.000f),
+    glm::vec3(1.000f, 0.980f, 0.804f),
+    glm::vec3(0.678f, 0.847f, 0.902f),
+    glm::vec3(0.941f, 0.502f, 0.502f)
+};
+
 int main()
 {
     glfwInit();
@@ -95,6 +113,7 @@ int main()
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
+        // X    Y      Z      Normal
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -176,48 +195,65 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        lightPosition.x = 1.0f + sin(currentFrame) * 2.0f;
+        lightPosition.y = sin(currentFrame / 2.0f) * 1.0f;
         // input
         // -----
         processInput(window);
 
         // render
         // ------
-        glClearColor(0.4f, 0.1f, 0.7f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // be sure to activate shader when setting uniforms/drawing objects
-        lightingShader.Bind();
-        lightingShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lightingShader.SetVec3("lightColor", lightColor);
-        lightingShader.SetVec3("lightPos", lightPosition);
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        lightingShader.SetMat4("projection", projection);
-        lightingShader.SetMat4("view", view);
 
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
-        lightingShader.SetMat4("model", model);
 
-        // render the cube
-        glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (int i = 0; i < 10; i++)
+        {
+            {
+                // be sure to activate shader when setting uniforms/drawing objects
+                lightingShader.Bind();
+                lightingShader.SetVec3("objectColor", colors[i]);
+                lightingShader.SetVec3("lightColor", lightColor);
+                lightingShader.SetVec3("lightPos", lightPosition);
+                lightingShader.SetVec3("viewPos", camera.Position);
+                lightingShader.SetFloat("u_Shininess", shininess);
+                lightingShader.SetFloat("u_AmbientStrength", ambientStrength);
+                lightingShader.SetFloat("u_Diffuse", diffuse);
 
+                lightingShader.SetMat4("projection", projection);
+                lightingShader.SetMat4("view", view);
 
-        // also draw the lamp object
-        lightCubeShader.Bind();
-        lightCubeShader.SetVec3("color", lightColor);
-        lightCubeShader.SetMat4("projection", projection);
-        lightCubeShader.SetMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPosition);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        lightCubeShader.SetMat4("model", model);
+                // world transformation
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(i + 3, i - 3, i % 3));
+                lightingShader.SetMat4("model", model);
 
-        glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+                // render the cube
+                glBindVertexArray(cubeVAO);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+        }
+
+        {
+            // also draw the lamp object
+            lightCubeShader.Bind();
+            lightCubeShader.SetVec3("color", lightColor);
+            lightCubeShader.SetMat4("projection", projection);
+            lightCubeShader.SetMat4("view", view);
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, lightPosition);
+            model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+            lightCubeShader.SetMat4("model", model);
+
+            glBindVertexArray(lightCubeVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -259,6 +295,21 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        shininess *= 2;
+        if (shininess >= 512)
+            shininess = 512;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        shininess /= 2;
+        if (shininess <= 2)
+            shininess = 2;
+    }
+
 
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
     {
