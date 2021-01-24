@@ -316,6 +316,7 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
+
     float cubeVertices[] = {
         -0.5f,-0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,// triangle 1 : begin
         -0.5f,-0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,
@@ -345,25 +346,25 @@ int main()
         -0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
          0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
 
-         0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 0.0f,
-         0.5f,-0.5f,-0.5f,  0.0f, 0.0f, 0.0f,
-         0.5f, 0.5f,-0.5f,  0.0f, 0.0f, 0.0f,
+         0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+         0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+         0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
 
-         0.5f,-0.5f,-0.5f,  0.0f, 0.0f, 0.0f,
-         0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 0.0f,
-         0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 0.0f,
+         0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+         0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+         0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
 
-         0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 0.0f,
-         0.5f, 0.5f,-0.5f,  0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f,-0.5f,  0.0f, 0.0f, 0.0f,
+         0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
+         0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
 
-         0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f,-0.5f,  0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 0.0f,
+         0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
 
-         0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 0.0f,
-         0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 0.0f,
+         0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
+         0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
     };
 
     float p1[3] = { 0.0f, 0.0f, 0.0f };
@@ -371,73 +372,66 @@ int main()
     float p3[3] = { 0.0f, 0.0f, 0.0f };
 
     float normal[3] = { 0.0f, 0.0f, 0.0f};
+//    CalculateNormals(&normal[0], p1, p2, p3);
 
     int j = 0;
     int verticesCount = (int)sizeof(cubeVertices) / sizeof(float);
-    for (int i = 0; i < verticesCount; i += 6)
+    for (int i = 0; i < verticesCount; i += 6 * 3)
     {
         if (i % 6 == 0)
             std::cout << "\n" << std::endl;
 
-        std::cout << "[ ";
-        std::cout << cubeVertices[i] << ", ";
-        std::cout << cubeVertices[i + 1] << ", ";
-        std::cout << cubeVertices[i + 2] << ", ";
+        p1[0] = cubeVertices[i + 0];
+        p1[1] = cubeVertices[i + 1];
+        p1[2] = cubeVertices[i + 2];
 
-        std::cout << " | ";
+        p2[0] = cubeVertices[i + 6];
+        p2[1] = cubeVertices[i + 7];
+        p2[2] = cubeVertices[i + 8];
 
-        std::cout << cubeVertices[i + 3] << ", ";
-        std::cout << cubeVertices[i + 4] << ", ";
-        std::cout << cubeVertices[i + 5] << ", ";
+        p3[0] = cubeVertices[i + 12];
+        p3[1] = cubeVertices[i + 13];
+        p3[2] = cubeVertices[i + 14];
+        CalculateNormals(&normal[0], p1, p2, p3);
 
-        std::cout << std::endl;
+        std::cout << "{ " << normal[0] << ", ";
+        std::cout << normal[1] << ", ";
+        std::cout << normal[2] << " }";
 
-        std::cout << cubeVertices[i + 6] << ", ";
-        std::cout << cubeVertices[i + 7] << ", ";
-        std::cout << cubeVertices[i + 8] << ", ";
-
-        std::cout << " | ";
-
-        std::cout << cubeVertices[i + 9] << ", ";
-        std::cout << cubeVertices[i + 10] << ", ";
-        std::cout << cubeVertices[i + 11] << ", ";
-
-        std::cout << std::endl;
-
-        std::cout << cubeVertices[i + 12] << ", ";
-        std::cout << cubeVertices[i + 13] << ", ";
-        std::cout << cubeVertices[i + 14] << ", ";
-
-        std::cout << " | ";
-
-        std::cout << cubeVertices[i + 15] << ", ";
-        std::cout << cubeVertices[i + 16] << ", ";
-        std::cout << cubeVertices[i + 17] << " ]";
-
-
-        j++;
-        if (j == 3)
-            j = 0;
-
-        std::cout << std::endl;
-        std::cout << "[j=" << j << "] [i=" << i << "] ";
-//        if (i % 3 == 0)
-//            std::cout << std::endl;
-//        for (int j = 0; j < 6; j++)
-//        {
+//        std::cout << "[ ";
+//        std::cout << cubeVertices[i] << ", ";
+//        std::cout << cubeVertices[i + 1] << ", ";
+//        std::cout << cubeVertices[i + 2] << ", ";
 //
-//            if (j == 2)
-//                std::cout << "\t";
-////            std::cout << cubeVertices[i + 1 + j] << ",";
-////            std::cout << cubeVertices[i + 2 + j] << std::endl;
-//        }
+//        std::cout << " | ";
+//
+//        std::cout << cubeVertices[i + 3] << ", ";
+//        std::cout << cubeVertices[i + 4] << ", ";
+//        std::cout << cubeVertices[i + 5] << ", ";
+//
 //        std::cout << std::endl;
-//        std::cout << "-------" << std::endl;
-//        float normal[3];
-//        CalculateNormals(&normal[0], p1, p2, p3);
-//        std::cout << normal[i] << std::endl;
-//        std::cout << normal[i+1] << std::endl;
-//        std::cout << normal[i+2] << std::endl;
+//
+//        std::cout << cubeVertices[i + 6] << ", ";
+//        std::cout << cubeVertices[i + 7] << ", ";
+//        std::cout << cubeVertices[i + 8] << ", ";
+//
+//        std::cout << " | ";
+//
+//        std::cout << cubeVertices[i + 9] << ", ";
+//        std::cout << cubeVertices[i + 10] << ", ";
+//        std::cout << cubeVertices[i + 11] << ", ";
+//
+//        std::cout << std::endl;
+//
+//        std::cout << cubeVertices[i + 12] << ", ";
+//        std::cout << cubeVertices[i + 13] << ", ";
+//        std::cout << cubeVertices[i + 14] << ", ";
+//
+//        std::cout << " | ";
+//
+//        std::cout << cubeVertices[i + 15] << ", ";
+//        std::cout << cubeVertices[i + 16] << ", ";
+//        std::cout << cubeVertices[i + 17] << " ]";
     }
 
     int cubeVerticesCount = 36;
