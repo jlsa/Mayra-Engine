@@ -228,7 +228,7 @@ void CalculateNormals(float *normal, float *p1, float *p2, float *p3)
     normal[2] = u[0] * v[1] - u[1] * v[0];
 }
 
-void CalculateNormalsFromTriangles(float *vertices, int stride)
+void CalculateNormalsFromTriangles(float vertices[], int size, int stride)
 {
     float p1[3] = { 0.0f, 0.0f, 0.0f };
     float p2[3] = { 0.0f, 0.0f, 0.0f };
@@ -236,11 +236,10 @@ void CalculateNormalsFromTriangles(float *vertices, int stride)
 
     float normal[3] = { 0.0f, 0.0f, 0.0f};
 
-    int verticesCount = (int)sizeof(vertices) / sizeof(float);
-    for (int i = 0; i < verticesCount; i += stride * 3)
+    for (int i = 0; i < size; i += stride * 3)
     {
         if (i % 6 == 0)
-            std::cout << "\n" << std::endl;
+            std::cout << std::endl;
 
         p1[0] = vertices[i + 0];
         p1[1] = vertices[i + 1];
@@ -253,6 +252,7 @@ void CalculateNormalsFromTriangles(float *vertices, int stride)
         p3[0] = vertices[i + 12];
         p3[1] = vertices[i + 13];
         p3[2] = vertices[i + 14];
+
         CalculateNormals(&normal[0], p1, p2, p3);
 
         std::cout << "{ " << normal[0] << ", ";
@@ -304,52 +304,8 @@ int main()
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float cubeVertices2[] = {
-        // X    Y      Z      Normal
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-    };
-
     float cubeVertices[] = {
+        // X    Y      Z      Normal
         -0.5f,-0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,// triangle 1 : begin
         -0.5f,-0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,
         -0.5f, 0.5f, 0.5f,  -1.0f, 0.0f, 0.0f, // triangle 1 : end
@@ -396,12 +352,13 @@ int main()
 
          0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
         -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-         0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
+         0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f
     };
 
     int cubeVerticesCount = 36;
 
     float pyramidVertices[] = {
+        // X    Y      Z      Normal
          0.0f,  0.5f,  0.0f,  0.0f,  0.5f, 1.0f, // A - 0
         -0.5f, -0.5f,  0.5f,  0.0f,  0.5f, 1.0f, // E - 4
          0.5f, -0.5f,  0.5f,  0.0f,  0.5f, 1.0f, // D - 3
@@ -421,6 +378,7 @@ int main()
         -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
          0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+
          0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
         -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
         -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f
@@ -428,12 +386,14 @@ int main()
     int pyramidVerticesCount = 18;
 
     float quadVertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f
+        // X    Y      Z      Normal
+        0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
+
+        0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
     };
     int quadVerticesCount = 6;
 
@@ -567,7 +527,7 @@ int main()
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
 
-        for (unsigned int i = 0; i < 1; i++)//sizeof(materials) / sizeof(Material); i++)
+        for (unsigned int i = 0; i < sizeof(materials) / sizeof(Material); i++)
         {
             if (materials[i].transparency == 1.0f)
             {
@@ -595,20 +555,23 @@ int main()
                     model = glm::mat4(1.0f);
                     model = glm::translate(model, glm::vec3(1.0f * i + (0.1f * i), 3.0f, 0.0f));
     //                model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(2.0f, 2.0f, 2.0f));
+//                    model = glm::scale(model, glm::vec3(0.5f));
                     lightingShader.SetMat4("model", model);
 
                     // render the shape
-    //                glBindVertexArray(quadVBO);
-    //                glDrawArrays(GL_TRIANGLES, 0, quadVerticesCount);
+//                    glDisable(GL_CULL_FACE);
+//                    glBindVertexArray(quadVBO);
+//                    glDrawArrays(GL_TRIANGLES, 0, quadVerticesCount);
+//                    glEnable(GL_CULL_FACE);
 
 //                    glBindVertexArray(tetrahedronVAO);
 //                    glDrawArrays(GL_TRIANGLES, 0, tetrahedronVerticesCount);
 
-                    glBindVertexArray(cubeVAO);
-                    glDrawArrays(GL_TRIANGLES, 0, cubeVerticesCount);
+//                    glBindVertexArray(cubeVAO);
+//                    glDrawArrays(GL_TRIANGLES, 0, cubeVerticesCount);
 
-    //                glBindVertexArray(pyramidVAO);
-    //                glDrawArrays(GL_TRIANGLES, 0, pyramidVerticesCount);
+                    glBindVertexArray(pyramidVAO);
+                    glDrawArrays(GL_TRIANGLES, 0, pyramidVerticesCount);
                 }
             }
         }
@@ -640,7 +603,8 @@ int main()
                     // world transformation
                     model = glm::mat4(1.0f);
                     model = glm::translate(model, glm::vec3(1.0f * i + (0.1f * i), 3.0f, 0.0f));
-                    //                model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(2.0f, 2.0f, 2.0f));
+//                    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(2.0f, 2.0f, 2.0f));
+//                    model = glm::scale(model, glm::vec3(0.5f));
                     lightingShader.SetMat4("model", model);
 
                     // render the shape
@@ -650,11 +614,11 @@ int main()
 //                    glBindVertexArray(tetrahedronVAO);
 //                    glDrawArrays(GL_TRIANGLES, 0, tetrahedronVerticesCount);
 
-                    glBindVertexArray(cubeVAO);
-                    glDrawArrays(GL_TRIANGLES, 0, cubeVerticesCount);
+//                    glBindVertexArray(cubeVAO);
+//                    glDrawArrays(GL_TRIANGLES, 0, cubeVerticesCount);
 
-//                glBindVertexArray(pyramidVAO);
-//                glDrawArrays(GL_TRIANGLES, 0, pyramidVerticesCount);
+                glBindVertexArray(pyramidVAO);
+                glDrawArrays(GL_TRIANGLES, 0, pyramidVerticesCount);
                 }
             }
         }
@@ -686,9 +650,14 @@ int main()
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &lightCubeVAO);
     glDeleteVertexArrays(1, &quadVAO);
+    glDeleteVertexArrays(1, &pyramidVAO);
+    glDeleteVertexArrays(1, &tetrahedronVAO);
+    glDeleteBuffers(1, &tetrahedronVBO);
+
     glDeleteBuffers(1, &cubeVBO);
     glDeleteBuffers(1, &lightVBO);
     glDeleteBuffers(1, &quadVBO);
+    glDeleteBuffers(1, &pyramidVBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
