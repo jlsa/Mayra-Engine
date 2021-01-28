@@ -25,14 +25,14 @@
 
 #include <Shader.hpp>
 #include <Camera.hpp>
+#include <Texture2D.hpp>
 
 #include <iostream>
 
 #include "3Dshapes.hpp"
 
 struct Material {
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
+    unsigned int diffuse;
     glm::vec3 specular;
     float shininess;
     float transparency;
@@ -50,6 +50,7 @@ void framebuffer_size_callback2(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+unsigned int loadTexture(char const * path);
 
 void CalculateNormals(float *normal, float *p1, float *p2, float *p3);
 void CalculateNormalsFromTriangles(float vertices[], int size, int stride);
@@ -73,41 +74,9 @@ float maxShine = 128.0f;
 Light light = {
     glm::vec3(1.0f),
     glm::vec3(1.2f, 1.0f, 2.0f),
-    glm::vec3(1.0f), // 0.2f
-    glm::vec3(1.0f), // 0.5f
+    glm::vec3(0.2f), // 0.2f
+    glm::vec3(0.5f), // 0.5f
     glm::vec3(1.0f)
-};
-
-// https://people.sc.fsu.edu/~jburkardt/data/mtl/example.mtl
-Material flatwhite = {
-    glm::vec3(0.5f),
-    glm::vec3(1.0f),
-    glm::vec3(0.0f),
-    0.0f,
-    1.0f
-};
-
-Material shinyred = {
-    glm::vec3(0.1986f, 0.0000f, 0.0000f),
-    glm::vec3(0.5922f, 0.0166f, 0.0000f),
-    glm::vec3(0.5974f, 0.2084f, 0.2084f),
-    100.2237f,
-    1.0f
-};
-
-Material clearblue = {
-    glm::vec3(0.0394f, 0.0394f, 0.3300f),
-    glm::vec3(0.1420f, 0.1420f, 0.9500f),
-    glm::vec3(0.0f),
-    0.0f,
-    0.4300f
-};
-// end example.mtl
-
-Material materials[] = {
-    shinyred,
-    clearblue,
-    flatwhite
 };
 
 int main()
@@ -148,8 +117,10 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    Mayra::Shader lightingShader(SHADERS "Colors.vert", SHADERS "Colors.frag");
+    Mayra::Shader lightingShader(SHADERS "LightingMaps.vert", SHADERS "LightingMaps.frag");
     Mayra::Shader lightCubeShader(SHADERS "LightCube.vert", SHADERS "LightCube.frag");
+    Mayra::Texture2D* texture = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png");
+    unsigned int diffuseMap = loadTexture(TEXTURES "container2.png");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -164,35 +135,21 @@ int main()
     glBindVertexArray(cubeVAO);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    // pyramid
-    unsigned int pyramidVBO, pyramidVAO;
-    glGenVertexArrays(1, &pyramidVAO);
-    glGenBuffers(1, &pyramidVBO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, pyramidVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Mayra::Shapes::pyramid.vertices), Mayra::Shapes::pyramid.vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(pyramidVAO);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
     unsigned int lightVBO, lightCubeVAO;
     glGenBuffers(1, &lightVBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Mayra::Shapes::pyramid.vertices), Mayra::Shapes::pyramid.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Mayra::Shapes::cube.vertices), Mayra::Shapes::cube.vertices, GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
@@ -200,43 +157,22 @@ int main()
     // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
     glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    unsigned int quadVBO, quadVAO;
-    glGenVertexArrays(1, &quadVAO);
-    glGenBuffers(1, &quadVBO);
+    Material material = {
+        texture->GetRendererID(),
+        glm::vec3(0.5f),
+        64.0f,
+        1.0f
+    };
 
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Mayra::Shapes::quad.vertices), Mayra::Shapes::quad.vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(quadVAO);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    unsigned int tetrahedronVBO, tetrahedronVAO;
-    glGenVertexArrays(1, &tetrahedronVAO);
-    glGenBuffers(1, &tetrahedronVBO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, tetrahedronVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Mayra::Shapes::tetrahedron.vertices), Mayra::Shapes::tetrahedron.vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(tetrahedronVAO);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    lightingShader.Bind();
+    lightingShader.SetInt("material.diffuse", 0);
 
     // render loop
     // -----------
+
     while (!glfwWindowShouldClose(window))
     {
         // per-frame time logic
@@ -264,100 +200,36 @@ int main()
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
 
-        for (unsigned int i = 0; i < sizeof(materials) / sizeof(Material); i++)
         {
-            if (materials[i].transparency == 1.0f)
-            {
-                {
-                    // be sure to activate shader when setting uniforms/drawing objects
-                    lightingShader.Bind();
-                    lightingShader.SetVec3("light.color", light.color);
-                    lightingShader.SetVec3("light.ambient", light.ambient);
-                    lightingShader.SetVec3("light.diffuse", light.diffuse); // darken diffuse light a bit
-                    lightingShader.SetVec3("light.specular", light.specular);
-                    lightingShader.SetVec3("light.position", light.position);
+            // be sure to activate shader when setting uniforms/drawing objects
+            lightingShader.Bind();
+//            lightingShader.SetVec3("light.color", light.color);
+            lightingShader.SetVec3("light.ambient", light.ambient);
+            lightingShader.SetVec3("light.diffuse", light.diffuse); // darken diffuse light a bit
+            lightingShader.SetVec3("light.specular", light.specular);
+            lightingShader.SetVec3("light.position", light.position);
 
-                    lightingShader.SetVec3("viewPos", camera.Position);
+            lightingShader.SetVec3("viewPos", camera.Position);
 
-                    lightingShader.SetFloat("material.shininess", materials[i].shininess);
-                    lightingShader.SetVec3("material.ambient", materials[i].ambient);
-                    lightingShader.SetVec3("material.diffuse", materials[i].diffuse);
-                    lightingShader.SetVec3("material.specular", materials[i].specular);
-                    lightingShader.SetFloat("material.transparency", materials[i].transparency);
+            lightingShader.SetFloat("material.shininess", material.shininess);
+//            lightingShader.SetInt("material.diffuse", material.diffuse);
+            lightingShader.SetVec3("material.specular", material.specular);
 
-                    lightingShader.SetMat4("projection", projection);
-                    lightingShader.SetMat4("view", view);
+            lightingShader.SetMat4("projection", projection);
+            lightingShader.SetMat4("view", view);
 
-                    // world transformation
-                    model = glm::mat4(1.0f);
-                    model = glm::translate(model, glm::vec3(1.0f * i + (0.1f * i), 3.0f, 0.0f));
-    //                model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(2.0f, 2.0f, 2.0f));
-//                    model = glm::scale(model, glm::vec3(0.5f));
-                    lightingShader.SetMat4("model", model);
+            // world transformation
+            model = glm::mat4(1.0f);
+//            model = glm::translate(model, glm::vec3(1.0f, 3.0f, 0.0f));
+            lightingShader.SetMat4("model", model);
 
-                    // render the shape
-//                    glDisable(GL_CULL_FACE);
-//                    glBindVertexArray(quadVBO);
-//                    glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::quad.verticesCount);
-//                    glEnable(GL_CULL_FACE);
+//            texture->Bind();
+            // bind diffuse map
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
-                    glBindVertexArray(tetrahedronVAO);
-                    glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::tetrahedron.verticesCount);
-
-//                    glBindVertexArray(cubeVAO);
-//                    glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
-
-//                    glBindVertexArray(pyramidVAO);
-//                    glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::pyramid.verticesCount);
-                }
-            }
-        }
-
-        for (unsigned int i = 0; i < sizeof(materials) / sizeof(Material); i++)
-        {
-            if (materials[i].transparency < 1.0f)
-            {
-                {
-                    // be sure to activate shader when setting uniforms/drawing objects
-                    lightingShader.Bind();
-                    lightingShader.SetVec3("light.color", light.color);
-                    lightingShader.SetVec3("light.ambient", light.ambient);
-                    lightingShader.SetVec3("light.diffuse", light.diffuse); // darken diffuse light a bit
-                    lightingShader.SetVec3("light.specular", light.specular);
-                    lightingShader.SetVec3("light.position", light.position);
-
-                    lightingShader.SetVec3("viewPos", camera.Position);
-
-                    lightingShader.SetFloat("material.shininess", materials[i].shininess);
-                    lightingShader.SetVec3("material.ambient", materials[i].ambient);
-                    lightingShader.SetVec3("material.diffuse", materials[i].diffuse);
-                    lightingShader.SetVec3("material.specular", materials[i].specular);
-                    lightingShader.SetFloat("material.transparency", materials[i].transparency);
-
-                    lightingShader.SetMat4("projection", projection);
-                    lightingShader.SetMat4("view", view);
-
-                    // world transformation
-                    model = glm::mat4(1.0f);
-                    model = glm::translate(model, glm::vec3(1.0f * i + (0.1f * i), 3.0f, 0.0f));
-//                    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(2.0f, 2.0f, 2.0f));
-//                    model = glm::scale(model, glm::vec3(0.5f));
-                    lightingShader.SetMat4("model", model);
-
-                    // render the shape
-//                glBindVertexArray(quadVBO);
-//                glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::quad.verticesCount);
-
-                    glBindVertexArray(tetrahedronVAO);
-                    glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::tetrahedron.verticesCount);
-
-//                    glBindVertexArray(cubeVAO);
-//                    glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
-
-//                glBindVertexArray(pyramidVAO);
-//                glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::pyramid.verticesCount);
-                }
-            }
+            glBindVertexArray(cubeVAO);
+            glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
         }
 
         {
@@ -372,7 +244,7 @@ int main()
             lightCubeShader.SetMat4("model", model);
 
             glBindVertexArray(lightCubeVAO);
-            glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::pyramid.verticesCount);
+            glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
         }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -386,16 +258,11 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &lightCubeVAO);
-    glDeleteVertexArrays(1, &quadVAO);
-    glDeleteVertexArrays(1, &pyramidVAO);
-    glDeleteVertexArrays(1, &tetrahedronVAO);
-    glDeleteBuffers(1, &tetrahedronVBO);
 
     glDeleteBuffers(1, &cubeVBO);
     glDeleteBuffers(1, &lightVBO);
-    glDeleteBuffers(1, &quadVBO);
-    glDeleteBuffers(1, &pyramidVBO);
 
+    delete texture;
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -489,6 +356,43 @@ void mouse_callback(GLFWwindow*, double xpos, double ypos)
 void scroll_callback(GLFWwindow*, double, double yoffset)
 {
     camera.ProcessMouseScroll(yoffset);
+}
+
+unsigned int loadTexture(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }
 
 

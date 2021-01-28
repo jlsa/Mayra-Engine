@@ -4,10 +4,13 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+#define VERTICES_STRIDE 8
+
 namespace Mayra
 {
     namespace Shapes
     {
+
         struct Shape
         {
             std::vector<float> vertices;
@@ -20,7 +23,7 @@ namespace Mayra
         };
         struct Cube
         {
-            float vertices[36 * 6];
+            float vertices[36 * VERTICES_STRIDE];
             int size;
             int verticesCount;
             int stride;
@@ -28,7 +31,7 @@ namespace Mayra
 
         struct Pyramid
         {
-            float vertices[18 * 6];
+            float vertices[18 * VERTICES_STRIDE];
             int size;
             int verticesCount;
             int stride;
@@ -36,7 +39,7 @@ namespace Mayra
 
         struct Quad
         {
-            float vertices[6 * 6];
+            float vertices[6 * VERTICES_STRIDE];
             int size;
             int verticesCount;
             int stride;
@@ -44,7 +47,7 @@ namespace Mayra
 
         struct Tetrahedron
         {
-            float vertices[12 * 6];
+            float vertices[12 * VERTICES_STRIDE];
             int size;
             int verticesCount;
             int stride;
@@ -52,58 +55,58 @@ namespace Mayra
 
         static const Mayra::Shapes::Cube cube = {
             {
-                // X    Y      Z      Normal
-                -0.5f,-0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,// triangle 1 : begin
-                -0.5f,-0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,
-                -0.5f, 0.5f, 0.5f,  -1.0f, 0.0f, 0.0f, // triangle 1 : end
+                // X    Y      Z      Normal           // texture coords
+                -0.5f,-0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                -0.5f,-0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,  1.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
 
-                0.5f, 0.5f,-0.5f,   0.0f, 0.0f, -1.0f, // triangle 2 : begin
-                -0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,
-                -0.5f, 0.5f,-0.5f,  0.0f, 0.0f, -1.0f, // triangle 2 : end
+                0.5f, 0.5f,-0.5f,   0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
+                -0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+                -0.5f, 0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  1.0f, 1.0f,
 
-                0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,
-                -0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,
-                0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,
+                0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+                -0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f,
+                0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,  1.0f, 1.0f,
 
-                0.5f, 0.5f,-0.5f,  0.0f, 0.0f, -1.0f,
-                0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,
-                -0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,
+                0.5f, 0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
+                0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
+                -0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
 
-                -0.5f,-0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,
-                -0.5f, 0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,
-                -0.5f, 0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,
+                -0.5f,-0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                -0.5f, 0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,
-                -0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,
-                -0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,
+                0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+                -0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+                -0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
 
-                -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-                -0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-                0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
+                -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
+                -0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
+                0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
 
-                0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-                0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-                0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
+                0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,
-                0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
-                0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,
+                0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
-                0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
-                -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
+                0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+                0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+                -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
-                -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
-                -0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,
+                0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+                -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-                -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,
-                0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f
+                0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
+                0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f
             },
-            36 * 6,
+            36 * VERTICES_STRIDE,
             36,
-            6
+            VERTICES_STRIDE
         };
 
         static const Mayra::Shapes::Cube pyramid = {
@@ -133,9 +136,9 @@ namespace Mayra
                 -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
                 -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f
             },
-            18 * 6,
+            18 * VERTICES_STRIDE,
             18,
-            6
+            VERTICES_STRIDE
         };
 
         static const Mayra::Shapes::Quad quad = {
@@ -149,9 +152,9 @@ namespace Mayra
                 0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
                 -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
             },
-            6 * 6,
+            6 * VERTICES_STRIDE,
             6,
-            6
+            VERTICES_STRIDE
         };
 
         static const Mayra::Shapes::Tetrahedron tetrahedron = {
@@ -172,9 +175,9 @@ namespace Mayra
                 0.000000f,  1.000000f,  0.000000f,   1.08866f,  0.769801f,  1.88562f, // A - 0
                 -0.471405f, -0.333333f,  0.816497f,   1.08866f,  0.769801f,  1.88562f, // D - 3
             },
-            12 * 6,
+            12 * VERTICES_STRIDE,
             12,
-            6
+            VERTICES_STRIDE
         };
     }
 }
