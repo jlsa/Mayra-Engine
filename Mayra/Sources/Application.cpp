@@ -26,6 +26,7 @@
 #include "Scene.hpp"
 #include "SceneMultiTexturedQuad.hpp"
 #include "SceneGameObjectsTest.hpp"
+#include "SceneInventoryTest.hpp"
 #include "SandboxScene.hpp"
 #include "Input.hpp"
 
@@ -102,6 +103,7 @@ namespace Mayra
         sceneMenu->RegisterScene<SceneMultiTexturedQuad>("Multi Textured Quad");
         sceneMenu->RegisterScene<SceneGameObjectsTest>("Game Objects Test");
         sceneMenu->RegisterScene<SandboxScene>("Sandbox Scene");
+        sceneMenu->RegisterScene<SceneInventoryTest>("Inventory Test (ImGui)");
 
         static double limitFPS = 1.0 / 60.0;
 
