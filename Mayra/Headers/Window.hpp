@@ -21,23 +21,29 @@ namespace Mayra
         unsigned int Height;
         float Aspect;
         float AspectInverse;
+        int VSync;
         
         WindowProps(const std::string& title = "Mayra Engine",
                     unsigned int width = 1280,
                     unsigned int height = 720)
-            : Title(title), Width(width), Height(height), Aspect(1.0f), AspectInverse(-1.0f)
+            : Title(title), Width(width), Height(height), Aspect(1.0f), AspectInverse(-1.0f), VSync(1)
         {}
     };
 
     class Window
     {
-        GLFWwindow* _window;
-        
     public:
         Window(GLFWwindow* window);
         ~Window();
         Window(WindowProps* props);
         GLFWwindow* Get();
+        Mayra::WindowProps* Props() const;
+
+    private:
+        GLFWwindow* _window;
+        WindowProps* m_Props;
+
+        void create();
     };
 }
 

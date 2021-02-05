@@ -45,24 +45,11 @@ namespace Mayra
         Terminate();
     }
 
-    void Application::HandleInput(Mayra::Window* window)
-    {
-        for (unsigned int i = 32; i < GLFW_KEY_LAST; i++)
-        {
-            if (glfwGetKey(window->Get(), i) == GLFW_PRESS)
-                Mayra::Input::Instance()->HandleKeyDown(i);
-
-            if (glfwGetKey(window->Get(), i) == GLFW_RELEASE)
-                Mayra::Input::Instance()->HandleKeyRelease(i);
-
-            if (glfwGetKey(window->Get(), i) == GLFW_REPEAT)
-                Mayra::Input::Instance()->HandleKeyRepeat(i);
-        }
-    }
-
     int Application::Initialize()
     {
         glfwInit();
+
+        // setup Graphics Library & Window Hints
         std::string glsl_version = "#version 330";
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -70,10 +57,9 @@ namespace Mayra
         #ifdef __APPLE__
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         #endif
-        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
+//        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
         _window = new Mayra::Window(_props);
-        glfwSwapInterval(1);
 
         // Check for Valid Context
         if (_window->Get() == nullptr) {
@@ -83,9 +69,16 @@ namespace Mayra
 
         // Create Context and Load OpenGL Functions
         glfwMakeContextCurrent(_window->Get());
-        glfwSetFramebufferSizeCallback(_window->Get(), framebuffer_size_callback);
-        gladLoadGL();
 
+        // vsync (0 = off, 1 = on)
+        glfwSwapInterval(_window->Props()->VSync);
+
+        glfwSetInputMode(_window->Get(), GLFW_STICKY_KEYS, GL_TRUE);
+        glfwSetInputMode(_window->Get(), GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
+
+        glfwSetFramebufferSizeCallback(_window->Get(), framebuffer_size_callback);
+
+        gladLoadGL();
         fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
         _gui = new Mayra::Gui();
@@ -113,11 +106,12 @@ namespace Mayra
 
         while (glfwWindowShouldClose(_window->Get()) == false)
         {
-            HandleInput(_window);
             // measure time
             nowTime = glfwGetTime();
             deltaTime += (nowTime - lastTime) / limitFPS;
             lastTime = nowTime;
+
+            Input::Instance()->UpdateInput(_window);
 
             // only update at 60frames / s
             while (deltaTime >= 1.0)
@@ -160,7 +154,7 @@ namespace Mayra
             }
 
             glfwSwapBuffers(_window->Get());
-            glfwPollEvents();
+//            glfwPollEvents();
         }
         if (currentScene == sceneMenu)
             delete sceneMenu;

@@ -21,6 +21,48 @@ namespace Mayra
             m_KeysDown[i] = false;
             m_KeysUp[i] = false;
         }
+
+        for (unsigned int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
+        {
+            m_Mouse[i] = false;
+            m_MouseUp[i] = false;
+            m_MouseDown[i] = false;
+        }
+    }
+
+    void Input::UpdateInput(Mayra::Window* window)
+    {
+        m_Window = window;
+
+        glfwPollEvents();
+
+        for (unsigned int i = 32; i < GLFW_KEY_LAST; i++)
+        {
+            if (glfwGetKey(window->Get(), i) == GLFW_PRESS)
+                HandleKeyDown(i);
+
+            if (glfwGetKey(window->Get(), i) == GLFW_RELEASE)
+                HandleKeyRelease(i);
+
+            if (glfwGetKey(window->Get(), i) == GLFW_REPEAT)
+                HandleKeyRepeat(i);
+        }
+
+        glfwGetWindowSize(window->Get(), &m_WindowWidth, &m_WindowHeight);
+
+        glfwGetCursorPos(window->Get(), &m_MouseX, &m_MouseY);
+
+        m_MouseX = ((float)window->Props()->Width / m_WindowWidth) * m_MouseX;
+        m_MouseY = ((float)window->Props()->Height / m_WindowHeight) * m_MouseY;
+
+        for (unsigned int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
+        {
+            if (glfwGetMouseButton(window->Get(), i) == GLFW_PRESS)
+                HandleMousePress(i);
+
+            if (glfwGetMouseButton(window->Get(), i) == GLFW_RELEASE)
+                HandleMouseRelease(i);
+        }
     }
 
     bool Input::IsKey(KeyCode key)
@@ -36,6 +78,21 @@ namespace Mayra
     bool Input::IsKeyUp(KeyCode key)
     {
         return m_KeysUp[key];
+    }
+
+    bool Input::IsMouse(unsigned int button)
+    {
+        return m_Mouse[button];
+    }
+
+    bool Input::IsMouseUp(unsigned int button)
+    {
+        return m_MouseUp[button];
+    }
+
+    bool Input::IsMouseDown(unsigned int button)
+    {
+        return m_MouseDown[button];
     }
 
     void Input::HandleKeyDown(unsigned int key)
@@ -66,6 +123,36 @@ namespace Mayra
         else
         {
             m_KeysUp[key] = false;
+        }
+    }
+
+    void Input::HandleMousePress(unsigned int button)
+    {
+        if (m_Mouse[button] == false) // first time pressed down
+        {
+            m_Mouse[button] = true;
+            m_MouseDown[button] = true;
+            m_MouseUp[button] = false;
+        }
+        else
+        {
+            // not the first register of down but still pressed.
+            m_MouseDown[button] = false;
+        }
+    }
+
+    void Input::HandleMouseRelease(unsigned int button)
+    {
+        if (m_Mouse[button] == true) // still pressed
+        {
+            m_Mouse[button] = false;
+            m_MouseUp[button] = true;
+            m_MouseDown[button] = false;
+            std::cout << "mouse_release::button::" << button << std::endl;
+        }
+        else
+        {
+            m_MouseUp[button] = false;
         }
     }
 

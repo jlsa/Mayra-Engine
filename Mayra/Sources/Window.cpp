@@ -12,15 +12,13 @@ namespace Mayra
     Window::Window(GLFWwindow* window)
     {
         _window = window;
+        m_Props = new WindowProps("MayraEngine::DefaultWindowTitle");
     }
 
     Window::Window(WindowProps* props)
     {
-        _window = glfwCreateWindow(props->Width,
-                                   props->Height,
-                                   props->Title.c_str(),
-                                   nullptr,
-                                   nullptr);
+        m_Props = props;
+        create();
     }
 
     Window::~Window()
@@ -28,8 +26,26 @@ namespace Mayra
         glfwDestroyWindow(_window);
     }
 
+    void Window::create()
+    {
+        GLFWmonitor* primary = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(primary);
+        std::cout << "Primary Monitor: " << mode->width << "x" << mode->height << std::endl;
+
+        _window = glfwCreateWindow(m_Props->Width,
+                                   m_Props->Height,
+                                   m_Props->Title.c_str(),
+                                   nullptr,
+                                   nullptr);
+    }
+
     GLFWwindow* Window::Get()
     {
         return _window;
+    }
+
+    Mayra::WindowProps* Window::Props() const
+    {
+        return m_Props;
     }
 }
