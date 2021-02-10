@@ -3,7 +3,8 @@ out vec4 FragColor;
 
 struct Material {
     sampler2D diffuse;
-    vec3 specular;
+    sampler2D specular;
+    sampler2D emission;
     float shininess;
 };
 
@@ -23,6 +24,9 @@ uniform vec3 viewPos;
 uniform Material material;
 uniform Light light;
 
+
+uniform float time;
+
 void main()
 {
     // ambient
@@ -37,9 +41,19 @@ void main()
     // specular
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = light.specular * (spec * material.specular);
 
-    vec3 result = ambient + diffuse + specular;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;
+
+    vec3 emission = vec3(0.0);
+    if (texture(material.specular, TexCoords).r == 0.0)
+    {
+        emission = texture(material.emission, TexCoords).rgb;
+
+        emission = texture(material.emission, TexCoords + vec2(0.0, time)).rgb;
+        emission = emission * (sin(time) * 0.5 + 0.5) * 2.0;
+    }
+
+    vec3 result = ambient + diffuse + specular + emission;
     FragColor = vec4(result, 1.0);
 } 
