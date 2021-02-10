@@ -36,6 +36,7 @@ namespace Mayra
         void HandleMouseRelease(unsigned int button);
 
         void SetMouse(double x, double y);
+        glm::vec2 GetMouse();
 
     private:
         static Input* m_Instance;

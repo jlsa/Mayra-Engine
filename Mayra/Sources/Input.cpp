@@ -65,6 +65,11 @@ namespace Mayra
         }
     }
 
+    glm::vec2 Input::GetMouse()
+    {
+        return glm::vec2(m_MouseX / 1000, m_MouseY / 1000);
+    }
+
     bool Input::IsKey(KeyCode key)
     {
         return m_Keys[key];
