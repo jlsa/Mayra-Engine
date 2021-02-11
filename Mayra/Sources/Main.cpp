@@ -226,6 +226,7 @@ int main()
 
     // render loop
     // -----------
+    float time = 0;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -234,6 +235,7 @@ int main()
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        time += deltaTime;
 
         // input
         // -----
@@ -251,47 +253,60 @@ int main()
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
-        // world transformation
         glm::mat4 model = glm::mat4(1.0f);
 
+        for (int i = 0; i < 3; i++)
         {
-            // be sure to activate shader when setting uniforms/drawing objects
-            lightingShader.Bind();
-//            lightingShader.SetVec3("light.color", light.color);
-            lightingShader.SetVec3("light.ambient", light.ambient);
-            lightingShader.SetVec3("light.diffuse", light.diffuse); // darken diffuse light a bit
-            lightingShader.SetVec3("light.specular", light.specular);
-            lightingShader.SetVec3("light.position", light.position);
+            for (int j = 0; j < 3; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    // world transformation
+                    model = glm::mat4(1.0f);
 
-            lightingShader.SetVec3("viewPos", camera.Position);
+                    {
+                        // be sure to activate shader when setting uniforms/drawing objects
+                        lightingShader.Bind();
+                        //            lightingShader.SetVec3("light.color", light.color);
+                        lightingShader.SetVec3("light.ambient", light.ambient);
+                        lightingShader.SetVec3("light.diffuse", light.diffuse); // darken diffuse light a bit
+                        lightingShader.SetVec3("light.specular", light.specular);
+                        lightingShader.SetVec3("light.position", light.position);
 
-            lightingShader.SetFloat("material.shininess", material.shininess);
-            lightingShader.SetInt("material.diffuse", material.diffuse);
-            lightingShader.SetInt("material.specular", material.specular);
-            lightingShader.SetInt("material.emission", material.emission);
-            lightingShader.SetFloat("time", (float)glfwGetTime());
+                        lightingShader.SetVec3("viewPos", camera.Position);
 
-            lightingShader.SetMat4("projection", projection);
-            lightingShader.SetMat4("view", view);
+                        lightingShader.SetFloat("material.shininess", material.shininess);
+                        lightingShader.SetInt("material.diffuse", material.diffuse);
+                        lightingShader.SetInt("material.specular", material.specular);
+                        lightingShader.SetInt("material.emission", material.emission);
 
-            // world transformation
-            model = glm::mat4(1.0f);
-//            model = glm::translate(model, glm::vec3(1.0f, 3.0f, 0.0f));
-            lightingShader.SetMat4("model", model);
+                        lightingShader.SetFloat("time", time + i + j + k);
 
-//            texture->Bind();
-            // bind diffuse map
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, diffuseMap);
+                        lightingShader.SetMat4("projection", projection);
+                        lightingShader.SetMat4("view", view);
 
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, specularMap);
+                        // world transformation
+                        model = glm::mat4(1.0f);
+                        model = glm::translate(model, glm::vec3(1.0f * i + 0.1f * i, 1.0f * j + 0.1f * j, 1.0f * k + 0.1f * k));
+                        lightingShader.SetMat4("model", model);
 
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, emissionMap);
+                        //            texture->Bind();
+                        // bind diffuse map
+                        glActiveTexture(GL_TEXTURE0);
+                        glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
-            glBindVertexArray(cubeVAO);
-            glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
+                        glActiveTexture(GL_TEXTURE1);
+                        glBindTexture(GL_TEXTURE_2D, specularMap);
+
+                        glActiveTexture(GL_TEXTURE2);
+                        glBindTexture(GL_TEXTURE_2D, emissionMap);
+
+                        glBindVertexArray(cubeVAO);
+                        glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
+                    }
+                }
+
+            }
         }
 
         {
