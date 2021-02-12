@@ -31,7 +31,8 @@
 
 #include "3Dshapes.hpp"
 
-struct Material {
+struct Material
+{
     unsigned int diffuse;
     unsigned int specular;
     unsigned int emission;
@@ -39,9 +40,18 @@ struct Material {
     float transparency;
 };
 
-struct Light {
+struct Light
+{
     glm::vec3 color;
     glm::vec3 position;
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
+
+struct DirectionalLight
+{
+    glm::vec3 direction;
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
@@ -79,6 +89,28 @@ Light light = {
     glm::vec3(0.5f), // 0.5f
     glm::vec3(1.0f)
 };
+
+DirectionalLight sun = {
+    glm::vec3(-0.2f, -1.0f, -0.3f),
+    glm::vec3(0.2f), // 0.2f
+    glm::vec3(0.5f), // 0.5f
+    glm::vec3(1.0f)
+};
+
+glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f),
+    glm::vec3( 2.0f,  5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3( 2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3( 1.3f, -2.0f, -2.5f),
+    glm::vec3( 1.5f,  2.0f, -2.5f),
+    glm::vec3( 1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
+
 
 int main()
 {
@@ -235,7 +267,7 @@ int main()
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        time += deltaTime;
+//        time += deltaTime;
 
         // input
         // -----
@@ -254,58 +286,59 @@ int main()
         glm::mat4 view = camera.GetViewMatrix();
 
         glm::mat4 model = glm::mat4(1.0f);
-
-        for (int i = 0; i < 3; i++)
+        
+        for (int i = 0; i < 10; i++)
         {
-            for (int j = 0; j < 3; j++)
+            // world transformation
+            model = glm::mat4(1.0f);
+
             {
-                for (int k = 0; k < 3; k++)
-                {
-                    // world transformation
-                    model = glm::mat4(1.0f);
+                // be sure to activate shader when setting uniforms/drawing objects
+                lightingShader.Bind();
+                //            lightingShader.SetVec3("light.color", light.color);
+                lightingShader.SetVec3("light.ambient", light.ambient);
+                lightingShader.SetVec3("light.diffuse", light.diffuse); // darken diffuse light a bit
+                lightingShader.SetVec3("light.specular", light.specular);
+                lightingShader.SetVec3("light.position", light.position);
 
-                    {
-                        // be sure to activate shader when setting uniforms/drawing objects
-                        lightingShader.Bind();
-                        //            lightingShader.SetVec3("light.color", light.color);
-                        lightingShader.SetVec3("light.ambient", light.ambient);
-                        lightingShader.SetVec3("light.diffuse", light.diffuse); // darken diffuse light a bit
-                        lightingShader.SetVec3("light.specular", light.specular);
-                        lightingShader.SetVec3("light.position", light.position);
+                lightingShader.SetVec3("sun.ambient", sun.ambient);
+                lightingShader.SetVec3("sun.diffuse", sun.diffuse); // darken diffuse light a bit
+                lightingShader.SetVec3("sun.specular", sun.specular);
+                lightingShader.SetVec3("sun.direction", sun.direction);
 
-                        lightingShader.SetVec3("viewPos", camera.Position);
+                lightingShader.SetVec3("viewPos", camera.Position);
 
-                        lightingShader.SetFloat("material.shininess", material.shininess);
-                        lightingShader.SetInt("material.diffuse", material.diffuse);
-                        lightingShader.SetInt("material.specular", material.specular);
-                        lightingShader.SetInt("material.emission", material.emission);
+                lightingShader.SetFloat("material.shininess", material.shininess);
+                lightingShader.SetInt("material.diffuse", material.diffuse);
+                lightingShader.SetInt("material.specular", material.specular);
+                lightingShader.SetInt("material.emission", material.emission);
 
-                        lightingShader.SetFloat("time", time + i + j + k);
+                lightingShader.SetFloat("time", time);// + i + j + k);
 
-                        lightingShader.SetMat4("projection", projection);
-                        lightingShader.SetMat4("view", view);
+                lightingShader.SetMat4("projection", projection);
+                lightingShader.SetMat4("view", view);
 
-                        // world transformation
-                        model = glm::mat4(1.0f);
-                        model = glm::translate(model, glm::vec3(1.0f * i + 0.1f * i, 1.0f * j + 0.1f * j, 1.0f * k + 0.1f * k));
-                        lightingShader.SetMat4("model", model);
+                // world transformation
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(cubePositions[i]));
 
-                        //            texture->Bind();
-                        // bind diffuse map
-                        glActiveTexture(GL_TEXTURE0);
-                        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+                float angle = 20.0f * i;
+                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                lightingShader.SetMat4("model", model);
 
-                        glActiveTexture(GL_TEXTURE1);
-                        glBindTexture(GL_TEXTURE_2D, specularMap);
+                //            texture->Bind();
+                // bind diffuse map
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
-                        glActiveTexture(GL_TEXTURE2);
-                        glBindTexture(GL_TEXTURE_2D, emissionMap);
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, specularMap);
 
-                        glBindVertexArray(cubeVAO);
-                        glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
-                    }
-                }
+                glActiveTexture(GL_TEXTURE2);
+                glBindTexture(GL_TEXTURE_2D, emissionMap);
 
+                glBindVertexArray(cubeVAO);
+                glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
             }
         }
 
