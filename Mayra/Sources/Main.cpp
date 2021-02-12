@@ -57,6 +57,19 @@ struct DirectionalLight
     glm::vec3 specular;
 };
 
+struct PointLight
+{
+    glm::vec3 position;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
+};
+
 void framebuffer_size_callback2(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -82,7 +95,7 @@ float lastFrame = 0.0f;
 
 float maxShine = 128.0f;
 
-Light light = {
+Light light2 = {
     glm::vec3(1.0f),
     glm::vec3(1.2f, 1.0f, 2.0f),
     glm::vec3(0.2f), // 0.2f
@@ -110,7 +123,15 @@ glm::vec3 cubePositions[] = {
     glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
-
+PointLight light = {
+    glm::vec3(1.2f, 1.0f, 2.0f),
+    glm::vec3(0.2f), // 0.2f
+    glm::vec3(0.5f), // 0.5f
+    glm::vec3(1.0f),
+    1.0f,
+    0.09f,
+    0.032f
+};
 
 int main()
 {
@@ -249,12 +270,14 @@ int main()
         0,
         1,
         2,
-        64.0f,
+        32.0f,
         1.0f
     };
 
     lightingShader.Bind();
-//    lightingShader.SetInt("material.diffuse", 0);
+    lightingShader.SetInt("material.diffuse", 0);
+    lightingShader.SetInt("material.specular", 1);
+    lightingShader.SetInt("material.emission", 2);
 
     // render loop
     // -----------
@@ -275,7 +298,7 @@ int main()
 
         // render
         // ------
-        glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glEnable(GL_BLEND);
@@ -295,11 +318,16 @@ int main()
             {
                 // be sure to activate shader when setting uniforms/drawing objects
                 lightingShader.Bind();
-                //            lightingShader.SetVec3("light.color", light.color);
+//                lightingShader.SetVec3("light.color", light.color);
                 lightingShader.SetVec3("light.ambient", light.ambient);
                 lightingShader.SetVec3("light.diffuse", light.diffuse); // darken diffuse light a bit
                 lightingShader.SetVec3("light.specular", light.specular);
                 lightingShader.SetVec3("light.position", light.position);
+
+                // point light attenuation
+                lightingShader.SetFloat("light.constant", light.constant);
+                lightingShader.SetFloat("light.linear", light.linear);
+                lightingShader.SetFloat("light.quadratic", light.quadratic);
 
                 lightingShader.SetVec3("sun.ambient", sun.ambient);
                 lightingShader.SetVec3("sun.diffuse", sun.diffuse); // darken diffuse light a bit
@@ -334,8 +362,8 @@ int main()
                 glActiveTexture(GL_TEXTURE1);
                 glBindTexture(GL_TEXTURE_2D, specularMap);
 
-                glActiveTexture(GL_TEXTURE2);
-                glBindTexture(GL_TEXTURE_2D, emissionMap);
+//                glActiveTexture(GL_TEXTURE2);
+//                glBindTexture(GL_TEXTURE_2D, emissionMap);
 
                 glBindVertexArray(cubeVAO);
                 glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
@@ -345,7 +373,7 @@ int main()
         {
             // also draw the lamp object
             lightCubeShader.Bind();
-            lightCubeShader.SetVec3("color", light.color);
+            lightCubeShader.SetVec3("color", light.diffuse);
             lightCubeShader.SetMat4("projection", projection);
             lightCubeShader.SetMat4("view", view);
             model = glm::mat4(1.0f);
