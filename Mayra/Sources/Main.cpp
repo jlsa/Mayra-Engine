@@ -72,6 +72,7 @@ struct SpotLight
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
+    unsigned int diffuseImage;
 
     float constant;
     float linear;
@@ -103,6 +104,8 @@ float lastFrame = 0.0f;
 
 float maxShine = 128.0f;
 
+glm::vec4 clearColor{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
+
 glm::vec3 cubePositions[] = {
     glm::vec3( 0.0f,  0.0f,  0.0f),
     glm::vec3( 2.0f,  5.0f, -15.0f),
@@ -123,6 +126,13 @@ glm::vec3 pointLightPositions[] = {
     glm::vec3( 0.0f,  0.0f, -3.0f)
 };
 
+glm::vec3 pointLightColors[] = {
+    glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
+    glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
+    glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
+    glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f)
+};
+
 DirectionalLight directionalLight = {
     glm::vec3(-0.2f, -1.0f, -0.3f),
     glm::vec3(0.2f), // 0.2f
@@ -132,7 +142,7 @@ DirectionalLight directionalLight = {
 
 PointLight pointLight = {
     glm::vec3(0.0f),
-    glm::vec3(0.5f), // 0.2f
+    glm::vec3(29.0f / 255.0f, 29.0f / 255.0f, 67.0f / 255.0f), // 0.2f
     glm::vec3(0.8f), // 0.5f
     glm::vec3(1.0f),
     1.0f,
@@ -150,10 +160,14 @@ SpotLight spotLight = {
     glm::vec3(1.0f), // 0.5f
     glm::vec3(1.0f),
 
+    3,
+
     1.0f,
     0.09f,
     0.032f
 };
+
+bool moveSpotLight { false };
 
 int main()
 {
@@ -198,6 +212,7 @@ int main()
     Mayra::Texture2D* texture = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png");
     unsigned int diffuseMap = loadTexture(TEXTURES "container2.png");
     unsigned int specularMap = loadTexture(TEXTURES "container2_specular.png");
+    unsigned int diffuseImage = loadTexture(TEXTURES "matrix.jpg");
     unsigned int emissionMap = loadTexture(TEXTURES "matrix.jpg");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -320,15 +335,17 @@ int main()
 
         // render
         // ------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        spotLight.position = camera.Position;
-        spotLight.direction = camera.Front;
-
+        if (moveSpotLight)
+        {
+            spotLight.position = camera.Position;
+            spotLight.direction = camera.Front;
+        }
         lightingShader.Bind();
         lightingShader.SetFloat("time", time);
 
@@ -346,7 +363,7 @@ int main()
 
             lightingShader.SetVec3(str + ".position", pointLightPositions[i]);
             lightingShader.SetVec3(str + ".ambient", pointLight.ambient);
-            lightingShader.SetVec3(str + ".diffuse", pointLight.diffuse);
+            lightingShader.SetVec3(str + ".diffuse", pointLightColors[i]);//.diffuse);
             lightingShader.SetVec3(str + ".specular", pointLight.specular);
 
             lightingShader.SetFloat(str + ".constant", pointLight.constant);
@@ -364,6 +381,7 @@ int main()
         lightingShader.SetFloat("spotLight.constant", spotLight.constant);
         lightingShader.SetFloat("spotLight.linear", spotLight.linear);
         lightingShader.SetFloat("spotLight.quadratic", spotLight.quadratic);
+        lightingShader.SetInt("spotLight.diffuseImage", spotLight.diffuseImage);
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -412,7 +430,7 @@ int main()
             {
                 // also draw the lamp object
                 lightCubeShader.Bind();
-                lightCubeShader.SetVec3("color", pointLight.diffuse);
+                lightCubeShader.SetVec3("color", pointLightColors[i]);
                 lightCubeShader.SetMat4("projection", projection);
                 lightCubeShader.SetMat4("view", view);
 
@@ -425,6 +443,9 @@ int main()
                 glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
             }
         }
+
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, diffuseImage);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -454,6 +475,11 @@ void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+        moveSpotLight = true;
+    if (glfwGetKey(window, GLFW_KEY_T) == GLFW_RELEASE)
+        moveSpotLight = false;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);

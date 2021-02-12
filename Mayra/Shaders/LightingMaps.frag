@@ -20,6 +20,8 @@ struct SpotLight
     vec3 diffuse;
     vec3 specular;
 
+    sampler2D diffuseImage;
+
     float constant;
     float linear;
     float quadratic;
@@ -156,8 +158,8 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
     vec3 ambient = light.ambient * texture(material.diffuse, TexCoords).rgb;
-    vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;
-    vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;
+    vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb * texture(light.diffuseImage, TexCoords).rgb;
+    vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb * texture(light.diffuseImage, TexCoords).rgb;
 
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
