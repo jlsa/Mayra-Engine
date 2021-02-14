@@ -30,54 +30,9 @@
 #include <iostream>
 
 #include "3Dshapes.hpp"
+#include "Light.hpp"
+#include "Material.hpp"
 
-struct Material
-{
-    unsigned int diffuse;
-    unsigned int specular;
-    unsigned int emission;
-    float shininess;
-    float transparency;
-};
-
-struct DirectionalLight
-{
-    glm::vec3 direction;
-
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-};
-
-struct PointLight
-{
-    glm::vec3 position;
-
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-
-    float constant;
-    float linear;
-    float quadratic;
-};
-
-struct SpotLight
-{
-    glm::vec3 position;
-    glm::vec3 direction;
-    float cutOff;
-    float outerCutOff;
-
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-    unsigned int diffuseImage;
-
-    float constant;
-    float linear;
-    float quadratic;
-};
 
 void framebuffer_size_callback2(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -104,7 +59,7 @@ float lastFrame = 0.0f;
 
 float maxShine = 128.0f;
 
-glm::vec4 clearColor{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
+glm::vec4 clearColor(1.0f);//{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
 
 glm::vec3 cubePositions[] = {
     glm::vec3( 0.0f,  0.0f,  0.0f),
@@ -133,14 +88,14 @@ glm::vec3 pointLightColors[] = {
     glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f)
 };
 
-DirectionalLight directionalLight = {
+Mayra::DirectionalLight directionalLight = {
     glm::vec3(-0.2f, -1.0f, -0.3f),
     glm::vec3(0.2f), // 0.2f
     glm::vec3(0.5f), // 0.5f
     glm::vec3(1.0f)
 };
 
-PointLight pointLight = {
+Mayra::PointLight pointLight = {
     glm::vec3(0.0f),
     glm::vec3(29.0f / 255.0f, 29.0f / 255.0f, 67.0f / 255.0f), // 0.2f
     glm::vec3(0.8f), // 0.5f
@@ -150,7 +105,7 @@ PointLight pointLight = {
     0.032f
 };
 
-SpotLight spotLight = {
+Mayra::SpotLight spotLight = {
     camera.Position,
     camera.Front,
     glm::cos(glm::radians(12.5f)),
@@ -160,7 +115,7 @@ SpotLight spotLight = {
     glm::vec3(1.0f), // 0.5f
     glm::vec3(1.0f),
 
-    3,
+    0,
 
     1.0f,
     0.09f,
@@ -209,11 +164,11 @@ int main()
     // ------------------------------------
     Mayra::Shader lightingShader(SHADERS "LightingMaps.vert", SHADERS "LightingMaps.frag");
     Mayra::Shader lightCubeShader(SHADERS "LightCube.vert", SHADERS "LightCube.frag");
-    Mayra::Texture2D* texture = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png");
+//    Mayra::Texture2D* texture = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png");
     unsigned int diffuseMap = loadTexture(TEXTURES "container2.png");
     unsigned int specularMap = loadTexture(TEXTURES "container2_specular.png");
-    unsigned int diffuseImage = loadTexture(TEXTURES "matrix.jpg");
     unsigned int emissionMap = loadTexture(TEXTURES "matrix.jpg");
+//    unsigned int diffuseImage = loadTexture(TEXTURES "awesomeface.jpg");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -303,18 +258,24 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    Material material = {
-        0,
-        1,
-        2,
+    std::cout << "diffuse: " << diffuseMap << std::endl;
+    std::cout << "specular: " << specularMap << std::endl;
+    std::cout << "emission: " << emissionMap << std::endl;
+
+//    std::cout << "spotlight diffuse: " << diffuseImage << std::endl;
+
+    Mayra::Material material = {
+        diffuseMap - 1,
+        specularMap - 1,
+        emissionMap - 1,
         64.0f,
         1.0f
     };
 
     lightingShader.Bind();
-    lightingShader.SetInt("material.diffuse", 0);
-    lightingShader.SetInt("material.specular", 1);
-    lightingShader.SetInt("material.emission", 2);
+    lightingShader.SetInt("material.diffuse", material.diffuse);
+    lightingShader.SetInt("material.specular", material.specular);
+    lightingShader.SetInt("material.emission", material.emission);
 
     // render loop
     // -----------
@@ -417,8 +378,8 @@ int main()
                 glActiveTexture(GL_TEXTURE1);
                 glBindTexture(GL_TEXTURE_2D, specularMap);
 
-//                glActiveTexture(GL_TEXTURE2);
-//                glBindTexture(GL_TEXTURE_2D, emissionMap);
+                glActiveTexture(GL_TEXTURE2);
+                glBindTexture(GL_TEXTURE_2D, emissionMap);
 
                 glBindVertexArray(cubeVAO);
                 glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
@@ -444,8 +405,8 @@ int main()
             }
         }
 
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, diffuseImage);
+//        glActiveTexture(GL_TEXTURE3);
+//        glBindTexture(GL_TEXTURE_2D, diffuseImage);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -462,7 +423,7 @@ int main()
     glDeleteBuffers(1, &cubeVBO);
     glDeleteBuffers(1, &lightVBO);
 
-    delete texture;
+//    delete texture;
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
