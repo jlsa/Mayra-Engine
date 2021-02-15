@@ -59,73 +59,163 @@ float lastFrame = 0.0f;
 
 float maxShine = 128.0f;
 
-glm::vec4 clearColor(1.0f);//{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
-
-glm::vec3 cubePositions[] = {
-    glm::vec3( 0.0f,  0.0f,  0.0f),
-    glm::vec3( 2.0f,  5.0f, -15.0f),
-    glm::vec3(-1.5f, -2.2f, -2.5f),
-    glm::vec3(-3.8f, -2.0f, -12.3f),
-    glm::vec3( 2.4f, -0.4f, -3.5f),
-    glm::vec3(-1.7f,  3.0f, -7.5f),
-    glm::vec3( 1.3f, -2.0f, -2.5f),
-    glm::vec3( 1.5f,  2.0f, -2.5f),
-    glm::vec3( 1.5f,  0.2f, -1.5f),
-    glm::vec3(-1.3f,  1.0f, -1.5f)
-};
-
-glm::vec3 pointLightPositions[] = {
-    glm::vec3( 0.7f,  0.2f,  2.0f),
-    glm::vec3( 2.3f, -3.3f, -4.0f),
-    glm::vec3(-4.0f,  2.0f, -12.0f),
-    glm::vec3( 0.0f,  0.0f, -3.0f)
-};
-
-glm::vec3 pointLightColors[] = {
-    glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
-    glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
-    glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
-    glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f)
-};
-
-Mayra::DirectionalLight directionalLight = {
-    glm::vec3(-0.2f, -1.0f, -0.3f),
-    glm::vec3(0.2f), // 0.2f
-    glm::vec3(0.5f), // 0.5f
-    glm::vec3(1.0f)
-};
-
-Mayra::PointLight pointLight = {
-    glm::vec3(0.0f),
-    glm::vec3(29.0f / 255.0f, 29.0f / 255.0f, 67.0f / 255.0f), // 0.2f
-    glm::vec3(0.8f), // 0.5f
-    glm::vec3(1.0f),
-    1.0f,
-    0.09f,
-    0.032f
-};
-
-Mayra::SpotLight spotLight = {
-    camera.Position,
-    camera.Front,
-    glm::cos(glm::radians(12.5f)),
-    glm::cos(glm::radians(15.5f)),
-
-    glm::vec3(0.0f), // 0.2f
-    glm::vec3(1.0f), // 0.5f
-    glm::vec3(1.0f),
-
-    0,
-
-    1.0f,
-    0.09f,
-    0.032f
-};
-
 bool moveSpotLight { false };
 
 int main()
 {
+    // glfw: initialize and configure
+    // ------------------------------
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    // glfw window creation
+    // --------------------
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    if (window == NULL)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    // glad: load all OpenGL function pointers
+    // ---------------------------------------
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+
+    // configure global opengl state
+    // -----------------------------
+    glEnable(GL_DEPTH_TEST);
+
+    // build and compile shaders
+    // -------------------------
+//    Mayra::Shader shader("9.1.geometry_shader.vs", "9.1.geometry_shader.fs", "9.1.geometry_shader.gs");
+    Mayra::Shader shader(SHADERS "GeomShader.vert", SHADERS "GeomShader.frag", SHADERS "GeomShader.geom");
+
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
+    float points[] = {
+        -0.5f,  0.5f, 0.982f, 0.234f, 0.876f, // top-left
+         0.5f,  0.5f, 0.189f, 0.762f, 0.742f, // top-right
+         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // bottom-right
+        -0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // bottom-left
+    };
+
+    unsigned int VBO, VAO;
+    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    glBindVertexArray(0);
+
+    // render loop
+    // -----------
+    while (!glfwWindowShouldClose(window))
+    {
+        // render
+        // ------
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // draw points
+        shader.Bind();
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_POINTS, 0, 4);
+
+        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+        // -------------------------------------------------------------------------------
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    // optional: de-allocate all resources once they've outlived their purpose:
+    // ------------------------------------------------------------------------
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+
+    glfwTerminate();
+    return 0;
+}
+
+int main2()
+{
+    glm::vec4 clearColor{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
+
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3( 0.7f,  0.2f,  2.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };
+
+    glm::vec3 pointLightColors[] = {
+        glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
+        glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
+        glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
+        glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f)
+    };
+
+    Mayra::DirectionalLight directionalLight = {
+        glm::vec3(-0.2f, -1.0f, -0.3f),
+        glm::vec3(0.2f), // 0.2f
+        glm::vec3(0.5f), // 0.5f
+        glm::vec3(1.0f)
+    };
+
+    Mayra::PointLight pointLight = {
+        glm::vec3(0.0f),
+        glm::vec3(29.0f / 255.0f, 29.0f / 255.0f, 67.0f / 255.0f), // 0.2f
+        glm::vec3(0.8f), // 0.5f
+        glm::vec3(1.0f),
+        1.0f,
+        0.09f,
+        0.032f
+    };
+
+    Mayra::SpotLight spotLight = {
+        camera.Position,
+        camera.Front,
+        glm::cos(glm::radians(12.5f)),
+        glm::cos(glm::radians(15.5f)),
+
+        glm::vec3(0.0f), // 0.2f
+        glm::vec3(1.0f), // 0.5f
+        glm::vec3(1.0f),
+
+        0,
+
+        1.0f,
+        0.09f,
+        0.032f
+    };
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -167,7 +257,7 @@ int main()
 //    Mayra::Texture2D* texture = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png");
     unsigned int diffuseMap = loadTexture(TEXTURES "container2.png");
     unsigned int specularMap = loadTexture(TEXTURES "container2_specular.png");
-    unsigned int emissionMap = loadTexture(TEXTURES "matrix.jpg");
+    unsigned int emissionMap = loadTexture(TEXTURES "awesomeface.png");
 //    unsigned int diffuseImage = loadTexture(TEXTURES "awesomeface.jpg");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -342,7 +432,7 @@ int main()
         lightingShader.SetFloat("spotLight.constant", spotLight.constant);
         lightingShader.SetFloat("spotLight.linear", spotLight.linear);
         lightingShader.SetFloat("spotLight.quadratic", spotLight.quadratic);
-        lightingShader.SetInt("spotLight.diffuseImage", spotLight.diffuseImage);
+//        lightingShader.SetInt("spotLight.diffuseImage", spotLight.diffuseImage);
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -378,8 +468,8 @@ int main()
                 glActiveTexture(GL_TEXTURE1);
                 glBindTexture(GL_TEXTURE_2D, specularMap);
 
-                glActiveTexture(GL_TEXTURE2);
-                glBindTexture(GL_TEXTURE_2D, emissionMap);
+//                glActiveTexture(GL_TEXTURE2);
+//                glBindTexture(GL_TEXTURE_2D, emissionMap);
 
                 glBindVertexArray(cubeVAO);
                 glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
