@@ -33,7 +33,6 @@
 #include "Light.hpp"
 #include "Material.hpp"
 
-
 void framebuffer_size_callback2(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
