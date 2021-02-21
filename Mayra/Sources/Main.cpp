@@ -33,6 +33,11 @@
 #include "Light.hpp"
 #include "Material.hpp"
 
+#include "Mesh.hpp"
+#include "Model.hpp"
+
+//Model model("test.obj");
+
 void framebuffer_size_callback2(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -43,8 +48,8 @@ void CalculateNormals(float *normal, float *p1, float *p2, float *p3);
 void CalculateNormalsFromTriangles(float vertices[], int size, int stride);
 
 // Settings
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
+const unsigned int SCR_WIDTH = 1920;//1280;
+const unsigned int SCR_HEIGHT = 1080;//720;
 
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 6.0f));
@@ -78,17 +83,17 @@ int main()
     };
 
     glm::vec3 pointLightPositions[] = {
-        glm::vec3( 0.7f,  0.2f,  2.0f),
-        glm::vec3( 2.3f, -3.3f, -4.0f),
-        glm::vec3(-4.0f,  2.0f, -12.0f),
-        glm::vec3( 0.0f,  0.0f, -3.0f)
+        glm::vec3(9.39123f, 1.81413f, -0.460245f),
+        glm::vec3(-7.06756f, 11.7134f, -0.502092f),
+        glm::vec3(-11.8016f, 1.78952f, 4.14569f),
+        glm::vec3(-0.61018f, 1.3829f, -4.9079f)
     };
 
     glm::vec3 pointLightColors[] = {
-        glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
-        glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
-        glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f),
-        glm::vec3(206.0f / 255.0f, 117.0f / 255.0f, 29.0f / 255.0f)
+        glm::vec3(1.000f, 0.078f, 0.576f), // coral
+        glm::vec3(1.000f, 0.078f, 0.576f), // navy
+        glm::vec3(1.000f, 0.078f, 0.576f), // navajowhite
+        glm::vec3(1.000f, 0.078f, 0.576f) // pink
     };
 
     Mayra::DirectionalLight directionalLight = {
@@ -271,9 +276,19 @@ int main()
     };
 
     lightingShader.Bind();
-    lightingShader.SetInt("material.diffuse", material.diffuse);
-    lightingShader.SetInt("material.specular", material.specular);
-    lightingShader.SetInt("material.emission", material.emission);
+    lightingShader.SetInt("material.diffuse", diffuseMap);//material.diffuse);
+    lightingShader.SetInt("material.specular", specularMap);//material.specular);
+    lightingShader.SetInt("material.emission", emissionMap);//material.emission);
+
+    Mayra::Shader ourShader(SHADERS "ModelLoading.vert", SHADERS "ModelLoading.frag");
+    stbi_set_flip_vertically_on_load(true);
+    
+//    Model backpack(MODELS "backpack/backpack.obj");
+
+    Model mossy_cube(MODELS "mossy_cube/mossy_cube.obj");
+
+    stbi_set_flip_vertically_on_load(false);
+    Model ourModel(MODELS "Sponza/sponza.obj");
 
     // render loop
     // -----------
@@ -299,6 +314,31 @@ int main()
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        ourShader.Bind();
+
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
+        ourShader.SetMat4("projection", projection);
+        ourShader.SetMat4("view", view);
+
+        glm::mat4 model = glm::mat4(1.0f);
+//        model = glm::translate(model, glm::vec3(0.0f));
+//        model = glm::scale(model, glm::vec3(0.01f));
+//        ourShader.SetMat4("model", model);
+//        ourModel.Render(ourShader);
+
+//        model = glm::mat4(1.0f);
+//        model = glm::translate(model, glm::vec3(0.0f));
+//        model = glm::scale(model, glm::vec3(1.0f));
+//        ourShader.SetMat4("model", model);
+//        backpack.Render(ourShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f));
+        model = glm::scale(model, glm::vec3(1.0f));
+        ourShader.SetMat4("model", model);
+        mossy_cube.Render(ourShader);
 
         if (moveSpotLight)
         {
@@ -343,45 +383,24 @@ int main()
 //        lightingShader.SetInt("spotLight.diffuseImage", spotLight.diffuseImage);
 
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
+        /*glm::mat4*/ projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        /*glm::mat4*/ view = camera.GetViewMatrix();
         lightingShader.SetMat4("projection", projection);
         lightingShader.SetMat4("view", view);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        for (int i = 0; i < 10; i++)
+        /*glm::mat4*/ model = glm::mat4(1.0f);
         {
-            // world transformation
             model = glm::mat4(1.0f);
-            {
-                lightingShader.Bind();
-                lightingShader.SetFloat("material.shininess", material.shininess);
-                lightingShader.SetInt("material.diffuse", material.diffuse);
-                lightingShader.SetInt("material.specular", material.specular);
-                lightingShader.SetInt("material.emission", material.emission);
+            lightingShader.Bind();
+            lightingShader.SetFloat("material.shininess", material.shininess);
+            lightingShader.SetInt("material.diffuse", material.diffuse);
+            lightingShader.SetInt("material.specular", material.specular);
+            lightingShader.SetInt("material.emission", material.emission);
 
-                // world transformation
-                model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(cubePositions[i]));
-
-                float angle = 20.0f * i;
-                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-                lightingShader.SetMat4("model", model);
-
-//                texture->Bind();
-                // bind diffuse map
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, diffuseMap);
-
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, specularMap);
-
-//                glActiveTexture(GL_TEXTURE2);
-//                glBindTexture(GL_TEXTURE_2D, emissionMap);
-
-                glBindVertexArray(cubeVAO);
-                glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
-            }
+            model = glm::translate(model, glm::vec3(0.0f));
+            model = glm::scale(model, glm::vec3(0.01f));
+            lightingShader.SetMat4("model", model);
+            ourModel.Render(lightingShader);
         }
 
         for (int i = 0; i < 4; i++)
@@ -434,6 +453,15 @@ void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+    {
+        std::cout << "[";
+        std::cout << camera.Position.x << "f, ";
+        std::cout << camera.Position.y << "f, ";
+        std::cout << camera.Position.z << "f";
+        std::cout << "]" << std::endl;
+    }
 
     if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
         moveSpotLight = true;

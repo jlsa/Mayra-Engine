@@ -90,6 +90,11 @@ void main()
         emission = emission * (sin(time) * 0.5 + 0.5) * 2.0;
     }
     result += emission;
+    // vec4 textureColor = texture(material.diffuse, TexCoords);
+    if (texture(material.diffuse, TexCoords).a < 0.5)
+    {
+        discard;
+    }
 
     FragColor = vec4(result, 1.0);
 }

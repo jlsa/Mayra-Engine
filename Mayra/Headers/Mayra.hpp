@@ -49,6 +49,7 @@
 #define ASSETS      "Assets/"
 #define TEXTURES    ASSETS "Textures/"
 #define SHADERS     "Shaders/"
+#define MODELS      ASSETS "3DObjects/"
 
 
 #endif //~ Mayra Header
