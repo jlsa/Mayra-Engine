@@ -1,11 +1,328 @@
 #include "Model.hpp"
 
 #include <iostream>
+#include "3Dshapes.hpp"
+
+
+BoundingBoxProps Model::calculateBoundingBox()
+{
+    float min_x, max_x;
+    float min_y, max_y;
+    float min_z, max_z;
+
+    glm::vec3 size;
+    glm::vec3 center;
+
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        min_x = max_x = meshes[i].vertices[0].Position.x;
+        min_y = max_y = meshes[i].vertices[0].Position.y;
+        min_z = max_z = meshes[i].vertices[0].Position.z;
+
+        for (unsigned int j = 0; j < meshes[i].vertices.size(); j++)
+        {
+            glm::vec3 position = meshes[i].vertices[j].Position;
+
+            if (position.x < min_x) min_x = position.x;
+            if (position.x > max_x) max_x = position.x;
+
+            if (position.y < min_y) min_y = position.y;
+            if (position.y > max_y) max_y = position.y;
+
+            if (position.z < min_z) min_z = position.z;
+            if (position.z > max_z) max_z = position.z;
+        }
+
+        size = glm::vec3(max_x - min_x, max_y - min_y, max_z - min_z);
+
+//        std::cout << "size: (";
+//        std::cout << size.x << ", ";
+//        std::cout << size.y << ", ";
+//        std::cout << size.z << "]";
+//        std::cout << std::endl;
+
+        center = glm::vec3((min_x + max_x) / 2,
+                                     (min_y + max_y) / 2,
+                                     (min_z + max_z) / 2);
+//        std::cout << "center: (";
+//        std::cout << center.x << ", ";
+//        std::cout << center.y << ", ";
+//        std::cout << center.z << "]";
+//        std::cout << std::endl;
+    }
+    std::cout << "size: (";
+    std::cout << size.x << ", ";
+    std::cout << size.y << ", ";
+    std::cout << size.z << "]";
+    std::cout << std::endl;
+
+    std::cout << "center: (";
+    std::cout << center.x << ", ";
+    std::cout << center.y << ", ";
+    std::cout << center.z << "]";
+    std::cout << std::endl;
+
+    BoundingBoxProps props {size, center};
+
+    return props;
+}
 
 void Model::Render(Mayra::Shader &shader)
 {
     for (unsigned int i = 0; i < meshes.size(); i++)
+    {
         meshes[i].Render(shader);
+
+//        meshes[i].object2world = this->object2world;
+//        meshes[i].RenderBBox(shader);
+    }
+}
+
+void Model::RenderBBox(Mayra::Shader &shader)
+{
+    calculateBoundingBox();
+    if (meshes.size() == 0)
+        return;
+
+    std::cout << "I count: " << meshes.size() << " meshes" << std::endl;
+
+    GLfloat vertices[] = {
+        -0.5f, -0.5f, -0.5f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f,
+        0.5f,  0.5f, -0.5f, 1.0f,
+        -0.5f,  0.5f, -0.5f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 1.0f,
+        0.5f, -0.5f,  0.5f, 1.0f,
+        0.5f,  0.5f,  0.5f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 1.0f
+    };
+
+    GLushort elements[] = {
+        0, 1, 2, 3,
+        4, 5, 6, 7,
+        0, 4, 1, 5, 2, 6, 3, 7
+    };
+
+//    float min_x, max_x;
+//    float min_y, max_y;
+//    float min_z, max_z;
+//
+//    min_x = max_x = meshes[0].vertices[0].Position.x;
+//    min_y = max_y = meshes[0].vertices[0].Position.y;
+//    min_z = max_z = meshes[0].vertices[0].Position.z;
+//
+//    for (unsigned int i = 0; i < meshes.size(); i++)
+//    {
+//        for (unsigned int j = 0; j < meshes[i].vertices.size(); j++)
+//        {
+//            glm::vec3 position = meshes[i].vertices[j].Position;
+//
+//            if (position.x < min_x) min_x = position.x;
+//            if (position.x > max_x) max_x = position.x;
+//
+//            if (position.y < min_y) min_y = position.y;
+//            if (position.y > max_y) max_y = position.y;
+//
+//            if (position.z < min_z) min_z = position.z;
+//            if (position.z > max_z) max_z = position.z;
+//        }
+//    }
+//
+//    glm::vec3 size = glm::vec3(max_x - min_x, max_y - min_y, max_z - min_z);
+//
+//    //            std::cout << "size: (";
+//    //            std::cout << size.x << ", ";
+//    //            std::cout << size.y << ", ";
+//    //            std::cout << size.z << "]";
+//    //            std::cout << std::endl;
+//
+//    glm::vec3 center = glm::vec3((min_x + max_x) / 2,
+//                                 (min_y + max_y) / 2,
+//                                 (min_z + max_z) / 2);
+//    //            std::cout << "center: (";
+//    //            std::cout << center.x << ", ";
+//    //            std::cout << center.y << ", ";
+//    //            std::cout << center.z << "]";
+//    //            std::cout << std::endl;
+//
+//    glm::mat4 transform = glm::mat4(1.0f);
+//
+//    transform = glm::translate(transform, center + parentTransform.Position);//parentTransform.Position); // center +
+//    transform = glm::scale(transform, size * parentTransform.Scale);
+//    //
+//    // apply object's transformation matrix
+//    glm::mat4 m = meshes[0].object2world * transform;
+//    shader.SetMat4("model", m);
+
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        {
+            unsigned int lightVBO, lightCubeVAO;
+            glGenBuffers(1, &lightVBO);
+
+            glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+            glGenVertexArrays(1, &lightCubeVAO);
+            glBindVertexArray(lightCubeVAO);
+
+            // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
+            glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
+
+            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(0);
+
+            unsigned int ibo_elements;
+            glGenBuffers(1, &ibo_elements);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+            float min_x, max_x;
+            float min_y, max_y;
+            float min_z, max_z;
+
+            min_x = max_x = meshes[i].vertices[0].Position.x;
+            min_y = max_y = meshes[i].vertices[0].Position.y;
+            min_z = max_z = meshes[i].vertices[0].Position.z;
+
+            for (unsigned int j = 0; j < meshes[i].vertices.size(); j++)
+            {
+                glm::vec3 position = meshes[i].vertices[j].Position;
+
+                if (position.x < min_x) min_x = position.x;
+                if (position.x > max_x) max_x = position.x;
+
+                if (position.y < min_y) min_y = position.y;
+                if (position.y > max_y) max_y = position.y;
+
+                if (position.z < min_z) min_z = position.z;
+                if (position.z > max_z) max_z = position.z;
+            }
+
+            glm::vec3 size = glm::vec3(max_x - min_x, max_y - min_y, max_z - min_z);
+
+//            std::cout << "size: (";
+//            std::cout << size.x << ", ";
+//            std::cout << size.y << ", ";
+//            std::cout << size.z << "]";
+//            std::cout << std::endl;
+
+            glm::vec3 center = glm::vec3((min_x + max_x) / 2,
+                                         (min_y + max_y) / 2,
+                                         (min_z + max_z) / 2);
+//            std::cout << "center: (";
+//            std::cout << center.x << ", ";
+//            std::cout << center.y << ", ";
+//            std::cout << center.z << "]";
+//            std::cout << std::endl;
+
+            glm::mat4 transform = glm::mat4(1.0f);
+
+            transform = glm::translate(transform, center + parentTransform.Position);
+            transform = glm::scale(transform, size * parentTransform.Scale);
+            //
+            // apply object's transformation matrix
+            glm::mat4 m = meshes[i].object2world * transform;
+            shader.SetMat4("model", m);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
+            glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+            glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
+            glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+            glDisableVertexAttribArray(0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glDeleteBuffers(1, &lightVBO);
+            glDeleteBuffers(1, &ibo_elements);
+        }
+    }
+
+
+//    GLfloat vertices[] = {
+//        -0.5f, -0.5f, -0.5f, 1.0f,
+//        0.5f, -0.5f, -0.5f, 1.0f,
+//        0.5f,  0.5f, -0.5f, 1.0f,
+//        -0.5f,  0.5f, -0.5f, 1.0f,
+//        -0.5f, -0.5f,  0.5f, 1.0f,
+//        0.5f, -0.5f,  0.5f, 1.0f,
+//        0.5f,  0.5f,  0.5f, 1.0f,
+//        -0.5f,  0.5f,  0.5f, 1.0f
+//    };
+//    GLuint vbo_vertices;
+//    glGenBuffers(1, &vbo_vertices);
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//
+//    GLushort elements[] = {
+//        0, 1, 2, 3,
+//        4, 5, 6, 7,
+//        0, 4, 1, 5, 2, 6, 3, 7
+//    };
+//
+//    GLuint ibo_elements;
+//    glGenBuffers(1, &ibo_elements);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//
+//    float min_x, max_x;
+//    float min_y, max_y;
+//    float min_z, max_z;
+//
+//    min_x = max_x = meshes[index].vertices[0].Position.x;
+//    min_y = max_y = meshes[index].vertices[0].Position.y;
+//    min_z = max_z = meshes[index].vertices[0].Position.z;
+//
+//    for (unsigned int i = 0; i < meshes[0].vertices.size(); i++) {
+//        glm::vec3 position = meshes[0].vertices[i].Position;
+//
+//        if (position.x < min_x) min_x = position.x;
+//        if (position.x > max_x) max_x = position.x;
+//
+//        if (position.y < min_y) min_y = position.y;
+//        if (position.y > max_y) max_y = position.y;
+//
+//        if (position.z < min_z) min_z = position.z;
+//        if (position.z > max_z) max_z = position.z;
+//    }
+//
+//    glm::vec3 size = glm::vec3(max_x - min_x, max_y - min_y, max_z - min_z);
+//    glm::vec3 center = glm::vec3((min_x + max_x) / 2,
+//                                 (min_y + max_y) / 2,
+//                                 (min_z + max_z) / 2);
+//    glm::mat4 transform = glm::mat4(1.0f);
+//    transform = glm::scale(transform, size);
+//    transform = glm::translate(transform, center);
+//
+//    // apply object's transformation matrix
+//    glm::mat4 m = meshes[index].object2world * transform;
+//    shader.SetMat4("model", m);
+//    //        glUniformMatrix4fv(uniform_m, 1, GL_FALSE, glm::value_ptr(m));
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
+//    glEnableVertexAttribArray(0);
+//    glVertexAttribPointer(
+//                          0,                    // attribute
+//                          4,                    // number of elements per vertex, here (x,y,z,w)
+//                          GL_FLOAT,             // the type of each element
+//                          GL_FALSE,             // take our values as-is
+//                          0,                    // no extra data between each position
+//                          0                     // offset of first element
+//                          );
+//
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
+//    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+//    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
+//    glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//
+//    glDisableVertexAttribArray(0);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glDeleteBuffers(1, &vbo_vertices);
+//    glDeleteBuffers(1, &ibo_elements);
 }
 
 void Model::loadModel(std::string path)
@@ -154,6 +471,7 @@ unsigned int TextureFromFile(char const *path, const std::string &directory)
             format = GL_RGB;
         else if (nrComponents == 4)
             format = GL_RGBA;
+        else return textureID;
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);

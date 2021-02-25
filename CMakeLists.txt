@@ -11,6 +11,15 @@ option(ASSIMP_BUILD_SAMPLES OFF)
 option(ASSIMP_BUILD_TESTS OFF)
 add_subdirectory(Glitter/Vendor/assimp)
 
+add_subdirectory(Glitter/Vendor/freetype2)
+
+find_package(PkgConfig REQUIRED)
+pkg_search_module(FREETYPE REQUIRED freetype2)
+
+# set(FREETYPE_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/Glitter/Vendor/freetype2/include")
+# set(FREETYPE_STATIC_LIBRARIES "${CMAKE_SOURCE_DIR}/")
+# message(STATUS "FreeType2 include directories: ${FREETYPE_INCLUDE_DIRS}")
+# message(STATUS "FreeType2 libraries: ${FREETYPE_STATIC_LIBRARIES}")
 # option(BUILD_BULLET2_DEMOS OFF)
 # option(BUILD_CPU_DEMOS OFF)
 # option(BUILD_EXTRAS OFF)
@@ -36,6 +45,7 @@ include_directories(Mayra/Headers/
                     Glitter/Vendor/imgui/
                     Glitter/Vendor/imgui/backends/
                     Glitter/Vendor/stb/
+                    Glitter/Vendor/freetype2/include/
                     Glitter/Vendor)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c
@@ -43,6 +53,7 @@ file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c
                           Glitter/Vendor/imgui/backends/imgui_impl_opengl3.*
                           Glitter/Vendor/imgui/*.h
                           Glitter/Vendor/imgui/*.cpp
+                          Glitter/Vendor/*.h
                           Glitter/Vendor/)
 
 file(GLOB PROJECT_HEADERS Mayra/Headers/*.hpp)
@@ -72,7 +83,7 @@ add_definitions(-DGLFW_INCLUDE_NONE
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
                                ${VENDORS_SOURCES} ${PROJECT_ASSETS})
-target_link_libraries(${PROJECT_NAME} glfw assimp
+target_link_libraries(${PROJECT_NAME} glfw assimp freetype
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
                     #   BulletDynamics BulletCollision LinearMath)
 set_target_properties(${PROJECT_NAME} PROPERTIES

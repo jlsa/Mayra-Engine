@@ -25,3 +25,6 @@
 [submodule "Glitter/Vendor/imgui"]
 	path = Glitter/Vendor/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "Glitter/Vendor/freetype2"]
+	path = Glitter/Vendor/freetype2
+	url = git://git.savannah.gnu.org/freetype/freetype2.git

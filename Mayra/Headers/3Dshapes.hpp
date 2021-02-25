@@ -109,7 +109,7 @@ namespace Mayra
             VERTICES_STRIDE
         };
 
-        static const Mayra::Shapes::Cube pyramid = {
+        static const Mayra::Shapes::Pyramid pyramid = {
             {
                 // X    Y      Z      Normal
                 0.0f,  0.5f,  0.0f,  0.0f,  0.5f, 1.0f, // A - 0

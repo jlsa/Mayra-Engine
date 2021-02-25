@@ -81,7 +81,6 @@ namespace Mayra
 
     void Shader::SetMat2(const std::string& name, const glm::mat2& mat)
     {
-
         GLCall(glUniformMatrix2fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(mat)));
     }
 

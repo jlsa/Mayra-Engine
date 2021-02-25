@@ -51,5 +51,10 @@
 #define SHADERS     "Shaders/"
 #define MODELS      ASSETS "3DObjects/"
 
+struct BoundingBoxProps
+{
+    glm::vec3 size;
+    glm::vec3 center;
+};
 
 #endif //~ Mayra Header

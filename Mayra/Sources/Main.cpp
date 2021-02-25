@@ -36,8 +36,6 @@
 #include "Mesh.hpp"
 #include "Model.hpp"
 
-//Model model("test.obj");
-
 void framebuffer_size_callback2(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -65,22 +63,12 @@ float maxShine = 128.0f;
 
 bool moveSpotLight { false };
 
+float scale = 0.1f;
+glm::vec3 position = glm::vec3(0.0f, 1.0f, 3.0f);
+
 int main()
 {
     glm::vec4 clearColor{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
-
-    glm::vec3 cubePositions[] = {
-        glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
 
     glm::vec3 pointLightPositions[] = {
         glm::vec3(9.39123f, 1.81413f, -0.460245f),
@@ -90,16 +78,16 @@ int main()
     };
 
     glm::vec3 pointLightColors[] = {
-        glm::vec3(1.000f, 0.078f, 0.576f), // coral
-        glm::vec3(1.000f, 0.078f, 0.576f), // navy
-        glm::vec3(1.000f, 0.078f, 0.576f), // navajowhite
-        glm::vec3(1.000f, 0.078f, 0.576f) // pink
+        glm::vec3(0.863f, 0.078f, 0.235f), // coral
+        glm::vec3(0.863f, 0.078f, 0.235f), // navy
+        glm::vec3(0.863f, 0.078f, 0.235f), // navajowhite
+        glm::vec3(0.863f, 0.078f, 0.235f) // pink
     };
 
     Mayra::DirectionalLight directionalLight = {
         glm::vec3(-0.2f, -1.0f, -0.3f),
-        glm::vec3(0.2f), // 0.2f
-        glm::vec3(0.5f), // 0.5f
+        glm::vec3(0.545f, 0.000f, 0.000f), // 0.2f
+        glm::vec3(0.863f, 0.078f, 0.235f), // 0.5f
         glm::vec3(1.0f)
     };
 
@@ -167,90 +155,13 @@ int main()
     // ------------------------------------
     Mayra::Shader lightingShader(SHADERS "LightingMaps.vert", SHADERS "LightingMaps.frag");
     Mayra::Shader lightCubeShader(SHADERS "LightCube.vert", SHADERS "LightCube.frag");
-//    Mayra::Texture2D* texture = Mayra::Texture2D::LoadFromFile(TEXTURES "awesomeface.png");
-    unsigned int diffuseMap = loadTexture(TEXTURES "container2.png");
-    unsigned int specularMap = loadTexture(TEXTURES "container2_specular.png");
-    unsigned int emissionMap = loadTexture(TEXTURES "awesomeface.png");
-//    unsigned int diffuseImage = loadTexture(TEXTURES "awesomeface.jpg");
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    float vertices[] = {
-        // positions          // normals           // texture coords
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-        0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
-        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-
-        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-        0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-
-        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-
-        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-
-        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-        0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-
-        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
-    };
-    // first, configure the cube's VAO (and VBO)
-    unsigned int cubeVBO, cubeVAO;
-    glGenVertexArrays(1, &cubeVAO);
-    glGenBuffers(1, &cubeVBO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(cubeVAO);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+    // setup light meshes
     unsigned int lightVBO, lightCubeVAO;
     glGenBuffers(1, &lightVBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Mayra::Shapes::cube.vertices), Mayra::Shapes::cube.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Mayra::Shapes::pyramid.vertices), Mayra::Shapes::pyramid.vertices, GL_STATIC_DRAW);
 
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
@@ -258,37 +169,22 @@ int main()
     // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
     glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    std::cout << "diffuse: " << diffuseMap << std::endl;
-    std::cout << "specular: " << specularMap << std::endl;
-    std::cout << "emission: " << emissionMap << std::endl;
 
-//    std::cout << "spotlight diffuse: " << diffuseImage << std::endl;
-
-    Mayra::Material material = {
-        diffuseMap - 1,
-        specularMap - 1,
-        emissionMap - 1,
-        64.0f,
-        1.0f
-    };
-
-    lightingShader.Bind();
-    lightingShader.SetInt("material.diffuse", diffuseMap);//material.diffuse);
-    lightingShader.SetInt("material.specular", specularMap);//material.specular);
-    lightingShader.SetInt("material.emission", emissionMap);//material.emission);
-
+//    lightingShader.Bind();
+//    Mayra::Shader phongShader(SHADERS "PhongShading.vert", SHADERS "PhongShading.frag");
     Mayra::Shader ourShader(SHADERS "ModelLoading.vert", SHADERS "ModelLoading.frag");
+//    ourShader.Bind();
     stbi_set_flip_vertically_on_load(true);
-    
-//    Model backpack(MODELS "backpack/backpack.obj");
-
-    Model mossy_cube(MODELS "mossy_cube/mossy_cube.obj");
-
+//    Model mossy_cube(MODELS "mossy_cube/mossy_cube.obj");
     stbi_set_flip_vertically_on_load(false);
-    Model ourModel(MODELS "Sponza/sponza.obj");
+//    Model ourModel(MODELS "Sponza/sponza.obj");
+//    Model ourModel(MODELS "axe/axe.obj");
+//    Model ourModel(MODELS "mossy_cube/mossy_cube.obj");
+    stbi_set_flip_vertically_on_load(true);
+    Model ourModel(MODELS "backpack/backpack.obj");
 
     // render loop
     // -----------
@@ -315,31 +211,18 @@ int main()
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        ourShader.Bind();
-
+//        ourShader.Bind();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        ourShader.SetMat4("projection", projection);
-        ourShader.SetMat4("view", view);
+//        ourShader.SetMat4("projection", projection);
+//        ourShader.SetMat4("view", view);
 
-        glm::mat4 model = glm::mat4(1.0f);
-//        model = glm::translate(model, glm::vec3(0.0f));
-//        model = glm::scale(model, glm::vec3(0.01f));
+//        glm::mat4 model = glm::mat4(1.0f);
+//        model = glm::translate(model, glm::vec3(5.0f));
+//        model = glm::scale(model, glm::vec3(0.1f));
 //        ourShader.SetMat4("model", model);
-//        ourModel.Render(ourShader);
-
-//        model = glm::mat4(1.0f);
-//        model = glm::translate(model, glm::vec3(0.0f));
-//        model = glm::scale(model, glm::vec3(1.0f));
-//        ourShader.SetMat4("model", model);
-//        backpack.Render(ourShader);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f));
-        model = glm::scale(model, glm::vec3(1.0f));
-        ourShader.SetMat4("model", model);
-        mossy_cube.Render(ourShader);
-
+//        mossy_cube.Render(ourShader);
+//
         if (moveSpotLight)
         {
             spotLight.position = camera.Position;
@@ -362,7 +245,7 @@ int main()
 
             lightingShader.SetVec3(str + ".position", pointLightPositions[i]);
             lightingShader.SetVec3(str + ".ambient", pointLight.ambient);
-            lightingShader.SetVec3(str + ".diffuse", pointLightColors[i]);//.diffuse);
+            lightingShader.SetVec3(str + ".diffuse", pointLightColors[i]);
             lightingShader.SetVec3(str + ".specular", pointLight.specular);
 
             lightingShader.SetFloat(str + ".constant", pointLight.constant);
@@ -380,27 +263,40 @@ int main()
         lightingShader.SetFloat("spotLight.constant", spotLight.constant);
         lightingShader.SetFloat("spotLight.linear", spotLight.linear);
         lightingShader.SetFloat("spotLight.quadratic", spotLight.quadratic);
-//        lightingShader.SetInt("spotLight.diffuseImage", spotLight.diffuseImage);
 
         // view/projection transformations
-        /*glm::mat4*/ projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        /*glm::mat4*/ projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
         /*glm::mat4*/ view = camera.GetViewMatrix();
         lightingShader.SetMat4("projection", projection);
         lightingShader.SetMat4("view", view);
 
-        /*glm::mat4*/ model = glm::mat4(1.0f);
+        glm::mat4 model = glm::mat4(1.0f);
         {
             model = glm::mat4(1.0f);
             lightingShader.Bind();
-            lightingShader.SetFloat("material.shininess", material.shininess);
-            lightingShader.SetInt("material.diffuse", material.diffuse);
-            lightingShader.SetInt("material.specular", material.specular);
-            lightingShader.SetInt("material.emission", material.emission);
-
-            model = glm::translate(model, glm::vec3(0.0f));
-            model = glm::scale(model, glm::vec3(0.01f));
+            lightingShader.SetFloat("material.shininess", 2.0f);
+//            lightingShader.SetMat4("model", model);
+            model = glm::translate(model, position);
+            model = glm::scale(model, glm::vec3(0.99f - scale, 0.99f - scale, 0.99f - scale)); // 0.01f
             lightingShader.SetMat4("model", model);
             ourModel.Render(lightingShader);
+            ourModel.object2world = glm::translate(glm::mat4(1.0f), position);
+            Transform transform;
+            transform.Position = position;
+            transform.Scale = glm::vec3(1.0f - scale);
+
+            ourModel.parentTransform = transform;
+
+            lightCubeShader.Bind();
+            lightCubeShader.SetVec3("color", glm::vec3(1.0f));
+            lightCubeShader.SetMat4("projection", projection);
+            lightCubeShader.SetMat4("view", view);
+
+//            model = glm::translate(model, glm::vec3(0.0f));
+//            model = glm::scale(model, glm::vec3(scale)); // 0.01f
+            lightCubeShader.SetMat4("model", model);
+//            lightCubeShader.ListUniformsAndAttributes();
+            ourModel.RenderBBox(lightCubeShader);
         }
 
         for (int i = 0; i < 4; i++)
@@ -408,22 +304,31 @@ int main()
             {
                 // also draw the lamp object
                 lightCubeShader.Bind();
+
                 lightCubeShader.SetVec3("color", pointLightColors[i]);
                 lightCubeShader.SetMat4("projection", projection);
                 lightCubeShader.SetMat4("view", view);
 
                 model = glm::mat4(1.0f);
                 model = glm::translate(model, pointLightPositions[i]);
-                model = glm::scale(model, glm::vec3(0.2f)); // a smaller shape
+                model = glm::scale(model, glm::vec3(0.1f)); // a smaller shape
                 lightCubeShader.SetMat4("model", model);
 
                 glBindVertexArray(lightCubeVAO);
-                glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::cube.verticesCount);
+                glDrawArrays(GL_TRIANGLES, 0, Mayra::Shapes::pyramid.verticesCount);
+//                glm::vec3 c = pointLightColors[i] * glm::vec3(255.0f);
+//
+//                if (((c.r * 255.0f) * 0.299 + (c.g * 255.0f) * 0.587 + (c.b * 255.0f) * 0.114) > 186.0f)
+//                {
+//                    lightCubeShader.SetVec3("color", glm::vec3(0.0f));
+//                } else {
+//                    lightCubeShader.SetVec3("color", glm::vec3(1.0f));
+//                }
+//                model = glm::scale(model, glm::vec3(1.01f));
+//                lightCubeShader.SetMat4("model", model);
+//                glDrawArrays(GL_LINES, 0, Mayra::Shapes::pyramid.verticesCount);
             }
         }
-
-//        glActiveTexture(GL_TEXTURE3);
-//        glBindTexture(GL_TEXTURE_2D, diffuseImage);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -434,13 +339,13 @@ int main()
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &cubeVAO);
+//    glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &lightCubeVAO);
 
-    glDeleteBuffers(1, &cubeVBO);
+//    glDeleteBuffers(1, &cubeVBO);
     glDeleteBuffers(1, &lightVBO);
 
-//    delete texture;
+    //    delete texture;
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -481,6 +386,11 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, deltaTime);
+
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        scale += 0.1f * deltaTime;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        scale -= 0.1f * deltaTime;
 
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
     {
@@ -557,6 +467,7 @@ unsigned int loadTexture(char const * path)
             format = GL_RGB;
         else if (nrComponents == 4)
             format = GL_RGBA;
+        else return textureID;
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -630,3 +541,279 @@ void CalculateNormalsFromTriangles(float vertices[], int size, int stride)
         std::cout << normal[2] << " }";
     }
 }
+//#include <iostream>
+//#include <map>
+//#include <string>
+//
+//#include <glad/glad.h>
+//#include <GLFW/glfw3.h>
+//
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtc/type_ptr.hpp>
+//
+//#include <ft2build.h>
+//#include FT_FREETYPE_H
+//
+//#include "Shader.hpp"
+//
+//#define ASSETS "Assets/"
+//#define FONTS ASSETS "Fonts/"
+//
+//void character_callback(GLFWwindow* window, unsigned int codepoint);
+//void framebuffer_size_callback2(GLFWwindow* window, int width, int height);
+//void processInput(GLFWwindow *window);
+//void RenderText(Mayra::Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
+//
+//// settings
+//const unsigned int SCR_WIDTH = 800;
+//const unsigned int SCR_HEIGHT = 600;
+//
+///// Holds all state information relevant to a character as loaded using FreeType
+//struct Character {
+//    unsigned int TextureID; // ID handle of the glyph texture
+//    glm::ivec2   Size;      // Size of glyph
+//    glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
+//    unsigned int Advance;   // Horizontal offset to advance to next glyph
+//};
+//
+//std::map<GLchar, Character> Characters;
+//unsigned int VAO, VBO;
+//
+//std::string outputString = "a";
+//
+//int main()
+//{
+//    // glfw: initialize and configure
+//    // ------------------------------
+//    glfwInit();
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//
+//#ifdef __APPLE__
+//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+//#endif
+//
+//    // glfw window creation
+//    // --------------------
+//    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+//    if (window == NULL)
+//    {
+//        std::cout << "Failed to create GLFW window" << std::endl;
+//        glfwTerminate();
+//        return -1;
+//    }
+//    glfwMakeContextCurrent(window);
+//    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback2);
+//    glfwSetCharCallback(window, character_callback);
+//
+//    // glad: load all OpenGL function pointers
+//    // ---------------------------------------
+//    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+//    {
+//        std::cout << "Failed to initialize GLAD" << std::endl;
+//        return -1;
+//    }
+//
+//    // OpenGL state
+//    // ------------
+//    glEnable(GL_CULL_FACE);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//    // compile and setup the shader
+//    // ----------------------------
+//    Mayra::Shader shader("Shaders/Fonts.vert", "Shaders/Fonts.frag");
+//    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+//    shader.Bind();
+//    glUniformMatrix4fv(glGetUniformLocation(shader.GetRendererID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+//
+//    // FreeType
+//    // --------
+//    FT_Library ft;
+//    // All functions return a value different than 0 whenever an error occurred
+//    if (FT_Init_FreeType(&ft))
+//    {
+//        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+//        return -1;
+//    }
+//
+////    "Antonio-Bold.ttf"
+//    // find path to font
+//    std::string font_name = FONTS "Antonio-Bold.ttf";
+//    if (font_name.empty())
+//    {
+//        std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
+//        return -1;
+//    }
+//
+//    // load font as face
+//    FT_Face face;
+//    if (FT_New_Face(ft, font_name.c_str(), 0, &face)) {
+//        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+//        return -1;
+//    }
+//    else {
+//        // set size to load glyphs as
+//        FT_Set_Pixel_Sizes(face, 0, 48);
+//
+//        // disable byte-alignment restriction
+//        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+//
+//        // load first 128 characters of ASCII set
+//        for (unsigned char c = 0; c < 128; c++)
+//        {
+//            // Load character glyph
+//            if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+//            {
+//                std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+//                continue;
+//            }
+//            // generate texture
+//            unsigned int texture;
+//            glGenTextures(1, &texture);
+//            glBindTexture(GL_TEXTURE_2D, texture);
+//            glTexImage2D(
+//                         GL_TEXTURE_2D,
+//                         0,
+//                         GL_RED,
+//                         face->glyph->bitmap.width,
+//                         face->glyph->bitmap.rows,
+//                         0,
+//                         GL_RED,
+//                         GL_UNSIGNED_BYTE,
+//                         face->glyph->bitmap.buffer
+//                         );
+//            // set texture options
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//            // now store character for later use
+//            Character character = {
+//                texture,
+//                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+//                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+//                static_cast<unsigned int>(face->glyph->advance.x)
+//            };
+//            Characters.insert(std::pair<char, Character>(c, character));
+//        }
+//        glBindTexture(GL_TEXTURE_2D, 0);
+//    }
+//    // destroy FreeType once we're finished
+//    FT_Done_Face(face);
+//    FT_Done_FreeType(ft);
+//
+//
+//    // configure VAO/VBO for texture quads
+//    // -----------------------------------
+//    glGenVertexArrays(1, &VAO);
+//    glGenBuffers(1, &VBO);
+//    glBindVertexArray(VAO);
+//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+//    glEnableVertexAttribArray(0);
+//    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindVertexArray(0);
+//
+//    // render loop
+//    // -----------
+//    while (!glfwWindowShouldClose(window))
+//    {
+//        // input
+//        // -----
+//        processInput(window);
+//
+//        // render
+//        // ------
+//        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+//        glClear(GL_COLOR_BUFFER_BIT);
+//
+//        RenderText(shader, outputString, 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+//        RenderText(shader, "Hallo!", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+//
+//        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+//        // -------------------------------------------------------------------------------
+//        glfwSwapBuffers(window);
+//        glfwPollEvents();
+//    }
+//
+//    glfwTerminate();
+//    return 0;
+//}
+//
+//// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+//// ---------------------------------------------------------------------------------------------------------
+//void processInput(GLFWwindow *window)
+//{
+//    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+//        glfwSetWindowShouldClose(window, true);
+//}
+//
+//// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+//// ---------------------------------------------------------------------------------------------
+//void framebuffer_size_callback2(GLFWwindow*, int width, int height)
+//{
+//    // make sure the viewport matches the new window dimensions; note that width and
+//    // height will be significantly larger than specified on retina displays.
+//    glViewport(0, 0, width, height);
+//}
+//
+//
+//// render line of text
+//// -------------------
+//void RenderText(Mayra::Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color)
+//{
+//    // activate corresponding render state
+//    shader.Bind();
+//    glUniform3f(glGetUniformLocation(shader.GetRendererID(), "textColor"), color.x, color.y, color.z);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindVertexArray(VAO);
+//
+//    // iterate through all characters
+//    std::string::const_iterator c;
+//    for (c = text.begin(); c != text.end(); c++)
+//    {
+//        Character ch = Characters[*c];
+//
+//        float xpos = x + ch.Bearing.x * scale;
+//        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+//
+//        float w = ch.Size.x * scale;
+//        float h = ch.Size.y * scale;
+//        // update VBO for each character
+//        float vertices[6][4] = {
+//            { xpos,     ypos + h,   0.0f, 0.0f },
+//            { xpos,     ypos,       0.0f, 1.0f },
+//            { xpos + w, ypos,       1.0f, 1.0f },
+//
+//            { xpos,     ypos + h,   0.0f, 0.0f },
+//            { xpos + w, ypos,       1.0f, 1.0f },
+//            { xpos + w, ypos + h,   1.0f, 0.0f }
+//        };
+//        // render glyph texture over quad
+//        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+//        // update content of VBO memory
+//        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
+//
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);
+//        // render quad
+//        glDrawArrays(GL_TRIANGLES, 0, 6);
+//        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+//        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+//    }
+//    glBindVertexArray(0);
+//    glBindTexture(GL_TEXTURE_2D, 0);
+//}
+//
+//void character_callback(GLFWwindow*, unsigned int codepoint)
+//{
+//    if (outputString.length() > 10) {
+//        outputString.erase(0, 1);
+//    }
+//    outputString += (char)codepoint;
+////    std::cout << codepoint << ": " << (char)codepoint << std::endl;
+//}
