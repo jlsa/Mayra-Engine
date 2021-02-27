@@ -1,4 +1,4 @@
-#include "SandboxScene.hpp"
+#include "SandboxScene.h"
 #include "Sprite.hpp"
 #include "Input.hpp"
 #include "Key.hpp"
@@ -84,7 +84,7 @@ namespace Mayra
         ImGui::Begin("GameObjects");
         if (ImGui::Button("Add Sprite"))
         {
-            Sprite* sprite = new Sprite(TEXTURES "awesomeface.png");
+            Sprite* sprite = new Sprite(TEXTURES "container2.png");
             sprite->SetScale(glm::vec2(0.5f));
             sprite->SetPosition(glm::vec2(0.5f, 0.5f));
             sprite->SetRotation(0.0f);

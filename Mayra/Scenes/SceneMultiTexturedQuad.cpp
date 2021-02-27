@@ -1,4 +1,4 @@
-#include "SceneMultiTexturedQuad.hpp"
+#include "SceneMultiTexturedQuad.h"
 
 namespace Mayra
 {
@@ -75,7 +75,7 @@ namespace Mayra
             m_Shader->SetMat4("u_MVP", mvp);
             Mayra::Renderer::Instance()->Draw(m_VertexArray, m_IndexBuffer, m_Shader);
         }
-        
+
         {
             glm::mat4 identity = glm::mat4(1.0f);
             m_TextureA->Bind();

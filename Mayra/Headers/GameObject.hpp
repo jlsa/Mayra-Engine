@@ -47,7 +47,8 @@ namespace Mayra
         void SetScale(const glm::vec2& scale) { m_Scale = scale; }
 
         const float& GetRotation() const { return m_Rotation; }
-        void SetRotation(const float& rotation) { m_Rotation = rotation; }
+        void SetRotation(const float& rotation) { std::cout << "rotation: " << rotation << std::endl;
+            m_Rotation = rotation; }
 
         const bool& GetEnabled() const { return m_Enabled; }
         inline void SetEnabled(const bool& enabled) { m_Enabled = enabled; }

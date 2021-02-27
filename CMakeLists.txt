@@ -74,8 +74,7 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
                          .gitignore
                          .gitmodules)
 
-file(GLOB PROJECT_ASSETS Mayra/Resources/Assets/Textures/*.png
-                         Mayra/Resources/Assets/Textures/*.jpg)
+file(GLOB PROJECT_ASSETS Mayra/Resources/Assets/*)
 
 source_group("Headers" FILES ${PROJECT_HEADERS})
 source_group("Sources" FILES ${PROJECT_SOURCES})

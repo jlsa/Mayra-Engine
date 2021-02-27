@@ -1,4 +1,4 @@
-#include "SceneGameObjectsTest.hpp"
+#include "SceneGameObjectsTest.h"
 #include "Sprite.hpp"
 
 namespace Mayra
