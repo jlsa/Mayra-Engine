@@ -36,6 +36,26 @@
 #include "Mesh.hpp"
 #include "Model.hpp"
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+#include "Input.hpp"
+
+void character_callback(GLFWwindow* window, unsigned int codepoint);
+void RenderText(Mayra::Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
+
+struct Character {
+    unsigned int TextureID; // ID handle of the glyph texture
+    glm::ivec2   Size;      // Size of glyph
+    glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
+    unsigned int Advance;   // Horizontal offset to advance to next glyph
+};
+
+std::map<GLchar, Character> Characters;
+unsigned int VAO, VBO;
+
+std::string outputString = "a";
+
 void framebuffer_size_callback2(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -64,13 +84,17 @@ float maxShine = 128.0f;
 bool moveSpotLight { false };
 bool onRenderBbox { true };
 
-float scale = 1.0f / 10.0f / 10.0f;
+float scale = 1.0f;// / 10.0f;
 glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+
+int prepareFontRendering(Mayra::Shader &shader);
+
+bool guiHasFocus { false };
 
 int main()
 {
-//    glm::vec4 clearColor{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
-    glm::vec4 clearColor{150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f, 1.0f};
+    glm::vec4 clearColor{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
+//    glm::vec4 clearColor{150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f, 1.0f};
 
     glm::vec3 pointLightPositions[] = {
         glm::vec3(9.39123f, 1.81413f, -0.460245f),
@@ -140,6 +164,7 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback2);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetCharCallback(window, character_callback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -157,6 +182,7 @@ int main()
     // ------------------------------------
     Mayra::Shader lightingShader(SHADERS "LightingMaps.vert", SHADERS "LightingMaps.frag");
     Mayra::Shader lightCubeShader(SHADERS "LightCube.vert", SHADERS "LightCube.frag");
+    Mayra::Shader fontShader("Shaders/Fonts.vert", "Shaders/Fonts.frag");
 
     // setup light meshes
     unsigned int lightVBO, lightCubeVAO;
@@ -174,14 +200,18 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    if (prepareFontRendering(fontShader) == -1)
+    {
+        return -1;
+    }
 
 //    lightingShader.Bind();
 //    Mayra::Shader phongShader(SHADERS "PhongShading.vert", SHADERS "PhongShading.frag");
     Mayra::Shader ourShader(SHADERS "ModelLoading.vert", SHADERS "ModelLoading.frag");
 //    ourShader.Bind();
     stbi_set_flip_vertically_on_load(false);
-    Model ourModel(MODELS "Sponza/sponza.obj");
-//    Model ourModel(MODELS "axe/axe.obj");
+//    Model ourModel(MODELS "Sponza/sponza.obj");
+    Model ourModel(MODELS "axe/axe.obj");
 //    Model ourModel(MODELS "Forest_pack_v1/Forest_pack_v1.obj");
 //    Model ourModel(MODELS "mossy_cube/mossy_cube.obj");
 //    Model ourModel(MODELS "Wolf/Wolf.obj");
@@ -278,16 +308,14 @@ int main()
             lightingShader.Bind();
             lightingShader.SetFloat("material.shininess", 2.0f);
 //            lightingShader.SetMat4("model", model);
+            model = glm::rotate(model, glm::radians((float)glfwGetTime()), glm::vec3(0.0, 0.0, 1.0));
             model = glm::translate(model, position);
             model = glm::scale(model, glm::vec3(scale));//glm::vec3(0.99f - scale, 0.99f - scale, 0.99f - scale)); // 0.01f
             lightingShader.SetMat4("model", model);
-            ourModel.Render(lightingShader);
-            ourModel.object2world = glm::translate(model, position);
-            Transform transform;
-            transform.Position = position;
-            transform.Scale = glm::vec3(scale);//1.0f - scale);
 
-            ourModel.parentTransform = transform;
+            ourModel.Render(lightingShader);
+
+            ourModel.object2world = glm::translate(model, position);
 
             lightCubeShader.Bind();
             lightCubeShader.SetVec3("color", glm::vec3(1.0f));
@@ -334,6 +362,10 @@ int main()
             }
         }
 
+        // render font stuff
+        RenderText(fontShader, outputString, 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+        RenderText(fontShader, "Hallo!", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -360,67 +392,93 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
+    for (unsigned int i = 32; i < GLFW_KEY_LAST; i++)
     {
-        std::cout << "[";
-        std::cout << camera.Position.x << "f, ";
-        std::cout << camera.Position.y << "f, ";
-        std::cout << camera.Position.z << "f";
-        std::cout << "]" << std::endl;
+        if (glfwGetKey(window, i) == GLFW_PRESS)
+            Mayra::Input::Instance()->HandleKeyDown(i);
+
+        if (glfwGetKey(window, i) == GLFW_RELEASE)
+            Mayra::Input::Instance()->HandleKeyRelease(i);
+
+        if (glfwGetKey(window, i) == GLFW_REPEAT)
+            Mayra::Input::Instance()->HandleKeyRepeat(i);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
-        moveSpotLight = true;
-    if (glfwGetKey(window, GLFW_KEY_T) == GLFW_RELEASE)
-        moveSpotLight = false;
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.ProcessKeyboard(UP, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-        camera.ProcessKeyboard(DOWN, deltaTime);
-
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        scale += 0.1f * deltaTime;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        scale -= 0.1f * deltaTime;
-
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+    if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::Escape))
     {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-    {
-        glPointSize(10.0f);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        if (!guiHasFocus)
+            glfwSetWindowShouldClose(window, true);
+        if (guiHasFocus)
+            guiHasFocus = false;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-        glEnable(GL_CULL_FACE);
+    if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::Enter))
+    {
+        guiHasFocus = true;
+    }
 
-    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-        glDisable(GL_CULL_FACE);
+    if (!guiHasFocus)
+    {
+        if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::C))
+        {
+            std::cout << "[";
+            std::cout << camera.Position.x << "f, ";
+            std::cout << camera.Position.y << "f, ";
+            std::cout << camera.Position.z << "f";
+            std::cout << "]" << std::endl;
+        }
 
-    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
-        onRenderBbox = true;
-    if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
-        onRenderBbox = false;
+        if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::T))
+            moveSpotLight = true;
+        if (Mayra::Input::Instance()->IsKeyUp(Mayra::KeyCode::T))
+            moveSpotLight = false;
 
+        if (Mayra::Input::Instance()->IsAnyKey(Mayra::KeyCode::W, Mayra::KeyCode::Up))
+            camera.ProcessKeyboard(FORWARD, deltaTime);
+        if (Mayra::Input::Instance()->IsAnyKey(Mayra::KeyCode::S, Mayra::KeyCode::Down))
+            camera.ProcessKeyboard(BACKWARD, deltaTime);
+        if (Mayra::Input::Instance()->IsAnyKey(Mayra::KeyCode::A, Mayra::KeyCode::Left))
+            camera.ProcessKeyboard(LEFT, deltaTime);
+        if (Mayra::Input::Instance()->IsAnyKey(Mayra::KeyCode::D, Mayra::KeyCode::Right))
+            camera.ProcessKeyboard(RIGHT, deltaTime);
+
+        if (Mayra::Input::Instance()->IsKey(Mayra::KeyCode::Space))
+            camera.ProcessKeyboard(UP, deltaTime);
+        if (Mayra::Input::Instance()->IsKey(Mayra::KeyCode::X))
+            camera.ProcessKeyboard(DOWN, deltaTime);
+
+        if (Mayra::Input::Instance()->AreBothKeys(Mayra::KeyCode::LeftShift, Mayra::KeyCode::Equal))
+            scale += 0.5f * deltaTime;
+        if (Mayra::Input::Instance()->AreBothKeys(Mayra::KeyCode::LeftShift, Mayra::KeyCode::Minus))
+            scale -= 0.5f * deltaTime;
+
+
+        if (Mayra::Input::Instance()->IsKey(Mayra::KeyCode::LeftShift))
+        {
+            if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::Alpha1))
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+            if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::Alpha2))
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+            if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::Alpha3))
+            {
+                glPointSize(10.0f);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+            }
+
+            if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::Alpha4))
+                glEnable(GL_CULL_FACE);
+
+            if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::Alpha5))
+                glDisable(GL_CULL_FACE);
+
+            if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::Alpha6))
+                onRenderBbox = true;
+            if (Mayra::Input::Instance()->IsKeyDown(Mayra::KeyCode::Alpha7))
+                onRenderBbox = false;
+        }
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -550,279 +608,166 @@ void CalculateNormalsFromTriangles(float vertices[], int size, int stride)
         std::cout << normal[2] << " }";
     }
 }
-//#include <iostream>
-//#include <map>
-//#include <string>
-//
-//#include <glad/glad.h>
-//#include <GLFW/glfw3.h>
-//
-//#include <glm/glm.hpp>
-//#include <glm/gtc/matrix_transform.hpp>
-//#include <glm/gtc/type_ptr.hpp>
-//
-//#include <ft2build.h>
-//#include FT_FREETYPE_H
-//
-//#include "Shader.hpp"
-//
-//#define ASSETS "Assets/"
-//#define FONTS ASSETS "Fonts/"
-//
-//void character_callback(GLFWwindow* window, unsigned int codepoint);
-//void framebuffer_size_callback2(GLFWwindow* window, int width, int height);
-//void processInput(GLFWwindow *window);
-//void RenderText(Mayra::Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color);
-//
-//// settings
-//const unsigned int SCR_WIDTH = 800;
-//const unsigned int SCR_HEIGHT = 600;
-//
-///// Holds all state information relevant to a character as loaded using FreeType
-//struct Character {
-//    unsigned int TextureID; // ID handle of the glyph texture
-//    glm::ivec2   Size;      // Size of glyph
-//    glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
-//    unsigned int Advance;   // Horizontal offset to advance to next glyph
-//};
-//
-//std::map<GLchar, Character> Characters;
-//unsigned int VAO, VBO;
-//
-//std::string outputString = "a";
-//
-//int main()
-//{
-//    // glfw: initialize and configure
-//    // ------------------------------
-//    glfwInit();
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//
-//#ifdef __APPLE__
-//    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-//#endif
-//
-//    // glfw window creation
-//    // --------------------
-//    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-//    if (window == NULL)
-//    {
-//        std::cout << "Failed to create GLFW window" << std::endl;
-//        glfwTerminate();
-//        return -1;
-//    }
-//    glfwMakeContextCurrent(window);
-//    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback2);
-//    glfwSetCharCallback(window, character_callback);
-//
-//    // glad: load all OpenGL function pointers
-//    // ---------------------------------------
-//    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-//    {
-//        std::cout << "Failed to initialize GLAD" << std::endl;
-//        return -1;
-//    }
-//
-//    // OpenGL state
-//    // ------------
-//    glEnable(GL_CULL_FACE);
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//
-//    // compile and setup the shader
-//    // ----------------------------
-//    Mayra::Shader shader("Shaders/Fonts.vert", "Shaders/Fonts.frag");
-//    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
-//    shader.Bind();
-//    glUniformMatrix4fv(glGetUniformLocation(shader.GetRendererID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-//
-//    // FreeType
-//    // --------
-//    FT_Library ft;
-//    // All functions return a value different than 0 whenever an error occurred
-//    if (FT_Init_FreeType(&ft))
-//    {
-//        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-//        return -1;
-//    }
-//
-////    "Antonio-Bold.ttf"
-//    // find path to font
-//    std::string font_name = FONTS "Antonio-Bold.ttf";
-//    if (font_name.empty())
-//    {
-//        std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
-//        return -1;
-//    }
-//
-//    // load font as face
-//    FT_Face face;
-//    if (FT_New_Face(ft, font_name.c_str(), 0, &face)) {
-//        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-//        return -1;
-//    }
-//    else {
-//        // set size to load glyphs as
-//        FT_Set_Pixel_Sizes(face, 0, 48);
-//
-//        // disable byte-alignment restriction
-//        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-//
-//        // load first 128 characters of ASCII set
-//        for (unsigned char c = 0; c < 128; c++)
-//        {
-//            // Load character glyph
-//            if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-//            {
-//                std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-//                continue;
-//            }
-//            // generate texture
-//            unsigned int texture;
-//            glGenTextures(1, &texture);
-//            glBindTexture(GL_TEXTURE_2D, texture);
-//            glTexImage2D(
-//                         GL_TEXTURE_2D,
-//                         0,
-//                         GL_RED,
-//                         face->glyph->bitmap.width,
-//                         face->glyph->bitmap.rows,
-//                         0,
-//                         GL_RED,
-//                         GL_UNSIGNED_BYTE,
-//                         face->glyph->bitmap.buffer
-//                         );
-//            // set texture options
-//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//            // now store character for later use
-//            Character character = {
-//                texture,
-//                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-//                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-//                static_cast<unsigned int>(face->glyph->advance.x)
-//            };
-//            Characters.insert(std::pair<char, Character>(c, character));
-//        }
-//        glBindTexture(GL_TEXTURE_2D, 0);
-//    }
-//    // destroy FreeType once we're finished
-//    FT_Done_Face(face);
-//    FT_Done_FreeType(ft);
-//
-//
-//    // configure VAO/VBO for texture quads
-//    // -----------------------------------
-//    glGenVertexArrays(1, &VAO);
-//    glGenBuffers(1, &VBO);
-//    glBindVertexArray(VAO);
-//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-//    glEnableVertexAttribArray(0);
-//    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    glBindVertexArray(0);
-//
-//    // render loop
-//    // -----------
-//    while (!glfwWindowShouldClose(window))
-//    {
-//        // input
-//        // -----
-//        processInput(window);
-//
-//        // render
-//        // ------
-//        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-//        glClear(GL_COLOR_BUFFER_BIT);
-//
-//        RenderText(shader, outputString, 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-//        RenderText(shader, "Hallo!", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
-//
-//        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-//        // -------------------------------------------------------------------------------
-//        glfwSwapBuffers(window);
-//        glfwPollEvents();
-//    }
-//
-//    glfwTerminate();
-//    return 0;
-//}
-//
-//// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-//// ---------------------------------------------------------------------------------------------------------
-//void processInput(GLFWwindow *window)
-//{
-//    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-//        glfwSetWindowShouldClose(window, true);
-//}
-//
-//// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-//// ---------------------------------------------------------------------------------------------
-//void framebuffer_size_callback2(GLFWwindow*, int width, int height)
-//{
-//    // make sure the viewport matches the new window dimensions; note that width and
-//    // height will be significantly larger than specified on retina displays.
-//    glViewport(0, 0, width, height);
-//}
-//
-//
-//// render line of text
-//// -------------------
-//void RenderText(Mayra::Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color)
-//{
-//    // activate corresponding render state
-//    shader.Bind();
-//    glUniform3f(glGetUniformLocation(shader.GetRendererID(), "textColor"), color.x, color.y, color.z);
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindVertexArray(VAO);
-//
-//    // iterate through all characters
-//    std::string::const_iterator c;
-//    for (c = text.begin(); c != text.end(); c++)
-//    {
-//        Character ch = Characters[*c];
-//
-//        float xpos = x + ch.Bearing.x * scale;
-//        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-//
-//        float w = ch.Size.x * scale;
-//        float h = ch.Size.y * scale;
-//        // update VBO for each character
-//        float vertices[6][4] = {
-//            { xpos,     ypos + h,   0.0f, 0.0f },
-//            { xpos,     ypos,       0.0f, 1.0f },
-//            { xpos + w, ypos,       1.0f, 1.0f },
-//
-//            { xpos,     ypos + h,   0.0f, 0.0f },
-//            { xpos + w, ypos,       1.0f, 1.0f },
-//            { xpos + w, ypos + h,   1.0f, 0.0f }
-//        };
-//        // render glyph texture over quad
-//        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-//        // update content of VBO memory
-//        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
-//
-//        glBindBuffer(GL_ARRAY_BUFFER, 0);
-//        // render quad
-//        glDrawArrays(GL_TRIANGLES, 0, 6);
-//        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-//        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-//    }
-//    glBindVertexArray(0);
-//    glBindTexture(GL_TEXTURE_2D, 0);
-//}
-//
-//void character_callback(GLFWwindow*, unsigned int codepoint)
-//{
-//    if (outputString.length() > 10) {
-//        outputString.erase(0, 1);
-//    }
-//    outputString += (char)codepoint;
-////    std::cout << codepoint << ": " << (char)codepoint << std::endl;
-//}
+
+int prepareFontRendering(Mayra::Shader &shader)
+{
+    // OpenGL state
+    // ------------
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // compile and setup the shader
+    // ----------------------------
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+    shader.Bind();
+    glUniformMatrix4fv(glGetUniformLocation(shader.GetRendererID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+    // FreeType
+    // --------
+    FT_Library ft;
+    // All functions return a value different than 0 whenever an error occurred
+    if (FT_Init_FreeType(&ft))
+    {
+        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+        return -1;
+    }
+
+    //    "Antonio-Bold.ttf"
+    // find path to font
+    std::string font_name = FONTS "Antonio-Bold.ttf";
+    if (font_name.empty())
+    {
+        std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
+        return -1;
+    }
+
+    // load font as face
+    FT_Face face;
+    if (FT_New_Face(ft, font_name.c_str(), 0, &face)) {
+        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+        return -1;
+    }
+    else {
+        // set size to load glyphs as
+        FT_Set_Pixel_Sizes(face, 0, 48);
+
+        // disable byte-alignment restriction
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        // load first 128 characters of ASCII set
+        for (unsigned char c = 0; c < 128; c++)
+        {
+            // Load character glyph
+            if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+            {
+                std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+                continue;
+            }
+            // generate texture
+            unsigned int texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(
+                         GL_TEXTURE_2D,
+                         0,
+                         GL_RED,
+                         face->glyph->bitmap.width,
+                         face->glyph->bitmap.rows,
+                         0,
+                         GL_RED,
+                         GL_UNSIGNED_BYTE,
+                         face->glyph->bitmap.buffer
+                         );
+            // set texture options
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            // now store character for later use
+            Character character = {
+                texture,
+                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                static_cast<unsigned int>(face->glyph->advance.x)
+            };
+            Characters.insert(std::pair<char, Character>(c, character));
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    // destroy FreeType once we're finished
+    FT_Done_Face(face);
+    FT_Done_FreeType(ft);
+
+    // configure VAO/VBO for texture quads
+    // -----------------------------------
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    return 0; // everything went a-ok;
+}
+
+// render line of text
+// -------------------
+void RenderText(Mayra::Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color)
+{
+    // activate corresponding render state
+    shader.Bind();
+    glUniform3f(glGetUniformLocation(shader.GetRendererID(), "textColor"), color.x, color.y, color.z);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+
+    // iterate through all characters
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++)
+    {
+        Character ch = Characters[*c];
+
+        float xpos = x + ch.Bearing.x * scale;
+        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+        float w = ch.Size.x * scale;
+        float h = ch.Size.y * scale;
+        // update VBO for each character
+        float vertices[6][4] = {
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos,     ypos,       0.0f, 1.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+            { xpos + w, ypos + h,   1.0f, 0.0f }
+        };
+        // render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        // update content of VBO memory
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // render quad
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void character_callback(GLFWwindow*, unsigned int codepoint)
+{
+    if (!guiHasFocus)
+        return;
+
+    if (outputString.length() > 10) {
+        outputString.erase(0, 1);
+    }
+    outputString += (char)codepoint;
+//    std::cout << codepoint << ": " << (char)codepoint << std::endl;
+}

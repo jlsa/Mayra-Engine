@@ -50,5 +50,6 @@
 #define TEXTURES    ASSETS "Textures/"
 #define SHADERS     "Shaders/"
 #define MODELS      ASSETS "3DObjects/"
+#define FONTS       ASSETS "Fonts/"
 
 #endif //~ Mayra Header

@@ -96,11 +96,15 @@ void Model::RenderBBox(Mayra::Shader &shader)
         glm::mat4 m = object2world * transform;
         shader.SetMat4("model", m);
 
+        glEnable(GL_LINE_SMOOTH);
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
         glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
         glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4 * sizeof(GLushort)));
         glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8 * sizeof(GLushort)));
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        glDisable(GL_LINE_SMOOTH);
 
         glDisableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
