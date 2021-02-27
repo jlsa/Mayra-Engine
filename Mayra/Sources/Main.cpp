@@ -62,6 +62,7 @@ float lastFrame = 0.0f;
 float maxShine = 128.0f;
 
 bool moveSpotLight { false };
+bool onRenderBbox { true };
 
 float scale = 0.1f;
 glm::vec3 position = glm::vec3(0.0f, 1.0f, 3.0f);
@@ -296,7 +297,9 @@ int main()
 //            model = glm::scale(model, glm::vec3(scale)); // 0.01f
             lightCubeShader.SetMat4("model", model);
 //            lightCubeShader.ListUniformsAndAttributes();
-            ourModel.RenderBBox(lightCubeShader);
+            if (onRenderBbox) {
+                ourModel.RenderBBox(lightCubeShader);
+            }
         }
 
         for (int i = 0; i < 4; i++)
@@ -411,6 +414,11 @@ void processInput(GLFWwindow *window)
 
     if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         glDisable(GL_CULL_FACE);
+
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+        onRenderBbox = true;
+    if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
+        onRenderBbox = false;
 
 }
 
