@@ -22,7 +22,6 @@ class Model
 {
 public:
     glm::mat4 object2world;
-    Transform parentTransform;
     
     Model(std::string path)
         : object2world(glm::mat4(1.0f))
@@ -36,8 +35,6 @@ private:
     std::vector<Mesh> meshes;
     std::string directory;
     std::vector<Texture> textures_loaded;
-
-    BoundingBoxProps calculateBoundingBox();
 
     void loadModel(std::string path);
     void processNode(aiNode *node, const aiScene *scene);

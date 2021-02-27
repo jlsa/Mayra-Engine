@@ -64,12 +64,13 @@ float maxShine = 128.0f;
 bool moveSpotLight { false };
 bool onRenderBbox { true };
 
-float scale = 0.1f;
-glm::vec3 position = glm::vec3(0.0f, 1.0f, 3.0f);
+float scale = 1.0f / 10.0f / 10.0f;
+glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 
 int main()
 {
-    glm::vec4 clearColor{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
+//    glm::vec4 clearColor{14.0f / 255.0f, 10.0f / 255.0f, 20.0f / 255.0f, 1.0f};
+    glm::vec4 clearColor{150.0f / 255.0f, 150.0f / 255.0f, 150.0f / 255.0f, 1.0f};
 
     glm::vec3 pointLightPositions[] = {
         glm::vec3(9.39123f, 1.81413f, -0.460245f),
@@ -178,14 +179,14 @@ int main()
 //    Mayra::Shader phongShader(SHADERS "PhongShading.vert", SHADERS "PhongShading.frag");
     Mayra::Shader ourShader(SHADERS "ModelLoading.vert", SHADERS "ModelLoading.frag");
 //    ourShader.Bind();
-    stbi_set_flip_vertically_on_load(true);
-//    Model mossy_cube(MODELS "mossy_cube/mossy_cube.obj");
     stbi_set_flip_vertically_on_load(false);
-//    Model ourModel(MODELS "Sponza/sponza.obj");
+    Model ourModel(MODELS "Sponza/sponza.obj");
 //    Model ourModel(MODELS "axe/axe.obj");
+//    Model ourModel(MODELS "Forest_pack_v1/Forest_pack_v1.obj");
 //    Model ourModel(MODELS "mossy_cube/mossy_cube.obj");
-    stbi_set_flip_vertically_on_load(true);
-    Model ourModel(MODELS "backpack/backpack.obj");
+//    Model ourModel(MODELS "Wolf/Wolf.obj");
+//    stbi_set_flip_vertically_on_load(true);
+//    Model ourModel(MODELS "backpack/backpack.obj");
 
     // render loop
     // -----------
@@ -278,13 +279,13 @@ int main()
             lightingShader.SetFloat("material.shininess", 2.0f);
 //            lightingShader.SetMat4("model", model);
             model = glm::translate(model, position);
-            model = glm::scale(model, glm::vec3(0.99f - scale, 0.99f - scale, 0.99f - scale)); // 0.01f
+            model = glm::scale(model, glm::vec3(scale));//glm::vec3(0.99f - scale, 0.99f - scale, 0.99f - scale)); // 0.01f
             lightingShader.SetMat4("model", model);
             ourModel.Render(lightingShader);
-            ourModel.object2world = glm::translate(glm::mat4(1.0f), position);
+            ourModel.object2world = glm::translate(model, position);
             Transform transform;
             transform.Position = position;
-            transform.Scale = glm::vec3(1.0f - scale);
+            transform.Scale = glm::vec3(scale);//1.0f - scale);
 
             ourModel.parentTransform = transform;
 
