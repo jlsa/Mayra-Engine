@@ -28,6 +28,7 @@
 #include "SceneGameObjectsTest.hpp"
 #include "SandboxScene.hpp"
 #include "Input.hpp"
+#include <EmptyScene.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -102,6 +103,7 @@ namespace Mayra
         sceneMenu->RegisterScene<SceneMultiTexturedQuad>("Multi Textured Quad");
         sceneMenu->RegisterScene<SceneGameObjectsTest>("Game Objects Test");
         sceneMenu->RegisterScene<SandboxScene>("Sandbox Scene");
+        sceneMenu->RegisterScene<EmptyScene>("Empty Scene");
 
         static double limitFPS = 1.0 / 60.0;
 

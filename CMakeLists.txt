@@ -37,6 +37,7 @@ else()
 endif()
 
 include_directories(Mayra/Headers/
+                    Mayra/Scenes/
                     Glitter/Vendor/assimp/include/
                     # Glitter/Vendor/bullet/src/
                     Glitter/Vendor/glad/include/
@@ -56,7 +57,11 @@ file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c
                           Glitter/Vendor/*.h
                           Glitter/Vendor/)
 
-file(GLOB PROJECT_HEADERS Mayra/Headers/*.hpp)
+file(GLOB PROJECT_SCENES  Mayra/Scenes/*.hpp
+                          Mayra/Scenes/*.h
+                          Mayra/Scenes/*.cpp)
+file(GLOB PROJECT_HEADERS Mayra/Headers/*.hpp
+                          Mayra/Headers/*.h)
 file(GLOB PROJECT_SOURCES Mayra/Sources/*.cpp)
 file(GLOB PROJECT_SHADERS Mayra/Shaders/*.comp
                           Mayra/Shaders/*.frag
@@ -73,8 +78,9 @@ file(GLOB PROJECT_ASSETS Mayra/Resources/Assets/Textures/*.png
                          Mayra/Resources/Assets/Textures/*.jpg)
 
 source_group("Headers" FILES ${PROJECT_HEADERS})
-source_group("Shaders" FILES ${PROJECT_SHADERS})
 source_group("Sources" FILES ${PROJECT_SOURCES})
+source_group("Shaders" FILES ${PROJECT_SHADERS})
+source_group("Scenes" FILES ${PROJECT_SCENES})
 source_group("Vendors" FILES ${VENDORS_SOURCES})
 source_group("Assets" FILES ${PROJECT_ASSETS})
 
@@ -82,7 +88,8 @@ add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
-                               ${VENDORS_SOURCES} ${PROJECT_ASSETS})
+                               ${VENDORS_SOURCES} ${PROJECT_ASSETS}
+                               ${PROJECT_SCENES})
 target_link_libraries(${PROJECT_NAME} glfw assimp freetype
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
                     #   BulletDynamics BulletCollision LinearMath)
