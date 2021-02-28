@@ -70,7 +70,7 @@ namespace Mayra
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
         RenderText(fontShader, outputString, 25.0f, 25.0f, 1.0f, glm::vec3(0.5f, 0.8f, 0.2f));
-        RenderText(fontShader, questString, 25.0f, 720.0f - 25.0f, 1.0f, glm::vec3(0.863f, 0.078f, 0.235f));
+        RenderText(fontShader, questString, 25.0f, 600.0f, 1.0f, glm::vec3(0.863f, 0.078f, 0.235f));
         RenderText(fontShader, "Hallo!", 540.0f, 570.0f, 0.5f, glm::vec3(0.3f, 0.7f, 0.9f));
     }
 
@@ -86,45 +86,6 @@ namespace Mayra
         ImGui::SameLine(); HelpMarker("Display all characters as '*'.\nDisable clipboard cut and copy.\nDisable logging.\n");
         ImGui::InputTextWithHint("password (w/ hint)", "<password>", password, IM_ARRAYSIZE(password), ImGuiInputTextFlags_Password);
         ImGui::InputText("password (clear)", password, IM_ARRAYSIZE(password));
-
-
-        // To wire InputText() with std::string or any other custom string type,
-        // you can use the ImGuiInputTextFlags_CallbackResize flag + create a custom ImGui::InputText() wrapper
-        // using your preferred type. See misc/cpp/imgui_stdlib.h for an implementation of this using std::string.
-        HelpMarker(
-                   "Using ImGuiInputTextFlags_CallbackResize to wire your custom string type to InputText().\n\n"
-                   "See misc/cpp/imgui_stdlib.h for an implementation of this for std::string.");
-        struct Funcs
-        {
-            static int MyResizeCallback(ImGuiInputTextCallbackData* data)
-            {
-                if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-                {
-                    ImVector<char>* my_str = (ImVector<char>*)data->UserData;
-                    IM_ASSERT(my_str->begin() == data->Buf);
-                    my_str->resize(data->BufSize); // NB: On resizing calls, generally data->BufSize == data->BufTextLen + 1
-                    data->Buf = my_str->begin();
-                }
-                return 0;
-            }
-
-            // Note: Because ImGui:: is a namespace you would typically add your own function into the namespace.
-            // For example, you code may declare a function 'ImGui::InputText(const char* label, MyString* my_str)'
-            static bool MyInputTextMultiline(const char* label, ImVector<char>* my_str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0)
-            {
-                IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
-                return ImGui::InputTextMultiline(label, my_str->begin(), (size_t)my_str->size(), size, flags | ImGuiInputTextFlags_CallbackResize, Funcs::MyResizeCallback, (void*)my_str);
-            }
-        };
-
-        // For this demo we are using ImVector as a string container.
-        // Note that because we need to store a terminating zero character, our size/capacity are 1 more
-        // than usually reported by a typical string class.
-//        static ImVector<char> my_str;
-//        if (my_str.empty())
-//            my_str.push_back(0);
-//        Funcs::MyInputTextMultiline("##MyStr", &my_str, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16));
-//        ImGui::Text("Data: %p\nSize: %d\nCapacity: %d", (void*)my_str.begin(), my_str.size(), my_str.capacity());
 
         if (outputString.empty())
             outputString.push_back(0);
@@ -189,7 +150,8 @@ namespace Mayra
 //        glm::mat4 projection = m_Camera->GetProjectionMatrix();
         glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(1280), 0.0f, static_cast<float>(720));
         shader->Bind();
-        glUniformMatrix4fv(glGetUniformLocation(shader->GetRendererID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        shader->SetMat4("projection", projection);
+//        glUniformMatrix4fv(glGetUniformLocation(shader->GetRendererID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
         // FreeType
         // --------
@@ -222,6 +184,9 @@ namespace Mayra
 
             // disable byte-alignment restriction
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+            lineSpacing = face->height;
+            scaledLineSpacing = face->size->metrics.height;
 
             // load first 128 characters of ASCII set
             for (unsigned char c = 0; c < 128; c++)
@@ -280,13 +245,80 @@ namespace Mayra
         glBindVertexArray(0);
     }
 
+//    void FreeTypeFontScene::LoadFontGlyphs()
+//    {
+//        for (int gidx = 0; gidx < face->num_glyphs; gidx++) {
+//            if (FT_Load_Glyph(face, gidx, FT_LOAD_RENDER))
+//                continue;
+//
+//            GLuint name;
+//            glGenTextures(1, &name);
+//            glBindTexture(GL_TEXTURE_2D, name);
+//            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED,
+//                         slot->bitmap.width, slot->bitmap.rows,
+//                         0, GL_RED, GL_UNSIGNED_BYTE,
+//                         slot->bitmap.buffer);
+//
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//            glyph[gidx].glName = name;
+//            glyph[gidx].ax = slot->advance.x >> 6;
+//            glyph[gidx].ay = slot->advance.y >> 6;
+//            glyph[gidx].bw = slot->bitmap.width;
+//            glyph[gidx].bh = slot->bitmap.rows;
+//            glyph[gidx].bl = slot->bitmap_left;
+//            glyph[gidx].bt = slot->bitmap_top;
+//        }
+//
+//        // Assign UNICODE code to glyph table
+//        uint32_t gidx;
+//        char32_t ch = FT_Get_First_Char(face, &gidx);
+//        while ( gidx != 0) {
+//            glyph[gidx].ch = ch;
+//            ch = FT_Get_Next_Char(face, ch, &gidx);
+//        }
+//
+//        string::const_iterator ch;
+//        for (ch = text.begin(); ch != text.end(); ch++) {
+//            int gidx = FT_Get_Char_Index(face, *ch);
+//
+//            float xpos = x + glyph[gidx].bl;
+//            float ypos = y - (glyph[gidx].bh - glyph[gidx].bt);
+//            float w = glyph[gidx].bw;
+//            float h = glyph[gidx].bh;
+//            float vtx[6][4] = {
+//                { xpos, ypos+h, 0.0, 0.0 },
+//                { xpos, ypos, 0.0, 1.0 },
+//                { xpos+w, ypos, 1.0, 1.0 },
+//
+//                { xpos, ypos+h, 0.0, 0.0 },
+//                { xpos+w, ypos, 1.0, 1.0 },
+//                { xpos+w, ypos+h, 1.0, 0.0 },
+//            };
+//
+//            glBindTexture(GL_TEXTURE_2D, glyph[gidx].glName);
+//            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//
+//            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vtx), vtx);
+//
+//            glDrawArrays(GL_TRIANGLES, 0, 6);
+//            glBindBuffer(GL_ARRAY_BUFFER, 0);
+//
+//            x += glyph[gidx].ax;
+//        }
+//    }
+
     // render line of text
     // -------------------
     void FreeTypeFontScene::RenderText(Mayra::Shader* shader, std::string text, float x, float y, float scale, glm::vec3 color)
     {
         // activate corresponding render state
         shader->Bind();
-        glUniform3f(glGetUniformLocation(shader->GetRendererID(), "textColor"), color.x, color.y, color.z);
+        shader->SetVec3("textColor", color);
+//        glUniform3f(glGetUniformLocation(shader->GetRendererID(), "textColor"), color.x, color.y, color.z);
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(VAO);
 
@@ -294,12 +326,21 @@ namespace Mayra
         std::string::const_iterator c;
         if (text[0] == '\0')
             return;
+        int liney = 0;
         for (c = text.begin(); c != text.end(); c++)
         {
+            if (*c == '\n')
+            {
+                liney -= scaledLineSpacing / 64.0f;
+                std::cout << "scaled line spacing: " << scaledLineSpacing << std::endl;
+                std::cout << "line spacing: " << lineSpacing << std::endl;
+                std::cout << "----" << std::endl;
+            }
+            // get line of characters here
             Character ch = Characters[*c];
 
             float xpos = x + ch.Bearing.x * scale;
-            float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+            float ypos = y - (ch.Size.y - ch.Bearing.y) * scale + liney;
 
             float w = ch.Size.x * scale;
             float h = ch.Size.y * scale;
@@ -322,8 +363,11 @@ namespace Mayra
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             // render quad
             glDrawArrays(GL_TRIANGLES, 0, 6);
-            // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-            x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+            if (*c != '\n')
+            {
+                // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+                x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+            }
         }
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);

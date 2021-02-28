@@ -47,6 +47,9 @@ namespace Mayra
         std::string questString;
         void prepare(Mayra::Shader* shader);
         Mayra::Shader* fontShader;
+
+        int lineSpacing;
+        int scaledLineSpacing;
     private:
         glm::vec4 m_ClearColor;
         glm::mat4 m_Projection;
