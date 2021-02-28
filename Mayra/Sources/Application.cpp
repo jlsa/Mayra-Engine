@@ -25,11 +25,7 @@
 #include "Input.hpp"
 
 #include "Scene.hpp"
-#include <SceneMultiTexturedQuad.h>
-#include <SceneGameObjectsTest.h>
-#include <SandboxScene.h>
-#include <EmptyScene.h>
-#include <FreeTypeFontScene.h>
+#include <Scenes.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -106,6 +102,7 @@ namespace Mayra
         sceneMenu->RegisterScene<SandboxScene>("Sandbox Scene");
         sceneMenu->RegisterScene<EmptyScene>("Empty Scene");
         sceneMenu->RegisterScene<FreeTypeFontScene>("FreeType2 Scene");
+        sceneMenu->RegisterScene<BetterFontRenderingScene>("Better Font Rendering Scene");
 
         static double limitFPS = 1.0 / 60.0;
 
