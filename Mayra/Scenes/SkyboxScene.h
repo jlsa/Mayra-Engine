@@ -1,5 +1,5 @@
-#ifndef EmptyScene_h
-#define EmptyScene_h
+#ifndef SkyboxScene_h
+#define SkyboxScene_h
 
 #include <Mayra.hpp>
 #include <Scene.hpp>
@@ -12,11 +12,11 @@
 
 namespace Mayra
 {
-    class EmptyScene : public Scene
+    class SkyboxScene : public Scene
     {
     public:
-        EmptyScene();
-        ~EmptyScene();
+        SkyboxScene();
+        ~SkyboxScene();
         void OnUpdate(float deltaTime) override;
         void OnRender() override;
         void OnImGuiRender() override;
@@ -25,8 +25,7 @@ namespace Mayra
         glm::vec4 m_ClearColor;
         glm::mat4 m_Projection;
         OrthographicCamera *m_Camera;
-        Mayra::Shader* editorShader;
     };
 }
 
-#endif /* EmptyScene_h */
+#endif /* SkyboxScene_h */
