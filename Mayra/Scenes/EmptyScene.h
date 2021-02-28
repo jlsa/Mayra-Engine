@@ -12,20 +12,20 @@
 
 namespace Mayra
 {
-  class EmptyScene : public Scene
-  {
-  public:
-    EmptyScene();
-    ~EmptyScene();
-    void OnUpdate(float deltaTime) override;
-    void OnRender() override;
-    void OnImGuiRender() override;
+    class EmptyScene : public Scene
+    {
+    public:
+        EmptyScene();
+        ~EmptyScene();
+        void OnUpdate(float deltaTime) override;
+        void OnRender() override;
+        void OnImGuiRender() override;
 
-  private:
-    glm::vec4 m_ClearColor;
-    glm::mat4 m_Projection;
-    OrthographicCamera *m_Camera;
-  };
+    private:
+        glm::vec4 m_ClearColor;
+        glm::mat4 m_Projection;
+        OrthographicCamera *m_Camera;
+    };
 }
 
 #endif /* EmptyScene_h */

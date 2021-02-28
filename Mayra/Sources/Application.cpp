@@ -29,6 +29,7 @@
 #include <SceneGameObjectsTest.h>
 #include <SandboxScene.h>
 #include <EmptyScene.h>
+#include <FreeTypeFontScene.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -104,6 +105,7 @@ namespace Mayra
         sceneMenu->RegisterScene<SceneGameObjectsTest>("Game Objects Test");
         sceneMenu->RegisterScene<SandboxScene>("Sandbox Scene");
         sceneMenu->RegisterScene<EmptyScene>("Empty Scene");
+        sceneMenu->RegisterScene<FreeTypeFontScene>("FreeType2 Scene");
 
         static double limitFPS = 1.0 / 60.0;
 
