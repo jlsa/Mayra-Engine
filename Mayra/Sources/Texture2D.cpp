@@ -41,10 +41,10 @@ namespace Mayra
         GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
         // unbind texture
-        UnBind();
+        Unbind();
     }
 
-    void Texture2D::UnBind() const
+    void Texture2D::Unbind() const
     {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -55,12 +55,12 @@ namespace Mayra
         GLCall(glBindTexture(GL_TEXTURE_2D, this->m_RendererID));
     }
 
-    Mayra::Texture2D* Texture2D::LoadFromFile(const std::string& filepath)
+    Mayra::Texture2D* Texture2D::LoadFromFile(const std::string& filepath, bool flip)
     {
         Mayra::Texture2D* texture = new Texture2D();
         // load image
         int width, height, bpp;
-        stbi_set_flip_vertically_on_load(true);
+        stbi_set_flip_vertically_on_load(flip);
         texture->m_LocalBuffer = stbi_load(filepath.c_str(), &width, &height, &bpp, 0);
         
         if (bpp == 4)
@@ -76,7 +76,7 @@ namespace Mayra
         }
         else
         {
-            std::cout << "ERROR::TEXTURE2D_FAILED_TO_LOAD" << std::endl;
+            std::cout << "ERROR::Texture2D::FAILED_TO_LOAD" << std::endl;
         }
 
         return texture;

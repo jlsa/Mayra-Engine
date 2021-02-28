@@ -12,7 +12,7 @@ void main()
     const float verticalFieldOfView = 60.0 * 3.1415927 / 180.0;
     vec3 ro = cam_pos;
     vec3 rd = normalize(vec3(gl_FragCoord.xy - screen_size.xy / 2.0, screen_size.y * 0.5 / -tan(verticalFieldOfView * 0.5)));
-    rd = mat3(view) * rd;
+    rd = mat3(view) * rd; // if i comment this out the skybox itself is in a fixed position
 
     // sky with haze
     vec3 col = vec3(0.3, 0.55, 0.8) * (1.0 - 0.8 * rd.y) * 0.9;

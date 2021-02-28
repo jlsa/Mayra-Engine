@@ -31,9 +31,9 @@ namespace Mayra
 
         void Generate(int width, int height, int bpp, unsigned char* data);
         void Bind(unsigned int slot = 0) const;
-        void UnBind() const;
+        void Unbind() const;
         
-        static Mayra::Texture2D* LoadFromFile(const std::string& filepath);
+        static Mayra::Texture2D* LoadFromFile(const std::string& filepath, bool flip = true);
 
         unsigned int GetRendererID() const { return m_RendererID; }
     private:

@@ -103,6 +103,7 @@ namespace Mayra
         sceneMenu->RegisterScene<EmptyScene>("Empty Scene");
         sceneMenu->RegisterScene<FreeTypeFontScene>("FreeType2 Scene");
         sceneMenu->RegisterScene<BetterFontRenderingScene>("Better Font Rendering Scene");
+        sceneMenu->RegisterScene<SkyboxScene>("Skybox Scene");
 
         static double limitFPS = 1.0 / 60.0;
 
