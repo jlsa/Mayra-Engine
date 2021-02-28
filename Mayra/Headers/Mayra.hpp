@@ -4,9 +4,9 @@
 #pragma once
 
 // System Headers
-//#include <assimp/Importer.hpp>
-//#include <assimp/postprocess.h>
-//#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 //#include <btBulletDynamicsCommon.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -49,6 +49,7 @@
 #define ASSETS      "Assets/"
 #define TEXTURES    ASSETS "Textures/"
 #define SHADERS     "Shaders/"
-
+#define MODELS      ASSETS "3DObjects/"
+#define FONTS       ASSETS "Fonts/"
 
 #endif //~ Mayra Header

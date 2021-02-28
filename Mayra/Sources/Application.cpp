@@ -22,12 +22,10 @@
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
 #include "Renderer.hpp"
+#include "Input.hpp"
 
 #include "Scene.hpp"
-#include "SceneMultiTexturedQuad.hpp"
-#include "SceneGameObjectsTest.hpp"
-#include "SandboxScene.hpp"
-#include "Input.hpp"
+#include <Scenes.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -98,10 +96,13 @@ namespace Mayra
         Scene* currentScene = nullptr;
         SceneMenu* sceneMenu = new SceneMenu(currentScene);
         currentScene = sceneMenu;
-        
+
         sceneMenu->RegisterScene<SceneMultiTexturedQuad>("Multi Textured Quad");
         sceneMenu->RegisterScene<SceneGameObjectsTest>("Game Objects Test");
         sceneMenu->RegisterScene<SandboxScene>("Sandbox Scene");
+        sceneMenu->RegisterScene<EmptyScene>("Empty Scene");
+        sceneMenu->RegisterScene<FreeTypeFontScene>("FreeType2 Scene");
+        sceneMenu->RegisterScene<BetterFontRenderingScene>("Better Font Rendering Scene");
 
         static double limitFPS = 1.0 / 60.0;
 
@@ -171,7 +172,7 @@ namespace Mayra
         delete _window;
         delete _gui;
         delete _props;
-        
+
         glfwTerminate();
     }
 }

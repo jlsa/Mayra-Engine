@@ -6,11 +6,20 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(Glitter/Vendor/glfw)
 
-# option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-# option(ASSIMP_BUILD_SAMPLES OFF)
-# option(ASSIMP_BUILD_TESTS OFF)
-# add_subdirectory(Glitter/Vendor/assimp)
+option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+option(ASSIMP_BUILD_SAMPLES OFF)
+option(ASSIMP_BUILD_TESTS OFF)
+add_subdirectory(Glitter/Vendor/assimp)
 
+add_subdirectory(Glitter/Vendor/freetype2)
+
+find_package(PkgConfig REQUIRED)
+pkg_search_module(FREETYPE REQUIRED freetype2)
+
+# set(FREETYPE_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/Glitter/Vendor/freetype2/include")
+# set(FREETYPE_STATIC_LIBRARIES "${CMAKE_SOURCE_DIR}/")
+# message(STATUS "FreeType2 include directories: ${FREETYPE_INCLUDE_DIRS}")
+# message(STATUS "FreeType2 libraries: ${FREETYPE_STATIC_LIBRARIES}")
 # option(BUILD_BULLET2_DEMOS OFF)
 # option(BUILD_CPU_DEMOS OFF)
 # option(BUILD_EXTRAS OFF)
@@ -28,7 +37,8 @@ else()
 endif()
 
 include_directories(Mayra/Headers/
-                    # Glitter/Vendor/assimp/include/
+                    Mayra/Scenes/
+                    Glitter/Vendor/assimp/include/
                     # Glitter/Vendor/bullet/src/
                     Glitter/Vendor/glad/include/
                     Glitter/Vendor/glfw/include/
@@ -36,6 +46,7 @@ include_directories(Mayra/Headers/
                     Glitter/Vendor/imgui/
                     Glitter/Vendor/imgui/backends/
                     Glitter/Vendor/stb/
+                    Glitter/Vendor/freetype2/include/
                     Glitter/Vendor)
 
 file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c
@@ -43,9 +54,14 @@ file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c
                           Glitter/Vendor/imgui/backends/imgui_impl_opengl3.*
                           Glitter/Vendor/imgui/*.h
                           Glitter/Vendor/imgui/*.cpp
+                          Glitter/Vendor/*.h
                           Glitter/Vendor/)
 
-file(GLOB PROJECT_HEADERS Mayra/Headers/*.hpp)
+file(GLOB PROJECT_SCENES  Mayra/Scenes/*.hpp
+                          Mayra/Scenes/*.h
+                          Mayra/Scenes/*.cpp)
+file(GLOB PROJECT_HEADERS Mayra/Headers/*.hpp
+                          Mayra/Headers/*.h)
 file(GLOB PROJECT_SOURCES Mayra/Sources/*.cpp)
 file(GLOB PROJECT_SHADERS Mayra/Shaders/*.comp
                           Mayra/Shaders/*.frag
@@ -58,12 +74,12 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
                          .gitignore
                          .gitmodules)
 
-file(GLOB PROJECT_ASSETS Mayra/Resources/Assets/Textures/*.png
-                         Mayra/Resources/Assets/Textures/*.jpg)
+file(GLOB PROJECT_ASSETS Mayra/Resources/Assets/*)
 
 source_group("Headers" FILES ${PROJECT_HEADERS})
-source_group("Shaders" FILES ${PROJECT_SHADERS})
 source_group("Sources" FILES ${PROJECT_SOURCES})
+source_group("Shaders" FILES ${PROJECT_SHADERS})
+source_group("Scenes" FILES ${PROJECT_SCENES})
 source_group("Vendors" FILES ${VENDORS_SOURCES})
 source_group("Assets" FILES ${PROJECT_ASSETS})
 
@@ -71,8 +87,9 @@ add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
-                               ${VENDORS_SOURCES} ${PROJECT_ASSETS})
-target_link_libraries(${PROJECT_NAME} glfw # assimp
+                               ${VENDORS_SOURCES} ${PROJECT_ASSETS}
+                               ${PROJECT_SCENES})
+target_link_libraries(${PROJECT_NAME} glfw assimp freetype
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
                     #   BulletDynamics BulletCollision LinearMath)
 set_target_properties(${PROJECT_NAME} PROPERTIES

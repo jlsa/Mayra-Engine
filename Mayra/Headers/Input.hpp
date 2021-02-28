@@ -14,6 +14,20 @@ namespace Mayra
         Input& operator=(Input&&) = delete; // move assignment
         static Input* Instance();
 
+        template <size_t n>
+        bool IsKey(KeyCode (&keys)[n])
+        {
+            for (unsigned long i = 0; i < n; i++)
+            {
+                if (IsKey(keys[i]))
+                    return true;
+            }
+            return false;
+        };
+
+        bool IsAnyKey(KeyCode key1, KeyCode key2);
+        bool AreBothKeys(KeyCode key1, KeyCode key2);
+
         bool IsKey(KeyCode key);
         bool IsKeyDown(KeyCode key);
         bool IsKeyUp(KeyCode key);

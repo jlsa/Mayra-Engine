@@ -23,6 +23,16 @@ namespace Mayra
         }
     }
 
+    bool Input::IsAnyKey(KeyCode key1, KeyCode key2)
+    {
+        return IsKey(key1) || IsKey(key2);
+    }
+
+    bool Input::AreBothKeys(KeyCode key1, KeyCode key2)
+    {
+        return IsKey(key1) && IsKey(key2);
+    }
+
     bool Input::IsKey(KeyCode key)
     {
         return m_Keys[key];

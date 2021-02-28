@@ -3,10 +3,11 @@
 namespace Mayra
 {
     Shader::Shader()
-    : m_RendererID(0), m_VertexPath(""), m_FragmentPath("")
+    : m_RendererID(0), m_VertexPath(""), m_FragmentPath(""), m_GeometryPath(nullptr)
     {}
-    Shader::Shader(const char* vertexPath, const char* fragmentPath)
-        : m_RendererID(0), m_VertexPath(vertexPath), m_FragmentPath(fragmentPath)
+
+    Shader::Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath)
+        : m_RendererID(0), m_VertexPath(vertexPath), m_FragmentPath(fragmentPath), m_GeometryPath(geometryPath)
     {
         m_LoadShaders();
     }
@@ -80,7 +81,6 @@ namespace Mayra
 
     void Shader::SetMat2(const std::string& name, const glm::mat2& mat)
     {
-
         GLCall(glUniformMatrix2fv(GetUniformLocation(name), 1, GL_FALSE, glm::value_ptr(mat)));
     }
 
@@ -177,6 +177,8 @@ namespace Mayra
         programID = glCreateProgram();
         glAttachShader(programID, compiledShaders.VertexShaderID);
         glAttachShader(programID, compiledShaders.FragmentShaderID);
+        if (compiledShaders.GeometryShaderID)
+            glAttachShader(programID, compiledShaders.GeometryShaderID);
 
         glLinkProgram(programID);
         CheckForCompileErrors(programID, "PROGRAM");
@@ -201,11 +203,23 @@ namespace Mayra
         Mayra::ShadersCompiled compiledShaders;
         compiledShaders.VertexShaderID = Compile(vertexShader);
         compiledShaders.FragmentShaderID = Compile(fragmentShader);
+
+        if (m_GeometryPath != nullptr)
+        {
+            Mayra::ShaderSource geometryShader;
+            geometryShader.Source = ParseFile(m_GeometryPath);
+            geometryShader.ShaderType = GL_GEOMETRY_SHADER;
+            source.GeometrySource = geometryShader;
+            compiledShaders.GeometryShaderID = Compile(geometryShader);
+        }
+
         m_RendererID = CreateProgram(compiledShaders);
 
         // delete the shaders as they're linked into our program now and no longer necessary
         glDeleteShader(compiledShaders.VertexShaderID);
         glDeleteShader(compiledShaders.FragmentShaderID);
+        if (m_GeometryPath != nullptr)
+            glDeleteShader(compiledShaders.GeometryShaderID);
     }
 
     void Shader::ListUniformsAndAttributes()

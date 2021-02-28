@@ -27,6 +27,7 @@ namespace Mayra
             {
                 case GL_VERTEX_SHADER:      return "VERTEX";
                 case GL_FRAGMENT_SHADER:    return "FRAGMENT";
+                case GL_GEOMETRY_SHADER:    return "GEOMETRY";
             }
             ASSERT(false);
             return "";
@@ -37,12 +38,14 @@ namespace Mayra
     {
         Mayra::ShaderSource VertexSource;
         Mayra::ShaderSource FragmentSource;
+        Mayra::ShaderSource GeometrySource;
     };
 
     struct ShadersCompiled
     {
         unsigned int VertexShaderID;
         unsigned int FragmentShaderID;
+        unsigned int GeometryShaderID;
     };
 
     class Shader
@@ -50,8 +53,9 @@ namespace Mayra
     public:
         Shader();
         // constructor generates the shader on the fly
-        Shader(const char* vertexPath, const char* fragmentPath);
+        Shader(const char* vertexPath, const char* fragmentPath, const char* geometryShader = nullptr);
         ~Shader();
+        
         unsigned int GetRendererID() const;
         void Bind() const;
         void Unbind() const;
@@ -82,6 +86,7 @@ namespace Mayra
         unsigned int m_RendererID;
         const char* m_VertexPath;
         const char* m_FragmentPath;
+        const char* m_GeometryPath;
 
         mutable std::unordered_map<std::string, int> m_UniformLocationCache;
     };
