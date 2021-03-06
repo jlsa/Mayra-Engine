@@ -28,6 +28,8 @@
 #include <Scenes.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void handle_mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void handle_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 namespace Mayra
 {
@@ -81,6 +83,9 @@ namespace Mayra
         // Create Context and Load OpenGL Functions
         glfwMakeContextCurrent(_window->Get());
         glfwSetFramebufferSizeCallback(_window->Get(), framebuffer_size_callback);
+        glfwSetCursorPosCallback(_window->Get(), handle_mouse_callback);
+        glfwSetScrollCallback(_window->Get(), handle_scroll_callback);
+
         gladLoadGL();
 
         fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
@@ -184,4 +189,33 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     GLCall(glViewport(0, 0, width, height));
+}
+
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void handle_mouse_callback(GLFWwindow*, double xpos, double ypos)
+{
+    Mayra::Input::Instance()->HandleMouse(xpos, ypos);
+//    if (firstMouse)
+//    {
+//        lastX = xpos;
+//        lastY = ypos;
+//        firstMouse = false;
+//    }
+//
+//    float xoffset = xpos - lastX;
+//    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+//
+//    lastX = xpos;
+//    lastY = ypos;
+//
+//    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void handle_scroll_callback(GLFWwindow*, double xoffset, double yoffset)
+{
+    Mayra::Input::Instance()->HandleScroll(xoffset, yoffset);
+//    camera.ProcessMouseScroll(yoffset);
 }

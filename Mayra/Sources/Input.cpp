@@ -21,6 +21,10 @@ namespace Mayra
             m_KeysDown[i] = false;
             m_KeysUp[i] = false;
         }
+
+        firstMouse = true;
+        lastX = 0;
+        lastY = 0;
     }
 
     bool Input::IsAnyKey(KeyCode key1, KeyCode key2)
@@ -77,6 +81,35 @@ namespace Mayra
         {
             m_KeysUp[key] = false;
         }
+    }
+
+    void Input::HandleMouse(double xpos, double ypos)
+    {
+        if (firstMouse)
+        {
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+        }
+
+        glm::vec2 offset;
+        offset.x = xpos - lastX;
+        offset.y = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+        m_DeltaPosition = offset;
+        lastX = xpos;
+        lastY = ypos;
+        //    camera.ProcessMouseMovement(xoffset, yoffset);
+    }
+
+    void Input::SetMousePosition(glm::vec2 position)
+    {
+        HandleMouse((double)position.x, (double)position.y);
+    }
+
+    void Input::HandleScroll(double xoffset, double yoffset)
+    {
+        m_ScrollOffset = glm::vec2((float)xoffset, (float)yoffset);
     }
 
 }

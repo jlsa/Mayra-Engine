@@ -40,6 +40,8 @@ namespace Mayra
         Mayra::Texture2D* m_CubeTexture;
 
         glm::vec2 m_ScreenSize;
+
+        bool m_Playmode;
     };
 }
 

@@ -35,6 +35,14 @@ namespace Mayra
         void HandleKeyDown(unsigned int key);
         void HandleKeyRelease(unsigned int key);
         void HandleKeyRepeat(unsigned int key);
+
+        void HandleMouse(double xpos, double ypos);
+        void HandleScroll(double xoffset, double yoffset);
+
+        void SetMousePosition(glm::vec2 position);
+        glm::vec2 GetMouseDelta() { return m_DeltaPosition; }
+        glm::vec2 GetScrollOffset() { return m_ScrollOffset; }
+
     private:
         static Input* m_Instance;
         Input();
@@ -42,6 +50,12 @@ namespace Mayra
         bool m_Keys[GLFW_KEY_LAST];
         bool m_KeysUp[GLFW_KEY_LAST];
         bool m_KeysDown[GLFW_KEY_LAST];
+
+        bool firstMouse;
+        float lastX;
+        float lastY;
+        glm::vec2 m_DeltaPosition;
+        glm::vec2 m_ScrollOffset;
     };
 }
 

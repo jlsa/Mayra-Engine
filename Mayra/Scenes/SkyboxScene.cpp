@@ -10,8 +10,9 @@ namespace Mayra
         m_ScreenSize = glm::vec2(1280, 720);
         m_OrthoCamera = new OrthographicCamera(-1.6f, 1.6f, -0.9f, 0.9f);
         m_Camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-//        m_Projection = m_Camera->GetProjectionMatrix();
-//        m_Camera->SetPosition(glm::vec3(-0.33f, -0.66f, 0.0f));
+
+        m_Playmode = true;
+        m_Projection = glm::perspectiveFov(glm::radians(m_Camera->Zoom), m_ScreenSize.x, m_ScreenSize.y, 0.1f, 10000.0f);
 
         m_CubeShader = new Mayra::Shader(SHADERS "cubemaps.vert", SHADERS "cubemaps.frag");
         m_SkyboxShader = new Mayra::Shader(SHADERS "skybox.vert", SHADERS "skybox.frag");
@@ -150,7 +151,15 @@ namespace Mayra
     }
 
     void SkyboxScene::OnUpdate(float /* deltaTime */)
-    {}
+    {
+        if (m_Playmode)
+        {
+//            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glm::vec2 offset = Mayra::Input::Instance()->GetMouseDelta(); // if no movement delta should be zero
+            m_Camera->ProcessMouseMovement(offset.x, offset.y);
+            m_Camera->ProcessMouseScroll(Mayra::Input::Instance()->GetScrollOffset().y);
+        }
+    }
 
     SkyboxScene::~SkyboxScene()
     {
@@ -173,6 +182,7 @@ namespace Mayra
         m_CubeShader->SetMat4("model", model);
         m_CubeShader->SetMat4("view", view);
         m_CubeShader->SetMat4("projection", projection);
+
         // cubes
         glBindVertexArray(cubeVAO);
         glActiveTexture(GL_TEXTURE0);

@@ -4,8 +4,6 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-#define VERTICES_STRIDE 8
-
 namespace Mayra
 {
     namespace Shapes
@@ -23,7 +21,15 @@ namespace Mayra
         };
         struct Cube
         {
-            float vertices[36 * VERTICES_STRIDE];
+            float vertices[36 * 8];
+            int size;
+            int verticesCount;
+            int stride;
+        };
+
+        struct Cube2
+        {
+            float vertices[36 * 5];
             int size;
             int verticesCount;
             int stride;
@@ -31,7 +37,7 @@ namespace Mayra
 
         struct Pyramid
         {
-            float vertices[18 * VERTICES_STRIDE];
+            float vertices[18 * 6];
             int size;
             int verticesCount;
             int stride;
@@ -39,7 +45,7 @@ namespace Mayra
 
         struct Quad
         {
-            float vertices[6 * VERTICES_STRIDE];
+            float vertices[6 * 6];
             int size;
             int verticesCount;
             int stride;
@@ -47,10 +53,65 @@ namespace Mayra
 
         struct Tetrahedron
         {
-            float vertices[12 * VERTICES_STRIDE];
+            float vertices[12 * 6];
             int size;
             int verticesCount;
             int stride;
+        };
+
+        static const Mayra::Shapes::Cube2 cube2 = {
+            {
+                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+                 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+                -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+                 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+
+                 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+                -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+                -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+                -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+                -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+                 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+                 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+                 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+                -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+                 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+                 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+
+                 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+                -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+                -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+                -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+                 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+                 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+                -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+            },
+            36 * 5,
+            36,
+            5
         };
 
         static const Mayra::Shapes::Cube cube = {
@@ -60,53 +121,53 @@ namespace Mayra
                 -0.5f,-0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,  1.0f, 0.0f,
                 -0.5f, 0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
 
-                0.5f, 0.5f,-0.5f,   0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
+                 0.5f, 0.5f,-0.5f,   0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
                 -0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f,
                 -0.5f, 0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  1.0f, 1.0f,
 
-                0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+                 0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,  1.0f, 0.0f,
                 -0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f,
-                0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,  1.0f, 1.0f,
+                 0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,  1.0f, 1.0f,
 
-                0.5f, 0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
-                0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
+                 0.5f, 0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
+                 0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
                 -0.5f,-0.5f,-0.5f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
 
                 -0.5f,-0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
                 -0.5f, 0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
                 -0.5f, 0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
                 -0.5f,-0.5f, 0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
                 -0.5f,-0.5f,-0.5f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
 
                 -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
                 -0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
-                0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
+                 0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
 
-                0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-                0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-                0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f, 0.5f,-0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-                0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-                0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f,-0.5f,-0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f, 0.5f, 0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f,-0.5f, 0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
-                0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
                 -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+                 0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
                 -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
                 -0.5f, 0.5f, 0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
 
-                0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
+                 0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
                 -0.5f, 0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
-                0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f
+                 0.5f,-0.5f, 0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f
             },
-            36 * VERTICES_STRIDE,
+            36 * 8,
             36,
-            VERTICES_STRIDE
+            8
         };
 
         static const Mayra::Shapes::Pyramid pyramid = {
@@ -136,9 +197,9 @@ namespace Mayra
                 -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
                 -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f
             },
-            18 * VERTICES_STRIDE,
+            18 * 6,
             18,
-            VERTICES_STRIDE
+            6
         };
 
         static const Mayra::Shapes::Quad quad = {
@@ -152,9 +213,9 @@ namespace Mayra
                 0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
                 -0.5f, 0.5f,-0.5f,  0.0f, 1.0f, 0.0f,
             },
-            6 * VERTICES_STRIDE,
+            6 * 6,
             6,
-            VERTICES_STRIDE
+            6
         };
 
         static const Mayra::Shapes::Tetrahedron tetrahedron = {
@@ -175,9 +236,9 @@ namespace Mayra
                 0.000000f,  1.000000f,  0.000000f,   1.08866f,  0.769801f,  1.88562f, // A - 0
                 -0.471405f, -0.333333f,  0.816497f,   1.08866f,  0.769801f,  1.88562f, // D - 3
             },
-            12 * VERTICES_STRIDE,
+            12 * 6,
             12,
-            VERTICES_STRIDE
+            6
         };
     }
 }
