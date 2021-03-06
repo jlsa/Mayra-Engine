@@ -1,6 +1,7 @@
 #ifndef Input_h
 #define Input_h
 
+#include "MouseButton.h"
 #include "Key.hpp"
 #include <map>
 
@@ -32,9 +33,17 @@ namespace Mayra
         bool IsKeyDown(KeyCode key);
         bool IsKeyUp(KeyCode key);
 
+        bool IsMouseButton(MouseButton button);
+        bool IsMouseButtonDown(MouseButton button);
+        bool IsMouseButtonUp(MouseButton button);
+
         void HandleKeyDown(unsigned int key);
         void HandleKeyRelease(unsigned int key);
         void HandleKeyRepeat(unsigned int key);
+
+        void HandleMouseButtonDown(unsigned int button);
+        void HandleMouseButtonUp(unsigned int button);
+        void HandleMouseButtonRepeat(unsigned int button);
 
         void HandleMouse(double xpos, double ypos);
         void HandleScroll(double xoffset, double yoffset);
@@ -50,6 +59,10 @@ namespace Mayra
         bool m_Keys[GLFW_KEY_LAST];
         bool m_KeysUp[GLFW_KEY_LAST];
         bool m_KeysDown[GLFW_KEY_LAST];
+
+        bool m_Mouse[GLFW_MOUSE_BUTTON_LAST];
+        bool m_MouseUp[GLFW_MOUSE_BUTTON_LAST];
+        bool m_MouseDown[GLFW_MOUSE_BUTTON_LAST];
 
         bool firstMouse;
         float lastX;

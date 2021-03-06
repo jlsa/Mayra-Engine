@@ -22,6 +22,13 @@ namespace Mayra
             m_KeysUp[i] = false;
         }
 
+        for (unsigned int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
+        {
+            m_Mouse[i] = false;
+            m_MouseUp[i] = false;
+            m_MouseDown[i] = false;
+        }
+
         firstMouse = true;
         lastX = 0;
         lastY = 0;
@@ -50,6 +57,21 @@ namespace Mayra
     bool Input::IsKeyUp(KeyCode key)
     {
         return m_KeysUp[key];
+    }
+
+    bool Input::IsMouseButton(MouseButton button)
+    {
+        return m_Mouse[static_cast<int>(button)];
+    }
+
+    bool Input::IsMouseButtonDown(MouseButton button)
+    {
+        return m_MouseDown[static_cast<int>(button)];
+    }
+
+    bool Input::IsMouseButtonUp(MouseButton button)
+    {
+        return m_MouseUp[static_cast<int>(button)];
     }
 
     void Input::HandleKeyDown(unsigned int key)
@@ -104,12 +126,40 @@ namespace Mayra
 
     void Input::SetMousePosition(glm::vec2 position)
     {
-        HandleMouse((double)position.x, (double)position.y);
+        glfwSetCursorPos(Mayra::Window::Instance()->Get(), (double)position.x, (double)position.y);
     }
 
     void Input::HandleScroll(double xoffset, double yoffset)
     {
         m_ScrollOffset = glm::vec2((float)xoffset, (float)yoffset);
+    }
+
+    void Input::HandleMouseButtonDown(unsigned int button)
+    {
+        if (m_Mouse[button] == false)
+        {
+            m_Mouse[button] = true;
+            m_MouseDown[button] = true;
+            m_MouseUp[button] = false;
+        }
+        else
+        {
+            m_MouseDown[button] = false;
+        }
+    }
+
+    void Input::HandleMouseButtonUp(unsigned int button)
+    {
+        if (m_Mouse[button] == true)
+        {
+            m_Mouse[button] = false;
+            m_MouseUp[button] = true;
+            m_MouseDown[button] = false;
+        }
+        else
+        {
+            m_MouseUp[button] = false;
+        }
     }
 
 }

@@ -30,6 +30,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void handle_mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void handle_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void handle_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 namespace Mayra
 {
@@ -57,6 +58,15 @@ namespace Mayra
             if (glfwGetKey(window->Get(), i) == GLFW_REPEAT)
                 Mayra::Input::Instance()->HandleKeyRepeat(i);
         }
+
+        for (unsigned int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
+        {
+            if (glfwGetMouseButton(window->Get(), i) == GLFW_PRESS)
+                Mayra::Input::Instance()->HandleMouseButtonDown(i);
+
+            if (glfwGetMouseButton(window->Get(), i) == GLFW_RELEASE)
+                Mayra::Input::Instance()->HandleMouseButtonUp(i);
+        }
     }
 
     int Application::Initialize()
@@ -71,7 +81,7 @@ namespace Mayra
         #endif
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-        _window = new Mayra::Window(_props);
+        _window = Mayra::Window::Instance();
         glfwSwapInterval(1);
 
         // Check for Valid Context
@@ -196,20 +206,6 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height)
 void handle_mouse_callback(GLFWwindow*, double xpos, double ypos)
 {
     Mayra::Input::Instance()->HandleMouse(xpos, ypos);
-//    if (firstMouse)
-//    {
-//        lastX = xpos;
-//        lastY = ypos;
-//        firstMouse = false;
-//    }
-//
-//    float xoffset = xpos - lastX;
-//    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-//
-//    lastX = xpos;
-//    lastY = ypos;
-//
-//    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
@@ -217,5 +213,9 @@ void handle_mouse_callback(GLFWwindow*, double xpos, double ypos)
 void handle_scroll_callback(GLFWwindow*, double xoffset, double yoffset)
 {
     Mayra::Input::Instance()->HandleScroll(xoffset, yoffset);
-//    camera.ProcessMouseScroll(yoffset);
+}
+
+void handle_mouse_button_callback(GLFWwindow*, int button, int action, int mods)
+{
+//    Mayra::Input::Instance()->HandleMouseButtonInput(button, action, mods);
 }

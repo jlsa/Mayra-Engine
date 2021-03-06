@@ -1,17 +1,20 @@
 #include "SkyboxScene.h"
 #include "Input.hpp"
 #include "Key.hpp"
+#include "MouseButton.h"
+
+#include <Window.hpp>
 
 namespace Mayra
 {
     SkyboxScene::SkyboxScene()
       : m_ClearColor(glm::vec4(62.0f / 255.0f, 61.0f / 255.0f, 64.0f / 255.0f, 1.0f))
     {
-        m_ScreenSize = glm::vec2(1280, 720);
+        m_ScreenSize = glm::vec2(Mayra::Window::Instance()->GetProps()->Width, Mayra::Window::Instance()->GetProps()->Height);
         m_OrthoCamera = new OrthographicCamera(-1.6f, 1.6f, -0.9f, 0.9f);
         m_Camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-        m_Playmode = true;
+        m_Playmode = false;
         m_Projection = glm::perspectiveFov(glm::radians(m_Camera->Zoom), m_ScreenSize.x, m_ScreenSize.y, 0.1f, 10000.0f);
 
         m_CubeShader = new Mayra::Shader(SHADERS "cubemaps.vert", SHADERS "cubemaps.frag");
@@ -150,15 +153,27 @@ namespace Mayra
         m_SkyboxShader->SetInt("skybox", 0);
     }
 
-    void SkyboxScene::OnUpdate(float /* deltaTime */)
+    void SkyboxScene::OnUpdate(float deltaTime)
     {
         if (m_Playmode)
         {
-//            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            if (Input::Instance()->IsKeyDown(KeyCode::Escape))
+            {
+                m_Playmode = false;
+                glfwSetInputMode(Mayra::Window::Instance()->Get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                Input::Instance()->SetMousePosition(Window::Instance()->GetProps()->GetCenter());
+            }
             glm::vec2 offset = Mayra::Input::Instance()->GetMouseDelta(); // if no movement delta should be zero
             m_Camera->ProcessMouseMovement(offset.x, offset.y);
             m_Camera->ProcessMouseScroll(Mayra::Input::Instance()->GetScrollOffset().y);
+
+            if (Input::Instance()->IsMouseButtonDown(Mayra::MouseButton::Left)) {
+                m_Playmode = false;
+                glfwSetInputMode(Mayra::Window::Instance()->Get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                Input::Instance()->SetMousePosition(Window::Instance()->GetProps()->GetCenter());
+            }
         }
+        
     }
 
     SkyboxScene::~SkyboxScene()
@@ -206,5 +221,26 @@ namespace Mayra
     }
 
     void SkyboxScene::OnImGuiRender()
-    {}
+    {
+        ImGui::Begin("Skybox");
+        if (ImGui::Button("Play")) {
+            m_Playmode = true;
+            glfwSetInputMode(Mayra::Window::Instance()->Get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            Input::Instance()->SetMousePosition(Window::Instance()->GetProps()->GetCenter());
+        }
+
+        if (ImGui::Button("Show Fill")) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Show Line")) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Show Point")) {
+            glPointSize(10.0f);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        }
+        ImGui::End();
+    }
 }

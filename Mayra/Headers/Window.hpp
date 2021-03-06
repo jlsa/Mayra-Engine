@@ -12,6 +12,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+
 namespace Mayra
 {
     struct WindowProps
@@ -21,6 +23,8 @@ namespace Mayra
         unsigned int Height;
         float Aspect;
         float AspectInverse;
+
+        glm::vec2 GetCenter() { return glm::vec2(Width / 2.0f, Height / 2.0f); }
         
         WindowProps(const std::string& title = "Mayra Engine",
                     unsigned int width = 1280,
@@ -31,13 +35,21 @@ namespace Mayra
 
     class Window
     {
-        GLFWwindow* _window;
-        
     public:
-        Window(GLFWwindow* window);
         ~Window();
-        Window(WindowProps* props);
         GLFWwindow* Get();
+        WindowProps* GetProps() const;
+
+        Window(Window&) = delete; // copy prohibited
+        void operator=(const Window&) = delete; // assignment prohibited
+        Window& operator=(Window&&) = delete; // move assignment
+        static Window* Instance();
+    private:
+        Window(WindowProps* props);
+        static Window* m_Instance;
+        
+        GLFWwindow* m_Window;
+        WindowProps* m_Props;
     };
 }
 

@@ -9,27 +9,39 @@
 
 namespace Mayra
 {
-    Window::Window(GLFWwindow* window)
+    Window* Window::m_Instance = nullptr;
+
+    Window* Window::Instance()
     {
-        _window = window;
+        Mayra::WindowProps* props = new Mayra::WindowProps("Mayra::Engine");
+        if (m_Instance == nullptr)
+            m_Instance = new Window(props);
+
+        return m_Instance;
     }
 
     Window::Window(WindowProps* props)
     {
-        _window = glfwCreateWindow(props->Width,
+        m_Window = glfwCreateWindow(props->Width,
                                    props->Height,
                                    props->Title.c_str(),
                                    nullptr,
                                    nullptr);
+        m_Props = props;
     }
 
     Window::~Window()
     {
-        glfwDestroyWindow(_window);
+        glfwDestroyWindow(m_Window);
     }
 
     GLFWwindow* Window::Get()
     {
-        return _window;
+        return m_Window;
+    }
+
+    WindowProps* Window::GetProps() const
+    {
+        return m_Props;
     }
 }
