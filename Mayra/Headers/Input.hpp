@@ -44,13 +44,13 @@ namespace Mayra
         void HandleMouseButtonDown(unsigned int button);
         void HandleMouseButtonUp(unsigned int button);
         void HandleMouseButtonRepeat(unsigned int button);
-
-        void HandleMouse(double xpos, double ypos);
         void HandleScroll(double xoffset, double yoffset);
 
         void SetMousePosition(glm::vec2 position);
         glm::vec2 GetMouseDelta() { return m_DeltaPosition; }
         glm::vec2 GetScrollOffset() { return m_ScrollOffset; }
+
+        void OnUpdate();
 
     private:
         static Input* m_Instance;
@@ -67,7 +67,9 @@ namespace Mayra
         bool firstMouse;
         float lastX;
         float lastY;
+
         glm::vec2 m_DeltaPosition;
+        glm::vec2 m_LastDeltaPosition;
         glm::vec2 m_ScrollOffset;
     };
 }

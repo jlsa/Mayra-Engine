@@ -134,12 +134,12 @@ namespace Mayra
 
         std::vector<std::string> faces
         {
-            TEXTURES "gloomy_skybox/right.png",
-            TEXTURES "gloomy_skybox/left.png",
-            TEXTURES "gloomy_skybox/top.png",
-            TEXTURES "gloomy_skybox/bottom.png",
-            TEXTURES "gloomy_skybox/front.png",
-            TEXTURES "gloomy_skybox/back.png"
+            TEXTURES "skybox/right.jpg",
+            TEXTURES "skybox/left.jpg",
+            TEXTURES "skybox/top.jpg",
+            TEXTURES "skybox/bottom.jpg",
+            TEXTURES "skybox/front.jpg",
+            TEXTURES "skybox/back.jpg"
         };
 
         cubemapTexture = Mayra::TextureCubemap::LoadCubemap(faces);
@@ -160,18 +160,30 @@ namespace Mayra
             if (Input::Instance()->IsKeyDown(KeyCode::Escape))
             {
                 m_Playmode = false;
-                glfwSetInputMode(Mayra::Window::Instance()->Get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                glfwSetInputMode(Window::Instance()->Get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 Input::Instance()->SetMousePosition(Window::Instance()->GetProps()->GetCenter());
             }
-            glm::vec2 offset = Mayra::Input::Instance()->GetMouseDelta(); // if no movement delta should be zero
+            glm::vec2 offset = Input::Instance()->GetMouseDelta(); // if no movement delta should be zero
             m_Camera->ProcessMouseMovement(offset.x, offset.y);
             m_Camera->ProcessMouseScroll(Mayra::Input::Instance()->GetScrollOffset().y);
 
             if (Input::Instance()->IsMouseButtonDown(Mayra::MouseButton::Left)) {
-                m_Playmode = false;
-                glfwSetInputMode(Mayra::Window::Instance()->Get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                Input::Instance()->SetMousePosition(Window::Instance()->GetProps()->GetCenter());
+                std::cout << "Click!" << std::endl;
             }
+
+            if (Input::Instance()->IsAnyKey(KeyCode::W, KeyCode::Up))
+                m_Camera->ProcessKeyboard(FORWARD, deltaTime);
+            if (Input::Instance()->IsAnyKey(KeyCode::S, KeyCode::Down))
+                m_Camera->ProcessKeyboard(BACKWARD, deltaTime);
+            if (Input::Instance()->IsAnyKey(KeyCode::A, KeyCode::Left))
+                m_Camera->ProcessKeyboard(LEFT, deltaTime);
+            if (Input::Instance()->IsAnyKey(KeyCode::D, KeyCode::Right))
+                m_Camera->ProcessKeyboard(RIGHT, deltaTime);
+
+            if (Input::Instance()->IsKey(KeyCode::Space))
+                m_Camera->ProcessKeyboard(UP, deltaTime);
+            if (Input::Instance()->IsKey(KeyCode::X))
+                m_Camera->ProcessKeyboard(DOWN, deltaTime);
         }
         
     }

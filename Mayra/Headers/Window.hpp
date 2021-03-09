@@ -38,12 +38,14 @@ namespace Mayra
     public:
         ~Window();
         GLFWwindow* Get();
+        static GLFWwindow* GetWindow();
         WindowProps* GetProps() const;
 
         Window(Window&) = delete; // copy prohibited
         void operator=(const Window&) = delete; // assignment prohibited
         Window& operator=(Window&&) = delete; // move assignment
         static Window* Instance();
+
     private:
         Window(WindowProps* props);
         static Window* m_Instance;

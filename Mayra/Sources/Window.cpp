@@ -35,6 +35,11 @@ namespace Mayra
         glfwDestroyWindow(m_Window);
     }
 
+    GLFWwindow* Window::GetWindow()
+    {
+        return Instance()->Get();
+    }
+
     GLFWwindow* Window::Get()
     {
         return m_Window;

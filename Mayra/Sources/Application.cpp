@@ -28,13 +28,11 @@
 #include <Scenes.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void handle_mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void handle_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void handle_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 namespace Mayra
 {
-    Application::Application(Mayra::WindowProps* props)
+    Application::Application(WindowProps* props)
         : _camera(-1.6f, 1.6f, -0.9f, 0.9f), _props(props)
     {
         std::cout << "Application " << props->Title << " constructed" << std::endl;
@@ -45,27 +43,27 @@ namespace Mayra
         Terminate();
     }
 
-    void Application::HandleInput(Mayra::Window* window)
+    void Application::HandleInput(Window*)
     {
         for (unsigned int i = 32; i < GLFW_KEY_LAST; i++)
         {
-            if (glfwGetKey(window->Get(), i) == GLFW_PRESS)
-                Mayra::Input::Instance()->HandleKeyDown(i);
+            if (glfwGetKey(Window::GetWindow(), i) == GLFW_PRESS)
+                Input::Instance()->HandleKeyDown(i);
 
-            if (glfwGetKey(window->Get(), i) == GLFW_RELEASE)
-                Mayra::Input::Instance()->HandleKeyRelease(i);
+            if (glfwGetKey(Window::GetWindow(), i) == GLFW_RELEASE)
+                Input::Instance()->HandleKeyRelease(i);
 
-            if (glfwGetKey(window->Get(), i) == GLFW_REPEAT)
-                Mayra::Input::Instance()->HandleKeyRepeat(i);
+            if (glfwGetKey(Window::GetWindow(), i) == GLFW_REPEAT)
+                Input::Instance()->HandleKeyRepeat(i);
         }
 
         for (unsigned int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
         {
-            if (glfwGetMouseButton(window->Get(), i) == GLFW_PRESS)
-                Mayra::Input::Instance()->HandleMouseButtonDown(i);
+            if (glfwGetMouseButton(Window::GetWindow(), i) == GLFW_PRESS)
+                Input::Instance()->HandleMouseButtonDown(i);
 
-            if (glfwGetMouseButton(window->Get(), i) == GLFW_RELEASE)
-                Mayra::Input::Instance()->HandleMouseButtonUp(i);
+            if (glfwGetMouseButton(Window::GetWindow(), i) == GLFW_RELEASE)
+                Input::Instance()->HandleMouseButtonUp(i);
         }
     }
 
@@ -81,27 +79,26 @@ namespace Mayra
         #endif
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-        _window = Mayra::Window::Instance();
+        _window = Window::Instance();
         glfwSwapInterval(1);
 
         // Check for Valid Context
-        if (_window->Get() == nullptr) {
+        if (Window::GetWindow() == nullptr) {
             fprintf(stderr, "Failed to Create OpenGL Context");
             return EXIT_FAILURE;
         }
 
         // Create Context and Load OpenGL Functions
-        glfwMakeContextCurrent(_window->Get());
-        glfwSetFramebufferSizeCallback(_window->Get(), framebuffer_size_callback);
-        glfwSetCursorPosCallback(_window->Get(), handle_mouse_callback);
-        glfwSetScrollCallback(_window->Get(), handle_scroll_callback);
+        glfwMakeContextCurrent(Window::GetWindow());
+        glfwSetFramebufferSizeCallback(Window::GetWindow(), framebuffer_size_callback);
+        glfwSetScrollCallback(Window::GetWindow(), handle_scroll_callback);
 
         gladLoadGL();
 
         fprintf(stderr, "OpenGL %s\n", glGetString(GL_VERSION));
 
         _gui = new Mayra::Gui();
-        _gui->Initialize(_window->Get(), glsl_version);
+        _gui->Initialize(Window::GetWindow(), glsl_version);
 
         return EXIT_SUCCESS;
     }
@@ -126,9 +123,10 @@ namespace Mayra
         double deltaTime = 0, nowTime = 0;
         int frames = 0, updates = 0;
 
-        while (glfwWindowShouldClose(_window->Get()) == false)
+        while (glfwWindowShouldClose(Window::GetWindow()) == false)
         {
-            HandleInput(_window);
+            Input::Instance()->OnUpdate();
+            HandleInput(Window::Instance());
             // measure time
             nowTime = glfwGetTime();
             deltaTime += (nowTime - lastTime) / limitFPS;
@@ -201,21 +199,9 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height)
     GLCall(glViewport(0, 0, width, height));
 }
 
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
-void handle_mouse_callback(GLFWwindow*, double xpos, double ypos)
-{
-    Mayra::Input::Instance()->HandleMouse(xpos, ypos);
-}
-
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void handle_scroll_callback(GLFWwindow*, double xoffset, double yoffset)
 {
     Mayra::Input::Instance()->HandleScroll(xoffset, yoffset);
-}
-
-void handle_mouse_button_callback(GLFWwindow*, int button, int action, int mods)
-{
-//    Mayra::Input::Instance()->HandleMouseButtonInput(button, action, mods);
 }

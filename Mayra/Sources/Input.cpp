@@ -105,8 +105,11 @@ namespace Mayra
         }
     }
 
-    void Input::HandleMouse(double xpos, double ypos)
+    void Input::OnUpdate()
     {
+        double xpos, ypos;
+        glfwGetCursorPos(Window::GetWindow(), &xpos, &ypos);
+
         if (firstMouse)
         {
             lastX = xpos;
@@ -118,10 +121,10 @@ namespace Mayra
         offset.x = xpos - lastX;
         offset.y = lastY - ypos; // reversed since y-coordinates go from bottom to top
 
+        m_LastDeltaPosition = m_DeltaPosition;
         m_DeltaPosition = offset;
         lastX = xpos;
         lastY = ypos;
-        //    camera.ProcessMouseMovement(xoffset, yoffset);
     }
 
     void Input::SetMousePosition(glm::vec2 position)
