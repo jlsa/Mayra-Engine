@@ -59,7 +59,11 @@ file(GLOB VENDORS_SOURCES Glitter/Vendor/glad/src/glad.c
 
 file(GLOB PROJECT_SCENES  Mayra/Scenes/*.hpp
                           Mayra/Scenes/*.h
-                          Mayra/Scenes/*.cpp)
+                          Mayra/Scenes/*.cpp
+                          Mayra/Scenes/*/*.hpp
+                          Mayra/Scenes/*/*.h
+                          Mayra/Scenes/*/*.cpp)
+
 file(GLOB PROJECT_HEADERS Mayra/Headers/*.hpp
                           Mayra/Headers/*.h)
 file(GLOB PROJECT_SOURCES Mayra/Sources/*.cpp)
