@@ -22,7 +22,6 @@ namespace Mayra
         int Initialize();
         void Run();
         void Terminate();
-        void HandleInput(Mayra::Window* window);
 
         OrthographicCamera _camera;
     private:

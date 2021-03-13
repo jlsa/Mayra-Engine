@@ -107,6 +107,27 @@ namespace Mayra
 
     void Input::OnUpdate()
     {
+        for (unsigned int i = 32; i < GLFW_KEY_LAST; i++)
+        {
+            if (glfwGetKey(Window::GetWindow(), i) == GLFW_PRESS)
+                HandleKeyDown(i);
+
+            if (glfwGetKey(Window::GetWindow(), i) == GLFW_RELEASE)
+                HandleKeyRelease(i);
+
+            if (glfwGetKey(Window::GetWindow(), i) == GLFW_REPEAT)
+                HandleKeyRepeat(i);
+        }
+
+        for (unsigned int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
+        {
+            if (glfwGetMouseButton(Window::GetWindow(), i) == GLFW_PRESS)
+                HandleMouseButtonDown(i);
+
+            if (glfwGetMouseButton(Window::GetWindow(), i) == GLFW_RELEASE)
+                HandleMouseButtonUp(i);
+        }
+
         double xpos, ypos;
         glfwGetCursorPos(Window::GetWindow(), &xpos, &ypos);
 

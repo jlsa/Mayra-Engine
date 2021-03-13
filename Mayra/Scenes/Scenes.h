@@ -15,5 +15,6 @@
 #include <FreeTypeFontScene.h>
 #include <BetterFontRenderingScene.h>
 #include <SkyboxScene.h>
+#include <ModelLoadingScene.h>
 
 #endif /* Scenes_h */

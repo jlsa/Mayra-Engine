@@ -43,30 +43,6 @@ namespace Mayra
         Terminate();
     }
 
-    void Application::HandleInput(Window*)
-    {
-        for (unsigned int i = 32; i < GLFW_KEY_LAST; i++)
-        {
-            if (glfwGetKey(Window::GetWindow(), i) == GLFW_PRESS)
-                Input::Instance()->HandleKeyDown(i);
-
-            if (glfwGetKey(Window::GetWindow(), i) == GLFW_RELEASE)
-                Input::Instance()->HandleKeyRelease(i);
-
-            if (glfwGetKey(Window::GetWindow(), i) == GLFW_REPEAT)
-                Input::Instance()->HandleKeyRepeat(i);
-        }
-
-        for (unsigned int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
-        {
-            if (glfwGetMouseButton(Window::GetWindow(), i) == GLFW_PRESS)
-                Input::Instance()->HandleMouseButtonDown(i);
-
-            if (glfwGetMouseButton(Window::GetWindow(), i) == GLFW_RELEASE)
-                Input::Instance()->HandleMouseButtonUp(i);
-        }
-    }
-
     int Application::Initialize()
     {
         glfwInit();
@@ -116,6 +92,7 @@ namespace Mayra
         sceneMenu->RegisterScene<FreeTypeFontScene>("FreeType2 Scene");
         sceneMenu->RegisterScene<BetterFontRenderingScene>("Better Font Rendering Scene");
         sceneMenu->RegisterScene<SkyboxScene>("Skybox Scene");
+        sceneMenu->RegisterScene<ModelLoadingScene>("Model Loading Scene");
 
         static double limitFPS = 1.0 / 60.0;
 
@@ -126,7 +103,6 @@ namespace Mayra
         while (glfwWindowShouldClose(Window::GetWindow()) == false)
         {
             Input::Instance()->OnUpdate();
-            HandleInput(Window::Instance());
             // measure time
             nowTime = glfwGetTime();
             deltaTime += (nowTime - lastTime) / limitFPS;

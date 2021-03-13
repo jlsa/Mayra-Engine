@@ -1,4 +1,4 @@
-#include "SkyboxScene.h"
+#include "ModelLoadingScene.h"
 #include "Input.hpp"
 #include "Key.hpp"
 #include "MouseButton.h"
@@ -7,7 +7,7 @@
 
 namespace Mayra
 {
-    SkyboxScene::SkyboxScene()
+    ModelLoadingScene::ModelLoadingScene()
       : m_ClearColor(glm::vec4(62.0f / 255.0f, 61.0f / 255.0f, 64.0f / 255.0f, 1.0f))
     {
         m_ScreenSize = glm::vec2(Mayra::Window::Instance()->GetProps()->Width, Mayra::Window::Instance()->GetProps()->Height);
@@ -153,7 +153,7 @@ namespace Mayra
         m_SkyboxShader->SetInt("skybox", 0);
     }
 
-    void SkyboxScene::OnUpdate(float deltaTime)
+    void ModelLoadingScene::OnUpdate(float deltaTime)
     {
         if (m_Playmode)
         {
@@ -187,12 +187,12 @@ namespace Mayra
         }
     }
 
-    SkyboxScene::~SkyboxScene()
+    ModelLoadingScene::~ModelLoadingScene()
     {
         // delete all from vector
     }
 
-    void SkyboxScene::OnRender()
+    void ModelLoadingScene::OnRender()
     {
         GLCall(glClearColor(m_ClearColor.r,
                             m_ClearColor.g,
@@ -231,7 +231,7 @@ namespace Mayra
         glDepthFunc(GL_LESS); // set depth function back to default
     }
 
-    void SkyboxScene::OnImGuiRender()
+    void ModelLoadingScene::OnImGuiRender()
     {
         ImGui::Begin("Skybox");
         if (ImGui::Button("Play")) {
