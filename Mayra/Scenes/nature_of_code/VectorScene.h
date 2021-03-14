@@ -12,6 +12,7 @@
 #include "Texture2D.hpp"
 #include "TextureCubemap.h"
 #include "Camera.hpp"
+#include <Skybox.h>
 
 namespace Mayra
 {
@@ -32,8 +33,6 @@ namespace Mayra
 
         unsigned int cubeVAO;
         unsigned int cubeVBO;
-        unsigned int skyboxVAO;
-        unsigned int skyboxVBO;
     private:
         glm::vec4 m_ClearColor;
         glm::mat4 m_Projection;
@@ -46,6 +45,8 @@ namespace Mayra
         Mayra::Texture2D* m_CubeTexture;
         Mayra::TextureCubemap* m_SkyboxTexture;
 
+        Mayra::Skybox* m_Skybox;
+        
         glm::vec2 m_ScreenSize;
 
         bool m_Playmode;

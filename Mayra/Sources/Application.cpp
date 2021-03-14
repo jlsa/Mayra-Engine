@@ -135,6 +135,7 @@ namespace Mayra
                 {
                     delete currentScene;
                     currentScene = sceneMenu;
+                    sceneMenu->SetCurrentSceneName("Menu");
                 }
                 ImGui::End();
                 currentScene->OnImGuiRender();
@@ -145,6 +146,12 @@ namespace Mayra
             if (glfwGetTime() - timer > 1.0)
             {
                 timer++;
+                std::stringstream ss;
+                ss << "Mayra::Engine";
+                ss << " - " << sceneMenu->GetCurrentSceneName() << " -";
+                ss << " FPS: " << frames;
+                ss << " Updates: " << updates;
+                Window::Instance()->SetTitle(ss.str());
 //                std::cout << "FPS: " << frames << " Updates: " << updates << std::endl;
                 updates = 0, frames = 0;
             }

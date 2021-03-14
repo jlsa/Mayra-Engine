@@ -17,9 +17,9 @@ namespace Mayra
 
         m_Playmode = false;
         m_Projection = glm::perspectiveFov(glm::radians(m_Camera->Zoom), m_ScreenSize.x, m_ScreenSize.y, 0.1f, 10000.0f);
+        m_Camera->SetProjectionMatrix(m_Projection);
 
         m_CubeShader = new Mayra::Shader(SHADERS "cubemaps.vert", SHADERS "cubemaps.frag");
-        m_SkyboxShader = new Mayra::Shader(SHADERS "skybox.vert", SHADERS "skybox.frag");
 
         m_VertexArray = new VertexArray();
         m_VertexBuffer = new VertexBuffer();
@@ -31,50 +31,16 @@ namespace Mayra
         layout.Push<float>(2);
         m_VertexArray->AddBuffer(m_VertexBuffer, layout);
 
-        // cube VAO
-//        glGenVertexArrays(1, &cubeVAO);
-//        glGenBuffers(1, &cubeVBO);
-//        glBindVertexArray(cubeVAO);
-//        glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-//        glBufferData(GL_ARRAY_BUFFER, sizeof(Shapes::cube2.vertices), &Shapes::cube2.vertices, GL_STATIC_DRAW);
-//        glEnableVertexAttribArray(0);
-//        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-//        glEnableVertexAttribArray(1);
-//        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-        // skybox VAO
-        glGenVertexArrays(1, &skyboxVAO);
-        glGenBuffers(1, &skyboxVBO);
-        glBindVertexArray(skyboxVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Shapes::skybox.vertices), &Shapes::skybox.vertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
         // load textures
         // -------------
         m_CubeTexture = Mayra::Texture2D::LoadFromFile(TEXTURES "wall.jpg", false);
-
-        std::vector<std::string> faces
-        {
-            TEXTURES "skybox/right.jpg",
-            TEXTURES "skybox/left.jpg",
-            TEXTURES "skybox/top.jpg",
-            TEXTURES "skybox/bottom.jpg",
-            TEXTURES "skybox/front.jpg",
-            TEXTURES "skybox/back.jpg"
-        };
-
-        m_SkyboxTexture = Mayra::TextureCubemap::LoadFromFiles(faces);
-//        cubemapTexture = m_SkyboxTexture->GetRendererID();
 
         // shader configuration
         // --------------------
         m_CubeShader->Bind();
         m_CubeShader->SetInt("texture1", 0);
 
-        m_SkyboxShader->Bind();
-        m_SkyboxShader->SetInt("skybox", 0);
+        m_Skybox = new Skybox();
     }
 
     void VectorScene::OnUpdate(float deltaTime)
@@ -111,13 +77,16 @@ namespace Mayra
         {
             if (Input::Instance()->IsKeyDown(KeyCode::P))
                 OnPlay();
-                
         }
     }
 
     VectorScene::~VectorScene()
     {
         // delete all from vector
+        delete m_VertexArray;
+        delete m_VertexBuffer;
+
+        delete m_Skybox;
     }
 
     void VectorScene::OnRender()
@@ -133,6 +102,7 @@ namespace Mayra
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = m_Camera->GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(m_Camera->Zoom), m_ScreenSize.x / m_ScreenSize.y, 0.1f, 100.0f);
+        m_Camera->SetProjectionMatrix(projection);
         m_CubeShader->SetMat4("model", model);
         m_CubeShader->SetMat4("view", view);
         m_CubeShader->SetMat4("projection", projection);
@@ -140,19 +110,7 @@ namespace Mayra
         m_CubeTexture->Bind();
         Renderer::Instance()->Draw(m_VertexArray, m_CubeShader, 36);
 
-        // draw skybox as last
-        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-        m_SkyboxShader->Bind();
-        view = glm::mat4(glm::mat3(m_Camera->GetViewMatrix())); // remove translation from the view matrix
-        m_SkyboxShader->SetMat4("view", view);
-        m_SkyboxShader->SetMat4("projection", projection);
-        // skybox cube
-        glBindVertexArray(skyboxVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_SkyboxTexture->GetRendererID());
-        glDrawArrays(GL_TRIANGLES, 0, Shapes::skybox.verticesCount);
-        glBindVertexArray(0);
-        glDepthFunc(GL_LESS); // set depth function back to default
+        m_Skybox->Render(m_Camera);
     }
 
     void VectorScene::OnImGuiRender()

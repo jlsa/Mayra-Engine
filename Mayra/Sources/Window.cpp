@@ -22,12 +22,12 @@ namespace Mayra
 
     Window::Window(WindowProps* props)
     {
-        m_Window = glfwCreateWindow(props->Width,
-                                   props->Height,
-                                   props->Title.c_str(),
-                                   nullptr,
-                                   nullptr);
         m_Props = props;
+        m_Window = glfwCreateWindow(props->Width,
+                                    props->Height,
+                                    props->Title.c_str(),
+                                    nullptr,
+                                    nullptr);
     }
 
     Window::~Window()
@@ -43,6 +43,12 @@ namespace Mayra
     GLFWwindow* Window::Get()
     {
         return m_Window;
+    }
+
+    void Window::SetTitle(std::string title)
+    {
+        m_Props->Title = title;
+        glfwSetWindowTitle(GetWindow(), title.c_str());
     }
 
     WindowProps* Window::GetProps() const
