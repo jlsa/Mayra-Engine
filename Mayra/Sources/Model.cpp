@@ -120,6 +120,7 @@ namespace Mayra
     void Model::loadModel(std::string path)
     {
         std::cout << path << std::endl;
+        m_Path = path;
         Assimp::Importer importer;
         unsigned int flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
         const aiScene* scene = importer.ReadFile(path, flags);

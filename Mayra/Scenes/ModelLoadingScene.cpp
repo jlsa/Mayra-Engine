@@ -43,9 +43,8 @@ namespace Mayra
         m_Skybox = new Skybox();
 
         m_ModelShader = new Shader(SHADERS "ModelLoading.vert", SHADERS "ModelLoading.frag");
-        stbi_set_flip_vertically_on_load(true);
-//        m_Model = new Model(MODELS "axe/axe.obj");
-        m_Model = new Model(MODELS "backpack/backpack.obj");
+        stbi_set_flip_vertically_on_load(false);
+        m_Model = new Model(MODELS "axe/axe.obj");
     }
 
     void ModelLoadingScene::OnUpdate(float deltaTime)
@@ -113,29 +112,6 @@ namespace Mayra
         glm::mat4 projection = glm::perspectiveFov(glm::radians(m_Camera->Zoom), m_ScreenSize.x, m_ScreenSize.y, 0.1f, 10000.0f);
 
         m_Camera->SetProjectionMatrix(projection);
-//        for (int x = 0; x < 3; x++)
-//        {
-//            float xPos = 1.0f * (float)x + 0.1f * (float)x;
-//            for (int y = 0; y < 3; y++)
-//            {
-//                float yPos = 1.0f * (float)y + 0.1f * (float)y;
-//                for (int z = 0; z < 3; z++)
-//                {
-//                    float zPos = 1.0f * (float)z + 0.1f * (float)z;
-//                    {
-//                        model = glm::mat4(1.0f);
-//
-//                        model = glm::translate(model, glm::vec3(xPos, yPos, zPos));
-//                        m_CubeShader->SetMat4("model", model);
-//                        m_CubeShader->SetMat4("view", view);
-//                        m_CubeShader->SetMat4("projection", projection);
-//
-//                        m_CubeTexture->Bind();
-//                        Renderer::Instance()->Draw(m_VertexArray, m_CubeShader, 36);
-//                    }
-//                }
-//            }
-//        }
 
         {
             model = glm::mat4(1.0f);
@@ -154,22 +130,90 @@ namespace Mayra
     void ModelLoadingScene::OnImGuiRender()
     {
         ImGui::Begin("Model Loading Test");
-        if (ImGui::Button("Play")) {
+        if (ImGui::Button("Play"))
+        {
             OnPlay();
         }
 
-        if (ImGui::Button("Show Fill")) {
+        if (ImGui::Button("Show Fill"))
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
+
         ImGui::SameLine();
-        if (ImGui::Button("Show Line")) {
+
+        if (ImGui::Button("Show Line"))
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
+
         ImGui::SameLine();
-        if (ImGui::Button("Show Point")) {
+
+        if (ImGui::Button("Show Point"))
+        {
             glPointSize(10.0f);
             glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
         }
+
+        ImGui::End();
+
+        ImGui::Begin("Model Swapping");
+        if (ImGui::Button("Axe"))
+        {
+            std::string newPath = MODELS "axe/axe.obj";
+            if (m_Model->m_Path != newPath)
+            {
+                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
+                delete m_Model;
+                stbi_set_flip_vertically_on_load(false);
+                m_Model = new Model(newPath);
+            }
+        }
+
+        if (ImGui::Button("Backpack"))
+        {
+            std::string newPath = MODELS "backpack/backpack.obj";
+            if (m_Model->m_Path != newPath)
+            {
+                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
+                delete m_Model;
+                stbi_set_flip_vertically_on_load(true);
+                m_Model = new Model(newPath);
+            }
+        }
+
+        if (ImGui::Button("Wolf"))
+        {
+            std::string newPath = MODELS "Wolf/Wolf.obj";
+            if (m_Model->m_Path != newPath)
+            {
+                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
+                delete m_Model;
+                stbi_set_flip_vertically_on_load(false);
+                m_Model = new Model(newPath);
+            }
+        }
+
+        if (ImGui::Button("Mossycube"))
+        {
+            std::string newPath = MODELS "mossy_cube/mossy_cube.obj";
+            if (m_Model->m_Path != newPath)
+            {
+                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
+                delete m_Model;
+                stbi_set_flip_vertically_on_load(false);
+                m_Model = new Model(newPath);
+            }
+        }
+
+        if (ImGui::Button("Forest Pack"))
+        {
+            std::string newPath = MODELS "Forest_pack_v1/Forest_pack_v1.obj";
+            if (m_Model->m_Path != newPath)
+            {
+                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
+                delete m_Model;
+                stbi_set_flip_vertically_on_load(false);
+                m_Model = new Model(newPath);
+            }
+        }
+
         ImGui::End();
     }
 
