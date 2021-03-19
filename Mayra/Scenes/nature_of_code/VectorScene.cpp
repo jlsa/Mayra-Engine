@@ -85,8 +85,12 @@ namespace Mayra
         // delete all from vector
         delete m_VertexArray;
         delete m_VertexBuffer;
-
+        delete m_CubeShader;
+        delete m_CubeTexture;
         delete m_Skybox;
+
+        delete m_Camera;
+        delete m_OrthoCamera;
     }
 
     void VectorScene::OnRender()
@@ -101,15 +105,32 @@ namespace Mayra
         m_CubeShader->Bind();
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = m_Camera->GetViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(m_Camera->Zoom), m_ScreenSize.x / m_ScreenSize.y, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspectiveFov(glm::radians(m_Camera->Zoom), m_ScreenSize.x, m_ScreenSize.y, 0.1f, 10000.0f);
+
         m_Camera->SetProjectionMatrix(projection);
-        m_CubeShader->SetMat4("model", model);
-        m_CubeShader->SetMat4("view", view);
-        m_CubeShader->SetMat4("projection", projection);
+        for (int x = 0; x < 3; x++)
+        {
+            float xPos = 1.0f * (float)x + 0.1f * (float)x;
+            for (int y = 0; y < 3; y++)
+            {
+                float yPos = 1.0f * (float)y + 0.1f * (float)y;
+                for (int z = 0; z < 3; z++)
+                {
+                    float zPos = 1.0f * (float)z + 0.1f * (float)z;
+                    {
+                        model = glm::mat4(1.0f);
 
-        m_CubeTexture->Bind();
-        Renderer::Instance()->Draw(m_VertexArray, m_CubeShader, 36);
+                        model = glm::translate(model, glm::vec3(xPos, yPos, zPos));
+                        m_CubeShader->SetMat4("model", model);
+                        m_CubeShader->SetMat4("view", view);
+                        m_CubeShader->SetMat4("projection", projection);
 
+                        m_CubeTexture->Bind();
+                        Renderer::Instance()->Draw(m_VertexArray, m_CubeShader, 36);
+                    }
+                }
+            }
+        }
         m_Skybox->Render(m_Camera);
     }
 

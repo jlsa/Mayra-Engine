@@ -28,9 +28,6 @@ namespace Mayra
         VertexArray* m_VertexArray;
         VertexBuffer* m_VertexBuffer;
 
-        VertexArray* m_SkyboxVA;
-        VertexBuffer* m_SkyboxVB;
-
         unsigned int cubeVAO;
         unsigned int cubeVBO;
     private:
@@ -39,11 +36,8 @@ namespace Mayra
         OrthographicCamera *m_OrthoCamera;
         Camera* m_Camera;
 
-        Mayra::Shader* m_SkyboxShader;
-
         Mayra::Shader* m_CubeShader;
         Mayra::Texture2D* m_CubeTexture;
-        Mayra::TextureCubemap* m_SkyboxTexture;
 
         Mayra::Skybox* m_Skybox;
         

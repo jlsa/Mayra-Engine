@@ -24,6 +24,7 @@ namespace Mayra
         SceneMenu(Scene*& currentTestPointer);
 
         void OnImGuiRender() override;
+        void OnRender() override;
 
         template<typename T>
         void RegisterScene(const std::string& name)

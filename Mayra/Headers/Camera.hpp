@@ -124,7 +124,7 @@ public:
         m_ProjectionMatrix = projection;
     }
 
-    glm::mat4 GetProjectionMatrix() const
+    const glm::mat4& GetProjectionMatrix() const
     {
         return m_ProjectionMatrix;
     }
