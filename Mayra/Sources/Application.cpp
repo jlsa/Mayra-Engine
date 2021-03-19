@@ -91,7 +91,6 @@ namespace Mayra
         sceneMenu->RegisterScene<EmptyScene>("Empty Scene");
         sceneMenu->RegisterScene<FreeTypeFontScene>("FreeType2 Scene");
         sceneMenu->RegisterScene<BetterFontRenderingScene>("Better Font Rendering Scene");
-        sceneMenu->RegisterScene<SkyboxScene>("Skybox Scene");
         sceneMenu->RegisterScene<ModelLoadingScene>("Model Loading Scene");
         sceneMenu->RegisterScene<VectorScene>("Vectors - Nature of Code");
 
