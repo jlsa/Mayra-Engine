@@ -14,6 +14,8 @@
 #include "Camera.hpp"
 #include <Skybox.h>
 
+#include <Model.hpp>
+
 namespace Mayra
 {
     class ModelLoadingScene : public Scene
@@ -40,6 +42,9 @@ namespace Mayra
         Mayra::Texture2D* m_CubeTexture;
 
         Mayra::Skybox* m_Skybox;
+
+        Mayra::Shader* m_ModelShader;
+        Mayra::Model* m_Model;
 
         glm::vec2 m_ScreenSize;
 

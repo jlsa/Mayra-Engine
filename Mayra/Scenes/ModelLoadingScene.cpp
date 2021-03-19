@@ -41,6 +41,11 @@ namespace Mayra
         m_CubeShader->SetInt("texture1", 0);
 
         m_Skybox = new Skybox();
+
+        m_ModelShader = new Shader(SHADERS "ModelLoading.vert", SHADERS "ModelLoading.frag");
+        stbi_set_flip_vertically_on_load(true);
+//        m_Model = new Model(MODELS "axe/axe.obj");
+        m_Model = new Model(MODELS "backpack/backpack.obj");
     }
 
     void ModelLoadingScene::OnUpdate(float deltaTime)
@@ -108,35 +113,47 @@ namespace Mayra
         glm::mat4 projection = glm::perspectiveFov(glm::radians(m_Camera->Zoom), m_ScreenSize.x, m_ScreenSize.y, 0.1f, 10000.0f);
 
         m_Camera->SetProjectionMatrix(projection);
-        for (int x = 0; x < 3; x++)
+//        for (int x = 0; x < 3; x++)
+//        {
+//            float xPos = 1.0f * (float)x + 0.1f * (float)x;
+//            for (int y = 0; y < 3; y++)
+//            {
+//                float yPos = 1.0f * (float)y + 0.1f * (float)y;
+//                for (int z = 0; z < 3; z++)
+//                {
+//                    float zPos = 1.0f * (float)z + 0.1f * (float)z;
+//                    {
+//                        model = glm::mat4(1.0f);
+//
+//                        model = glm::translate(model, glm::vec3(xPos, yPos, zPos));
+//                        m_CubeShader->SetMat4("model", model);
+//                        m_CubeShader->SetMat4("view", view);
+//                        m_CubeShader->SetMat4("projection", projection);
+//
+//                        m_CubeTexture->Bind();
+//                        Renderer::Instance()->Draw(m_VertexArray, m_CubeShader, 36);
+//                    }
+//                }
+//            }
+//        }
+
         {
-            float xPos = 1.0f * (float)x + 0.1f * (float)x;
-            for (int y = 0; y < 3; y++)
-            {
-                float yPos = 1.0f * (float)y + 0.1f * (float)y;
-                for (int z = 0; z < 3; z++)
-                {
-                    float zPos = 1.0f * (float)z + 0.1f * (float)z;
-                    {
-                        model = glm::mat4(1.0f);
-
-                        model = glm::translate(model, glm::vec3(xPos, yPos, zPos));
-                        m_CubeShader->SetMat4("model", model);
-                        m_CubeShader->SetMat4("view", view);
-                        m_CubeShader->SetMat4("projection", projection);
-
-                        m_CubeTexture->Bind();
-                        Renderer::Instance()->Draw(m_VertexArray, m_CubeShader, 36);
-                    }
-                }
-            }
+            model = glm::mat4(1.0f);
+            m_ModelShader->Bind();
+            m_ModelShader->SetMat4("projection", projection);
+            m_ModelShader->SetMat4("view", view);
+            m_ModelShader->SetMat4("model", model);
+            m_Model->Render(m_ModelShader);
+            m_Model->RenderBBox(m_ModelShader);
         }
+
+        // skybox as last
         m_Skybox->Render(m_Camera);
     }
 
     void ModelLoadingScene::OnImGuiRender()
     {
-        ImGui::Begin("Skybox");
+        ImGui::Begin("Model Loading Test");
         if (ImGui::Button("Play")) {
             OnPlay();
         }
