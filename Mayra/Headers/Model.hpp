@@ -35,7 +35,7 @@ namespace Mayra
         void RenderBBox(Mayra::Shader* shader);
 
         std::string m_Path;
-        
+
     private:
         std::vector<Mayra::Mesh> meshes;
         std::string directory;
