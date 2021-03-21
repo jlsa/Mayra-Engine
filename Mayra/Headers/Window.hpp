@@ -46,6 +46,8 @@ namespace Mayra
         Window& operator=(Window&&) = delete; // move assignment
         static Window* Instance();
 
+        void SetTitle(std::string title);
+
     private:
         Window(WindowProps* props);
         static Window* m_Instance;

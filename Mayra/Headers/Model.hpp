@@ -12,34 +12,40 @@
 #include <Shader.hpp>
 #include "Mesh.hpp"
 
-struct Transform
+namespace Mayra
 {
-    glm::vec3 Position;
-    glm::vec3 Scale;
-};
-
-class Model
-{
-public:
-    glm::mat4 object2world;
-    
-    Model(std::string path)
-        : object2world(glm::mat4(1.0f))
+    struct Transform
     {
-        loadModel(path.c_str());
-    }
-    void Render(Mayra::Shader &shader);
-    void RenderBBox(Mayra::Shader &shader);
+        glm::vec3 Position;
+        glm::vec3 Scale;
+    };
 
-private:
-    std::vector<Mesh> meshes;
-    std::string directory;
-    std::vector<Texture> textures_loaded;
+    class Model
+    {
+    public:
+        glm::mat4 object2world;
 
-    void loadModel(std::string path);
-    void processNode(aiNode *node, const aiScene *scene);
-    Mesh processMesh(aiMesh *mesh, const aiScene *scene);
-    std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
-};
+        Model(std::string path)
+            : object2world(glm::mat4(1.0f))
+        {
+            loadModel(path.c_str());
+        }
+
+        void Render(Mayra::Shader* shader);
+        void RenderBBox(Mayra::Shader* shader);
+
+        std::string m_Path;
+
+    private:
+        std::vector<Mayra::Mesh> meshes;
+        std::string directory;
+        std::vector<Mayra::Texture> textures_loaded;
+
+        void loadModel(std::string path);
+        void processNode(aiNode *node, const aiScene *scene);
+        Mesh processMesh(aiMesh *mesh, const aiScene *scene);
+        std::vector<Mayra::Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
+    };
+}
 
 #endif /* Model_h */

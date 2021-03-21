@@ -1,4 +1,4 @@
-#include "ModelLoadingScene.h"
+#include "VectorScene.h"
 #include "Input.hpp"
 #include "Key.hpp"
 #include "MouseButton.h"
@@ -8,8 +8,8 @@
 
 namespace Mayra
 {
-    ModelLoadingScene::ModelLoadingScene()
-    : m_ClearColor(glm::vec4(62.0f / 255.0f, 61.0f / 255.0f, 64.0f / 255.0f, 1.0f))
+    VectorScene::VectorScene()
+      : m_ClearColor(glm::vec4(62.0f / 255.0f, 61.0f / 255.0f, 64.0f / 255.0f, 1.0f))
     {
         m_ScreenSize = glm::vec2(Mayra::Window::Instance()->GetProps()->Width, Mayra::Window::Instance()->GetProps()->Height);
         m_OrthoCamera = new OrthographicCamera(-1.6f, 1.6f, -0.9f, 0.9f);
@@ -41,13 +41,9 @@ namespace Mayra
         m_CubeShader->SetInt("texture1", 0);
 
         m_Skybox = new Skybox();
-
-        m_ModelShader = new Shader(SHADERS "ModelLoading.vert", SHADERS "ModelLoading.frag");
-        stbi_set_flip_vertically_on_load(false);
-        m_Model = new Model(MODELS "axe/axe.obj");
     }
 
-    void ModelLoadingScene::OnUpdate(float deltaTime)
+    void VectorScene::OnUpdate(float deltaTime)
     {
         if (m_Playmode)
         {
@@ -84,7 +80,7 @@ namespace Mayra
         }
     }
 
-    ModelLoadingScene::~ModelLoadingScene()
+    VectorScene::~VectorScene()
     {
         // delete all from vector
         delete m_VertexArray;
@@ -97,7 +93,7 @@ namespace Mayra
         delete m_OrthoCamera;
     }
 
-    void ModelLoadingScene::OnRender()
+    void VectorScene::OnRender()
     {
         GLCall(glClearColor(m_ClearColor.r,
                             m_ClearColor.g,
@@ -112,126 +108,69 @@ namespace Mayra
         glm::mat4 projection = glm::perspectiveFov(glm::radians(m_Camera->Zoom), m_ScreenSize.x, m_ScreenSize.y, 0.1f, 10000.0f);
 
         m_Camera->SetProjectionMatrix(projection);
-
+        for (int x = 0; x < 3; x++)
         {
-            model = glm::mat4(1.0f);
-            m_ModelShader->Bind();
-            m_ModelShader->SetMat4("projection", projection);
-            m_ModelShader->SetMat4("view", view);
-            m_ModelShader->SetMat4("model", model);
-            m_Model->Render(m_ModelShader);
-            m_Model->RenderBBox(m_ModelShader);
-        }
+            float xPos = 1.0f * (float)x + 0.1f * (float)x;
+            for (int y = 0; y < 3; y++)
+            {
+                float yPos = 1.0f * (float)y + 0.1f * (float)y;
+                for (int z = 0; z < 3; z++)
+                {
+                    float zPos = 1.0f * (float)z + 0.1f * (float)z;
+                    {
+                        model = glm::mat4(1.0f);
 
-        // skybox as last
+                        model = glm::translate(model, glm::vec3(xPos, yPos, zPos));
+                        m_CubeShader->SetMat4("model", model);
+                        m_CubeShader->SetMat4("view", view);
+                        m_CubeShader->SetMat4("projection", projection);
+
+                        m_CubeTexture->Bind();
+                        Renderer::Instance()->Draw(m_VertexArray, m_CubeShader, 36);
+                    }
+                }
+            }
+        }
         m_Skybox->Render(m_Camera);
     }
 
-    void ModelLoadingScene::OnImGuiRender()
+    void VectorScene::OnImGuiRender()
     {
-        ImGui::Begin("Model Loading Test");
-        if (ImGui::Button("Play"))
-        {
+        ImGui::Begin("Skybox");
+        if (ImGui::Button("Play")) {
             OnPlay();
         }
 
-        if (ImGui::Button("Show Fill"))
+        if (ImGui::Button("Show Fill")) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+        }
         ImGui::SameLine();
-
-        if (ImGui::Button("Show Line"))
+        if (ImGui::Button("Show Line")) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+        }
         ImGui::SameLine();
-
-        if (ImGui::Button("Show Point"))
-        {
+        if (ImGui::Button("Show Point")) {
             glPointSize(10.0f);
             glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
         }
-
-        ImGui::End();
-
-        ImGui::Begin("Model Swapping");
-        if (ImGui::Button("Axe"))
-        {
-            std::string newPath = MODELS "axe/axe.obj";
-            if (m_Model->m_Path != newPath)
-            {
-                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
-                delete m_Model;
-                stbi_set_flip_vertically_on_load(false);
-                m_Model = new Model(newPath);
-            }
-        }
-
-        if (ImGui::Button("Backpack"))
-        {
-            std::string newPath = MODELS "backpack/backpack.obj";
-            if (m_Model->m_Path != newPath)
-            {
-                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
-                delete m_Model;
-                stbi_set_flip_vertically_on_load(true);
-                m_Model = new Model(newPath);
-            }
-        }
-
-        if (ImGui::Button("Wolf"))
-        {
-            std::string newPath = MODELS "Wolf/Wolf.obj";
-            if (m_Model->m_Path != newPath)
-            {
-                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
-                delete m_Model;
-                stbi_set_flip_vertically_on_load(false);
-                m_Model = new Model(newPath);
-            }
-        }
-
-        if (ImGui::Button("Mossycube"))
-        {
-            std::string newPath = MODELS "mossy_cube/mossy_cube.obj";
-            if (m_Model->m_Path != newPath)
-            {
-                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
-                delete m_Model;
-                stbi_set_flip_vertically_on_load(false);
-                m_Model = new Model(newPath);
-            }
-        }
-
-        if (ImGui::Button("Forest Pack"))
-        {
-            std::string newPath = MODELS "Forest_pack_v1/Forest_pack_v1.obj";
-            if (m_Model->m_Path != newPath)
-            {
-                std::cout << "Switching model from " << m_Model->m_Path << " to " << newPath << std::endl;
-                delete m_Model;
-                stbi_set_flip_vertically_on_load(false);
-                m_Model = new Model(newPath);
-            }
-        }
-
         ImGui::End();
     }
 
-    void ModelLoadingScene::OnPlay()
+    void VectorScene::OnPlay()
     {
         m_Playmode = true;
         glfwSetInputMode(Mayra::Window::Instance()->Get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         Input::Instance()->SetMousePosition(Window::Instance()->GetProps()->GetCenter());
     }
 
-    void ModelLoadingScene::OnStop()
+    void VectorScene::OnStop()
     {
         m_Playmode = false;
         glfwSetInputMode(Window::Instance()->Get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         Input::Instance()->SetMousePosition(Window::Instance()->GetProps()->GetCenter());
     }
 
-    void ModelLoadingScene::OnPause()
+    void VectorScene::OnPause()
     {
 
     }

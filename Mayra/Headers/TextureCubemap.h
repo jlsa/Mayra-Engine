@@ -28,14 +28,15 @@ namespace Mayra
         unsigned int FilterMax;
 
 //        void Generate(int width, int height, int bpp, unsigned char* data, int index = 0);
-//        void Bind(unsigned int slot = 0) const;
-//        void Unbind() const;
+        void Bind(unsigned int slot = 0) const;
+        void Unbind() const;
 
 //        static Mayra::TextureCubemap* LoadFromFiles(std::vector<std::string> faceFilepaths, bool flip = true);
 
-//        unsigned int GetRendererID() const { return m_RendererID; }
+        unsigned int GetRendererID() const { return m_RendererID; }
 
         static unsigned int LoadCubemap(std::vector<std::string> faces);
+        static Mayra::TextureCubemap* LoadFromFiles(std::vector<std::string> faces);
     private:
         unsigned int m_RendererID;
         std::vector<std::string> m_FaceFilepaths;

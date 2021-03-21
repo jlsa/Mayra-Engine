@@ -119,6 +119,16 @@ public:
             Zoom = 45.0f;
     }
 
+    void SetProjectionMatrix(glm::mat4 projection)
+    {
+        m_ProjectionMatrix = projection;
+    }
+
+    const glm::mat4& GetProjectionMatrix() const
+    {
+        return m_ProjectionMatrix;
+    }
+
 private:
     void updateCameraVectors()
     {
@@ -131,6 +141,8 @@ private:
         Right = glm::normalize(glm::cross(Front, WorldUp));
         Up = glm::normalize(glm::cross(Right, Front));
     }
+
+    glm::mat4 m_ProjectionMatrix;
 };
 
 #endif /* Camera_h */

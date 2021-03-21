@@ -91,8 +91,8 @@ namespace Mayra
         sceneMenu->RegisterScene<EmptyScene>("Empty Scene");
         sceneMenu->RegisterScene<FreeTypeFontScene>("FreeType2 Scene");
         sceneMenu->RegisterScene<BetterFontRenderingScene>("Better Font Rendering Scene");
-        sceneMenu->RegisterScene<SkyboxScene>("Skybox Scene");
         sceneMenu->RegisterScene<ModelLoadingScene>("Model Loading Scene");
+        sceneMenu->RegisterScene<VectorScene>("Vectors - Nature of Code");
 
         static double limitFPS = 1.0 / 60.0;
 
@@ -134,6 +134,7 @@ namespace Mayra
                 {
                     delete currentScene;
                     currentScene = sceneMenu;
+                    sceneMenu->SetCurrentSceneName("Menu");
                 }
                 ImGui::End();
                 currentScene->OnImGuiRender();
@@ -144,6 +145,12 @@ namespace Mayra
             if (glfwGetTime() - timer > 1.0)
             {
                 timer++;
+                std::stringstream ss;
+                ss << "Mayra::Engine";
+                ss << " - " << sceneMenu->GetCurrentSceneName() << " -";
+                ss << " FPS: " << frames;
+                ss << " Updates: " << updates;
+                Window::Instance()->SetTitle(ss.str());
 //                std::cout << "FPS: " << frames << " Updates: " << updates << std::endl;
                 updates = 0, frames = 0;
             }

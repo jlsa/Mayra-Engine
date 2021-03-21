@@ -14,7 +14,8 @@
 #include <EmptyScene.h>
 #include <FreeTypeFontScene.h>
 #include <BetterFontRenderingScene.h>
-#include <SkyboxScene.h>
 #include <ModelLoadingScene.h>
+
+#include <nature_of_code/VectorScene.h>
 
 #endif /* Scenes_h */

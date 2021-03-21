@@ -21,6 +21,8 @@ namespace Mayra
         void Draw(const Mayra::VertexArray& va, const Mayra::IndexBuffer& ib, const Mayra::Shader& shader) const;
         void Draw(Mayra::VertexArray* va, Mayra::IndexBuffer* ib, Mayra::Shader* shader) const;
 
+        void Draw(Mayra::VertexArray* va, Mayra::Shader* shader, unsigned int size) const;
+
     private:
         static Renderer* m_Instance;
         Renderer();
