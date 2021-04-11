@@ -14,6 +14,14 @@
 
 namespace Mayra
 {
+    struct BoneInfo
+    {
+        // id is index in finalBoneMatrices
+        int id;
+        // offset matrix transforms vertex from model space to bone space
+        glm::mat4 offset;
+    };
+
     struct Transform
     {
         glm::vec3 Position;
@@ -36,6 +44,9 @@ namespace Mayra
 
         std::string m_Path;
 
+        std::map<std::string, BoneInfo>& GetOffsetMatMap() { return m_OffsetMatMap; }
+        int& GetBoneCount() { return m_BoneCount; }
+
     private:
         std::vector<Mayra::Mesh> meshes;
         std::string directory;
@@ -45,6 +56,13 @@ namespace Mayra
         void processNode(aiNode *node, const aiScene *scene);
         Mesh processMesh(aiMesh *mesh, const aiScene *scene);
         std::vector<Mayra::Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
+
+        std::map<std::string, BoneInfo> m_OffsetMatMap;
+        int m_BoneCount = 0;
+
+        void SetVertexBoneDataToDefault(Vertex& vertex);
+        void SetVertexBoneData(Vertex& vertex, int boneID, float weight);
+        void ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene);
     };
 }
 

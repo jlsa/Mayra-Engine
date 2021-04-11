@@ -15,6 +15,7 @@
 #include <FreeTypeFontScene.h>
 #include <BetterFontRenderingScene.h>
 #include <ModelLoadingScene.h>
+#include <AnimationScene.h>
 
 #include <nature_of_code/VectorScene.h>
 

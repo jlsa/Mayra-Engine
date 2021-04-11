@@ -1,12 +1,11 @@
 #include "Model.hpp"
 
+#include <Mayra.hpp>
 #include <iostream>
 #include "3Dshapes.hpp"
 
 namespace Mayra
 {
-
-
     void Model::Render(Mayra::Shader* shader)
     {
         for (unsigned int i = 0; i < meshes.size(); i++)
@@ -158,6 +157,66 @@ namespace Mayra
         }
     }
 
+    void Model::SetVertexBoneDataToDefault(Vertex& vertex)
+    {
+
+        for (int i = 0; i < MAX_BONE_WEIGHTS; i++)
+        {
+            vertex.m_BoneIDs[i] = -1;
+            vertex.m_Weights[i] = 0.0f;
+        }
+    }
+
+    void Model::SetVertexBoneData(Vertex& vertex, int boneID, float weight)
+    {
+        for (int i = 0; i < MAX_BONE_WEIGHTS; ++i)
+        {
+            if (vertex.m_BoneIDs[i] < 0)
+            {
+                vertex.m_Weights[i] = weight;
+                vertex.m_BoneIDs[i] = boneID;
+                break;
+            }
+        }
+    }
+
+    void Model::ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene*)
+    {
+        auto& boneInfoMap = m_OffsetMatMap;
+        int& boneCount = m_BoneCount;
+
+        for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+        {
+            int boneID = -1;
+            std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
+            if (boneInfoMap.find(boneName) == boneInfoMap.end())
+            {
+                BoneInfo newBoneInfo;
+                newBoneInfo.id = boneCount;
+                newBoneInfo.offset = AssimpGLMHelpers::ConvertMatrixToGLMFormat(mesh->mBones[boneIndex]->mOffsetMatrix);
+                boneInfoMap[boneName] = newBoneInfo;
+                boneID = boneCount;
+                boneCount++;
+            }
+            else
+            {
+                boneID = boneInfoMap[boneName].id;
+            }
+            assert(boneID != -1);
+            auto weights = mesh->mBones[boneIndex]->mWeights;
+            int numWeights = mesh->mBones[boneIndex]->mNumWeights;
+
+            for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
+            {
+                int vertexId = weights[weightIndex].mVertexId;
+                float weight = weights[weightIndex].mWeight;
+                assert(vertexId <= (int)vertices.size());
+                SetVertexBoneData(vertices[vertexId], boneID, weight);
+            }
+        }
+
+    }
+
     Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
     {
         std::vector<Vertex> vertices;
@@ -167,12 +226,24 @@ namespace Mayra
         for (unsigned int i = 0; i < mesh->mNumVertices; i++)
         {
             Vertex vertex;
+
+            if (mesh->HasBones())
+            {
+                SetVertexBoneDataToDefault(vertex);
+            }
             glm::vec3 vec3;
-            // positions
-            vec3.x = mesh->mVertices[i].x;
-            vec3.y = mesh->mVertices[i].y;
-            vec3.z = mesh->mVertices[i].z;
-            vertex.Position = vec3;
+            if (mesh->HasPositions())
+            {
+                vertex.Position = AssimpGLMHelpers::GetGLMVec(mesh->mVertices[i]);
+                vertex.Normal = AssimpGLMHelpers::GetGLMVec(mesh->mNormals[i]);
+                // positions
+
+//                vec3.x = mesh->mVertices[i].x;
+//                vec3.y = mesh->mVertices[i].y;
+//                vec3.z = mesh->mVertices[i].z;
+//                vertex.Position = vec3;
+            }
+
 
             // normals
             if (mesh->HasNormals())

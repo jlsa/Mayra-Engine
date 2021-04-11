@@ -7,6 +7,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+
 //#include <btBulletDynamicsCommon.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -43,7 +44,7 @@
 #include <Gui.hpp>
 #include <Window.hpp>
 #include <Application.hpp>
-
+#include "AssimpGlmHelpers.h"
 
 // Constants
 #define ASSETS      "Assets/"
@@ -51,5 +52,8 @@
 #define SHADERS     "Shaders/"
 #define MODELS      ASSETS "3DObjects/"
 #define FONTS       ASSETS "Fonts/"
+
+#define MAX_BONE_WEIGHTS 100
+#define MAX_BONE_INFLUENCE 4
 
 #endif //~ Mayra Header
